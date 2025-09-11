@@ -1,0 +1,362 @@
+[
+  {
+    "id": 0,
+    "name": "The power of the Han wanes",
+    "set": "A",
+    "lore": "The empire, long divided, must unite; long united, must divide",
+    "eventCards": "",
+    "effects": "Begin the game with this event",
+    "leadingResource": "Military"
+  },
+  {
+    "id": 1,
+    "name": "Zhang Jue's Yellow Typhoon",
+    "set": "B",
+    "lore": "The heavenly commander uses his magic against the Han Empire",
+    "eventCards": "Zhang Jue and Huangfu Song enter play",
+    "effects": "Contest for Military. Winner takes this card for 1 bonus point",
+    "leadingResource": "Supplies"
+  },
+  {
+    "id": 2,
+    "name": "In the Peach Garden",
+    "set": "A",
+    "lore": "We dare not hope to be together always but hereby vow to die on the same day",
+    "eventCards": "Zhang Fei and Guan Yu enter play",
+    "effects": "Players can only use up to 3 cards for their purchases",
+    "leadingResource": "Piety"
+  },
+  {
+    "id": 3,
+    "name": "Imperial Inspection",
+    "set": "A",
+    "lore": "The imperial court decreed officials who have their posts given due to military service should not retain them",
+    "eventCards": "",
+    "effects": "Contest for Influence. Winner takes this card for 1 bonus point",
+    "leadingResource": "Piety"
+  },
+  {
+    "id": 4,
+    "name": "A coalition is formed",
+    "set": "B",
+    "lore": "Cao Cao brings together the lords and they appoint Yuan Shao as their commander",
+    "eventCards": "Yuan Shao enters play",
+    "effects": "Contest for Unique Allegiances. Winner takes this card for 1 bonus point",
+    "leadingResource": "Military"
+  },
+  {
+    "id": 5,
+    "name": "Empress Dong is poisoned",
+    "set": "A",
+    "lore": "He Jin schemes to have the empress poisoned",
+    "eventCards": "",
+    "effects": "Players play 1 less card this turn",
+    "leadingResource": "Supplies"
+  },
+  {
+    "id": 6,
+    "name": "Dong Zhuo stumbles across the Emperor",
+    "set": "A",
+    "lore": "Dong Zhuo finds the emperor and his brother and takes them under his wing",
+    "eventCards": "Dong Zhuo enters play",
+    "effects": "Remove from play the bottom 2 available heroes without replacement this turn",
+    "leadingResource": "Piety"
+  },
+  {
+    "id": 7,
+    "name": "Tempted by Red, Gold and Pearls",
+    "set": "B",
+    "lore": "Lu Bu kills Ding Yuan and joins Dong Zhuo",
+    "eventCards": "Lu Bu enters play",
+    "effects": "Contest for Rebels + Dong Zhuo heroes. Winner takes this card for 1 bonus point",
+    "leadingResource": "Influence"
+  },
+  {
+    "id": 8,
+    "name": "An unexpected gift: the jeweled knife",
+    "set": "B",
+    "lore": "Cao Cao tries to assassinate Dong Zhuo but is unsuccessful, losing his gift in the process",
+    "eventCards": "",
+    "effects": "Players must start the turn with 3 cards in Wei, either from this or previous turns",
+    "leadingResource": "Piety"
+  },
+  {
+    "id": 9,
+    "name": "Betray the world before it betrays you",
+    "set": "A",
+    "lore": "Cao Cao accidentally cuts down a farmer's family...and then the farmer himself",
+    "eventCards": "",
+    "effects": "Players must return a card from the field to their hand immediately. Discard down to 5 cards if necessary",
+    "leadingResource": "Piety"
+  },
+  {
+    "id": 10,
+    "name": "Dong Zhuo razes Luoyang to the ground",
+    "set": "B",
+    "lore": "Dong Zhuo moves the capital to Chang'an and leaves a trail of fire behind him",
+    "eventCards": "",
+    "effects": "All players must Retire 1 hero from their hand or field immediately",
+    "leadingResource": "Supplies"
+  },
+  {
+    "id": 11,
+    "name": "Execution of the Eunuchs",
+    "set": "B",
+    "lore": "After assassinating He Jin, Yuan Shao's army storms Luoyang and destroys the ten attendants",
+    "eventCards": "",
+    "effects": "Contest for Coalition + Han heroes. Winner takes this card for 1 bonus point",
+    "leadingResource": "Supplies"
+  },
+  {
+    "id": 12,
+    "name": "Betrayal in the North",
+    "set": "B",
+    "lore": "Yuan Shao takes Jizhuo from Han Fu and betrays Gongsun Zan, Zhao Yun saves him",
+    "eventCards": "Gongsun Zan and Zhao Yun enter play",
+    "effects": "Contest for Coalition heroes. Winner takes this card for 1 bonus point",
+    "leadingResource": "Influence"
+  },
+  {
+    "id": 13,
+    "name": "A broken flagpole",
+    "set": "B",
+    "lore": "Sun Jian pursues Liu Biao's messenger into a trap and is killed by arrows and boulders",
+    "eventCards": "Sun Ce and Zhou Yu enter play",
+    "effects": "Players cannot play cards into Wu this turn",
+    "leadingResource": "Piety"
+  },
+  {
+    "id": 14,
+    "name": "An ambush for the Jade Seal",
+    "set": "A",
+    "lore": "Written inside: By Heaven's mandate: long life and everlasting prosperity",
+    "eventCards": "Liu Biao and Sun Jian enter play",
+    "effects": "Players must play at least 1 card in Wu this turn",
+    "leadingResource": "Piety"
+  },
+  {
+    "id": 15,
+    "name": "The Flying Swallow",
+    "set": "A",
+    "lore": "Wang Yun sets up Diaochan to both Dong Zhuo and Lu Bu",
+    "eventCards": "Diaochan enters play",
+    "effects": "Draw 2 extra heroes available for Recruitment",
+    "leadingResource": "Military"
+  },
+  {
+    "id": 16,
+    "name": "The tyrant falls",
+    "set": "B",
+    "lore": "Dong Zhuo falls into the trap laid by Wang Yun, Li Su and Lu Bu",
+    "eventCards": "",
+    "effects": "At the end of this turn, each player receives a free hero to their hand, dealt from the deck that is not Dong Zhuo, and not gold",
+    "leadingResource": "Military"
+  },
+  {
+    "id": 17,
+    "name": "An offer that cannot be refused",
+    "set": "B",
+    "lore": "Cao Cao, the imperial chancellor, sends his officers to recruit Sima Yi as assistant clerk",
+    "eventCards": "Sima Yi enters play",
+    "effects": "Draw 1 extra Title available for purchase",
+    "leadingResource": "Military"
+  },
+  {
+    "id": 18,
+    "name": "A loyalist army from Xiliang",
+    "set": "A",
+    "lore": "Ma Teng and Han Sui march on the capital to punish the rebel generals",
+    "eventCards": "Ma Teng and Ma Chao enter play",
+    "effects": "Draw 1 extra Title available for purchase",
+    "leadingResource": "Influence"
+  },
+  {
+    "id": 19,
+    "name": "Revenge for our master",
+    "set": "B",
+    "lore": "Li Jue and Guo Si invade Chang'an and execute Wang Yun",
+    "eventCards": "",
+    "effects": "Contest for Han heroes. Winner takes this card for 1 bonus point",
+    "leadingResource": "Piety"
+  },
+  {
+    "id": 20,
+    "name": "Usurper for the throne",
+    "set": "A",
+    "lore": "The prince of Chenliu is installed, while Emperor Shao is deposed",
+    "eventCards": "",
+    "effects": "Titles are unavailable for purchase this turn",
+    "leadingResource": "Piety"
+  },
+  {
+    "id": 21,
+    "name": "Cao Cao avenges his father",
+    "set": "A",
+    "lore": "Cao Song is assassinated on Tao Qian's land, Cao Cao seeks revenge",
+    "eventCards": "Dian Wei and Yu Jin enter play",
+    "effects": "Players cannot play cards into Wei this turn",
+    "leadingResource": "Influence"
+  },
+  {
+    "id": 22,
+    "name": "A savior from outside the walls",
+    "set": "B",
+    "lore": "Taishi Ci arrives to Beihai just in time to help break the siege with Liu Bei",
+    "eventCards": "Taishi Ci and Kong Rong enter play",
+    "effects": "Contest for Advisors between all players. Winner takes this card for 1 bonus point",
+    "leadingResource": "Supplies"
+  },
+  {
+    "id": 23,
+    "name": "An unlikely hero answers the call",
+    "set": "B",
+    "lore": "Liu Bei signs up to face the Yellow Turbans",
+    "eventCards": "Liu Bei enters play",
+    "effects": "Players must play at least 1 card in Shu this turn",
+    "leadingResource": "Piety"
+  },
+  {
+    "id": 24,
+    "name": "A stranger speaks up with a plan",
+    "set": "B",
+    "lore": "Cao Cao speaks at Yuan Shao's meeting to discuss the Eunuchs",
+    "eventCards": "Cao Cao enters play",
+    "effects": "Players must play at least 1 card in Wei this turn",
+    "leadingResource": "Influence"
+  },
+  {
+    "id": 25,
+    "name": "Lu Bu and Cao Cao clash",
+    "set": "B",
+    "lore": "Lu Bu attacks Cao Cao while he is sieging Tao Qian, Cao Cao returns home to defend",
+    "eventCards": "",
+    "effects": "Players must play at least 1 General. If they cannot, they can only play 2 cards",
+    "leadingResource": "Military"
+  },
+  {
+    "id": 26,
+    "name": "Zhang Fei's drunken rage",
+    "set": "A",
+    "lore": "Zhang Fei irresponsibly drinks while Liu Bei is away, ending up ceding Xuzhuo to Lu Bu",
+    "eventCards": "",
+    "effects": "Players cannot play cards into Shu this turn",
+    "leadingResource": "Military"
+  },
+  {
+    "id": 27,
+    "name": "The emerald eyed sun rises",
+    "set": "A",
+    "lore": "Sun Ce is assassinated while hunting, young Sun Quan is named as the heir",
+    "eventCards": "Sun Quan enters play",
+    "effects": "Players must immediately remove one card from Wu. Discard down to 5 cards if necessary",
+    "leadingResource": "Piety"
+  },
+  {
+    "id": 28,
+    "name": "An immortal shot calms the storm",
+    "set": "A",
+    "lore": "Lu Bu makes a miracle bow shot, sending Ji Ling and Liu Bei peacefully back to their camps",
+    "eventCards": "",
+    "effects": "Players may play up to 4 cards this turn",
+    "leadingResource": "Influence"
+  },
+  {
+    "id": 29,
+    "name": "Yuan Shu sits upon the dragon throne",
+    "set": "A",
+    "lore": "Yuan Shu proclaims himself the emperor and fields seven armies",
+    "eventCards": "Yuan Shu enters play",
+    "effects": "Players can only play max 1 card in each kingdom this turn",
+    "leadingResource": "Supplies"
+  },
+  {
+    "id": 30,
+    "name": "A head for morale",
+    "set": "A",
+    "lore": "Cao Cao frames and executes his own officer for stealing grain to raise the morale of his army",
+    "eventCards": "",
+    "effects": "Players can only leave 1 card in each kingdom at the end of this turn",
+    "leadingResource": "Supplies"
+  },
+  {
+    "id": 31,
+    "name": "A horse for a life",
+    "set": "B",
+    "lore": "Cao Ang, Cao Cao's eldest son, gives his horse to his father to escape, losing his life in the process",
+    "eventCards": "",
+    "effects": "Players must immediately remove one card from Wei. Discard down to 5 cards if necessary",
+    "leadingResource": "Supplies"
+  },
+  {
+    "id": 32,
+    "name": "Three visits to the cottage",
+    "set": "B",
+    "lore": "Liu Bei visits Zhuge Liang three times before he joins him",
+    "eventCards": "Zhuge Liang enters play",
+    "effects": "Players must start the turn with 3 cards in Shu, either from this or previous turns",
+    "leadingResource": "Military"
+  },
+  {
+    "id": 33,
+    "name": "Battle of Mount Dingjun",
+    "set": "B",
+    "lore": "A deciding factor in the Hanzhong campaign, Huang Zhong leads Shu to victory",
+    "eventCards": "Huang Zhong and Xiahou Yuan enter play",
+    "effects": "Contest for Military. Winner takes this card for 1 bonus point",
+    "leadingResource": "Influence"
+  },
+  {
+    "id": 34,
+    "name": "Emperor Xian yields the throne",
+    "set": "B",
+    "lore": "The emperor is persuaded to yield the throne. Cao Pi declines three times before finally ascending",
+    "eventCards": "Cao Pi enters play",
+    "effects": "Players must play at least 1 card in Wei this turn",
+    "leadingResource": "Piety"
+  },
+  {
+    "id": 35,
+    "name": "Civil war amongst the rebel generals",
+    "set": "B",
+    "lore": "Guo Si and Li Jue turn on each other, only to lose the Emperor and eventually reconcile",
+    "eventCards": "",
+    "effects": "Contest for Piety. Winner takes this card for 1 bonus point",
+    "leadingResource": "Influence"
+  },
+  {
+    "id": 36,
+    "name": "Empress He faces off Empress Dong",
+    "set": "B",
+    "lore": "The two empresses vie for power and try to position their respective sons for Emperor",
+    "eventCards": "",
+    "effects": "Contest for Influence. Winner takes this card for 1 bonus point",
+    "leadingResource": "Piety"
+  },
+  {
+    "id": 37,
+    "name": "Cao Cao cleans out the resurgents",
+    "set": "B",
+    "lore": "Huang Shao and He Yi are defeated by Cao Cao and executed",
+    "eventCards": "",
+    "effects": "Turn order is reversed this turn",
+    "leadingResource": "Military"
+  },
+  {
+    "id": 38,
+    "name": "A tiger needs to be tightly bound",
+    "set": "B",
+    "lore": "Guo Jia concocts a plan to flood Xiapi, Liu Bei and Cao Cao team up against Lu Bu and defeat him",
+    "eventCards": "Guo Jia and Xiahou Dun enter play",
+    "effects": "Contest for Shu + Wei heroes. Winner takes this card for 1 bonus point",
+    "leadingResource": "Influence"
+  },
+  {
+    "id": 39,
+    "name": "A trap for the regent",
+    "set": "B",
+    "lore": "The Eunuchs lay a trap for He Jin and assassinate him",
+    "eventCards": "",
+    "effects": "Titles are unavailable for purchase this turn",
+    "leadingResource": "Supplies"
+  }
+]

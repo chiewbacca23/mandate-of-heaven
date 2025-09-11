@@ -1,0 +1,362 @@
+[
+  {
+    "id": 1,
+    "name": "Heavenly Commander",
+    "requirement": "Any Han hero",
+    "cost": { "military": 5, "influence": 0, "supplies": 4, "piety": 0 },
+    "setScoring": [0, 1, 2, 4, 5],
+    "setDescription": "Han heroes",
+    "efficiency": 0.480
+  },
+  {
+    "id": 2,
+    "name": "General of the Earth",
+    "requirement": "General with at least 3 military",
+    "cost": { "military": 6, "influence": 2, "supplies": 2, "piety": 0 },
+    "setScoring": [0, 1, 2, 3],
+    "setDescription": "Generals",
+    "efficiency": 0.350
+  },
+  {
+    "id": 3,
+    "name": "General of Chariots and Cavalry",
+    "requirement": "General from Wei, Wu or Shu",
+    "cost": { "military": 4, "influence": 0, "supplies": 4, "piety": 0 },
+    "setScoring": [0, 1, 2, 4, 5],
+    "setDescription": "Generals from Wei, Wu or Shu",
+    "efficiency": 0.438
+  },
+  {
+    "id": 4,
+    "name": "Commander of the Capital Districts",
+    "requirement": "Any administrator",
+    "cost": { "military": 0, "influence": 4, "supplies": 0, "piety": 4 },
+    "setScoring": [0, 1, 2, 4, 5],
+    "setDescription": "Administrators",
+    "efficiency": 0.438
+  },
+  {
+    "id": 5,
+    "name": "General of the Flying Cavalry",
+    "requirement": "General with at least 3 military",
+    "cost": { "military": 6, "influence": 2, "supplies": 0, "piety": 2 },
+    "setScoring": [0, 1, 2, 4],
+    "setDescription": "Han or Dong Zhuo heroes",
+    "efficiency": 0.356
+  },
+  {
+    "id": 6,
+    "name": "General of the Forward Army",
+    "requirement": "Any Dong Zhuo hero",
+    "cost": { "military": 4, "influence": 5, "supplies": 0, "piety": 0 },
+    "setScoring": [0, 1, 4, 5, 7],
+    "setDescription": "Dong Zhuo heroes",
+    "efficiency": 0.400
+  },
+  {
+    "id": 7,
+    "name": "Commandant of the Exemplary Cavalry",
+    "requirement": "Any tactician",
+    "cost": { "military": 3, "influence": 3, "supplies": 5, "piety": 0 },
+    "setScoring": [0, 1, 2, 4, 6],
+    "setDescription": "Tacticians",
+    "efficiency": 0.425
+  },
+  {
+    "id": 8,
+    "name": "General Known for Vigor-in-Arms",
+    "requirement": "Any Rebels hero",
+    "cost": { "military": 4, "influence": 3, "supplies": 3, "piety": 0 },
+    "setScoring": [0, 1, 3, 5, 6],
+    "setDescription": "Rebels heroes",
+    "efficiency": 0.380
+  },
+  {
+    "id": 9,
+    "name": "General in Chief who Conquers the West",
+    "requirement": "Any Coalition hero",
+    "cost": { "military": 3, "influence": 0, "supplies": 3, "piety": 3 },
+    "setScoring": [0, 1, 3, 5, 6],
+    "setDescription": "Coalition heroes",
+    "efficiency": 0.400
+  },
+  {
+    "id": 10,
+    "name": "Master Scholar",
+    "requirement": "Advisor with at least 3 influence",
+    "cost": { "military": 0, "influence": 5, "supplies": 4, "piety": 0 },
+    "setScoring": [0, 1, 2, 4],
+    "setDescription": "Advisors",
+    "efficiency": 0.322
+  },
+  {
+    "id": 11,
+    "name": "Worth a Thousand Men",
+    "requirement": "Lu Bu, Gongsun Zan, Taishi Ci, Zhang Liao or Meng Huo",
+    "cost": { "military": 6, "influence": 2, "supplies": 2, "piety": 0 },
+    "setScoring": [0, 1, 3, 5, 7],
+    "setDescription": "Generals with 4+ Military + Legends: +1 each",
+    "efficiency": 0.540
+  },
+  {
+    "id": 12,
+    "name": "Bringers of a New Age",
+    "requirement": "Any Administrator from Wei/Wu/Shu",
+    "cost": { "military": 0, "influence": 5, "supplies": 5, "piety": 5 },
+    "setScoring": [0, 1, 3, 5, 7],
+    "setDescription": "Administrators Wei/Wu/Shu + Legends: +1 each",
+    "efficiency": 0.530
+  },
+  {
+    "id": 13,
+    "name": "Unlikely Allies",
+    "requirement": "Any Coalition or Rebels hero",
+    "cost": { "military": 2, "influence": 4, "supplies": 0, "piety": 4 },
+    "setScoring": [0, 1, 2, 5, 6],
+    "setDescription": "Coalition or Rebels heroes",
+    "efficiency": 0.410
+  },
+  {
+    "id": 14,
+    "name": "Council of Men",
+    "requirement": "Any hero with a resource stat at least 4",
+    "cost": { "military": 4, "influence": 4, "supplies": 4, "piety": 4 },
+    "setScoring": [0, 0, 2, 4],
+    "setDescription": "Unique roles",
+    "efficiency": 0.280
+  },
+  {
+    "id": 15,
+    "name": "Military Strategist",
+    "requirement": "General or advisor with resource stat of at least 3",
+    "cost": { "military": 5, "influence": 5, "supplies": 0, "piety": 0 },
+    "setScoring": [1, 3, 5],
+    "setDescription": "Pairs of Generals and Advisors",
+    "efficiency": 0.450
+  },
+  {
+    "id": 16,
+    "name": "Civil Planners",
+    "requirement": "Tactician or administrator with resource stat of at least 3",
+    "cost": { "military": 0, "influence": 0, "supplies": 5, "piety": 5 },
+    "setScoring": [2, 4, 6],
+    "setDescription": "Pairs of Tacticians and Administrators",
+    "efficiency": 0.420
+  },
+  {
+    "id": 17,
+    "name": "General of the Left",
+    "requirement": "A Shu hero",
+    "cost": { "military": 4, "influence": 3, "supplies": 3, "piety": 0 },
+    "setScoring": [0, 1, 2, 4, 5],
+    "setDescription": "Shu heroes",
+    "efficiency": 0.380
+  },
+  {
+    "id": 18,
+    "name": "General of the Rear",
+    "requirement": "A Wu hero",
+    "cost": { "military": 4, "influence": 3, "supplies": 0, "piety": 3 },
+    "setScoring": [0, 1, 2, 4, 5],
+    "setDescription": "Wu heroes",
+    "efficiency": 0.380
+  },
+  {
+    "id": 19,
+    "name": "General of the Right",
+    "requirement": "A Wei hero",
+    "cost": { "military": 4, "influence": 0, "supplies": 3, "piety": 3 },
+    "setScoring": [0, 1, 2, 4, 5],
+    "setDescription": "Wei heroes",
+    "efficiency": 0.380
+  },
+  {
+    "id": 20,
+    "name": "General of the Front",
+    "requirement": "Any general",
+    "cost": { "military": 0, "influence": 3, "supplies": 3, "piety": 3 },
+    "setScoring": [0, 2, 4],
+    "setDescription": "One General from each of Wei, Wu and Shu",
+    "efficiency": 0.333
+  },
+  {
+    "id": 21,
+    "name": "Siege Engineers",
+    "requirement": "Tactician with resource stat of at least 3",
+    "cost": { "military": 5, "influence": 0, "supplies": 3, "piety": 3 },
+    "setScoring": [2, 4, 6],
+    "setDescription": "Pairs of Tacticians and Generals",
+    "efficiency": 0.364
+  },
+  {
+    "id": 22,
+    "name": "Coalition Leader",
+    "requirement": "Any hero with resource stat of at least 3",
+    "cost": { "military": 4, "influence": 4, "supplies": 2, "piety": 2 },
+    "setScoring": [0, 0, 2, 4],
+    "setDescription": "Unique allegiances",
+    "efficiency": 0.300
+  },
+  {
+    "id": 23,
+    "name": "Mercenary Chief",
+    "requirement": "Any hero not from Wei, Wu or Shu",
+    "cost": { "military": 4, "influence": 0, "supplies": 4, "piety": 2 },
+    "setScoring": [0, 1, 2, 3, 4, 5],
+    "setDescription": "Heroes not from Wei, Wu or Shu",
+    "efficiency": 0.414
+  },
+  {
+    "id": 24,
+    "name": "General of the Guards",
+    "requirement": "Any Rebels or Dong Zhuo general",
+    "cost": { "military": 4, "influence": 0, "supplies": 0, "piety": 4 },
+    "setScoring": [0, 1, 2, 5, 6, 7],
+    "setDescription": "Rebels or Dong Zhuo generals",
+    "efficiency": 0.417
+  },
+  {
+    "id": 25,
+    "name": "The Five Tiger Generals",
+    "requirement": "Guan Yu, Zhang Fei, Ma Chao, Zhao Yun or Huang Zhong",
+    "cost": { "military": 6, "influence": 0, "supplies": 0, "piety": 4 },
+    "setScoring": [0, 2, 4, 6, 9],
+    "setDescription": "Generals from Shu",
+    "efficiency": 0.440
+  },
+  {
+    "id": 26,
+    "name": "General in Chief who Supports the Empire",
+    "requirement": "Any Han or Coalition hero",
+    "cost": { "military": 3, "influence": 0, "supplies": 3, "piety": 3 },
+    "setScoring": [0, 1, 2, 5, 6],
+    "setDescription": "Han or Coalition heroes",
+    "efficiency": 0.400
+  },
+  {
+    "id": 27,
+    "name": "Changing of the Guard",
+    "requirement": "Any Han Advisor/Administrator",
+    "cost": { "military": 3, "influence": 3, "supplies": 3, "piety": 3 },
+    "setScoring": [0, 1, 3, 5, 7],
+    "setDescription": "Han Advisors/Administrators + Legends: +1 each",
+    "efficiency": 0.450
+  },
+  {
+    "id": 28,
+    "name": "The Greatest Minds",
+    "requirement": "Any Advisor with 4+ Influence",
+    "cost": { "military": 0, "influence": 4, "supplies": 4, "piety": 2 },
+    "setScoring": [0, 1, 3, 5, 7],
+    "setDescription": "Advisors with 4+ Influence + Legends: +1 each",
+    "efficiency": 0.560
+  },
+  {
+    "id": 29,
+    "name": "General in Chief",
+    "requirement": "General or administrator with resource stat of at least 3",
+    "cost": { "military": 4, "influence": 2, "supplies": 0, "piety": 4 },
+    "setScoring": [2, 4, 6],
+    "setDescription": "Pairs of Generals and Administrators",
+    "efficiency": 0.390
+  },
+  {
+    "id": 30,
+    "name": "Masters in their Craft",
+    "requirement": "Any hero with resource stat of at least 4",
+    "cost": { "military": 4, "influence": 4, "supplies": 4, "piety": 4 },
+    "setScoring": [0, 2, 4, 6],
+    "setDescription": "Heroes with a resource stat of at least 4",
+    "efficiency": 0.310
+  },
+  {
+    "id": 31,
+    "name": "Political Architects",
+    "requirement": "Any administrator",
+    "cost": { "military": 0, "influence": 4, "supplies": 2, "piety": 4 },
+    "setScoring": [2, 4, 6],
+    "setDescription": "Pairs of Administrators and Advisors",
+    "efficiency": 0.380
+  },
+  {
+    "id": 32,
+    "name": "Master Schemes",
+    "requirement": "Any tactician",
+    "cost": { "military": 0, "influence": 4, "supplies": 4, "piety": 2 },
+    "setScoring": [2, 4, 6],
+    "setDescription": "Pairs of Tacticians and Advisors",
+    "efficiency": 0.380
+  },
+  {
+    "id": 33,
+    "name": "General in Chief who Conquers the South",
+    "requirement": "Huang Gai, Cheng Pu, Han Dang, Zhou Tai, Lu Xun",
+    "cost": { "military": 4, "influence": 2, "supplies": 4, "piety": 0 },
+    "setScoring": [0, 2, 4, 6, 9],
+    "setDescription": "Generals from Wu",
+    "efficiency": 0.390
+  },
+  {
+    "id": 34,
+    "name": "General of the Agile Cavalry",
+    "requirement": "Any hero with resource stat of at least 3",
+    "cost": { "military": 3, "influence": 3, "supplies": 3, "piety": 3 },
+    "setScoring": "Copies set bonus of another player's title",
+    "setDescription": "Special: Copies another title",
+    "efficiency": 0.267
+  },
+  {
+    "id": 35,
+    "name": "Misfit Commander",
+    "requirement": "Any hero with resource stat of at least 3",
+    "cost": { "military": 3, "influence": 2, "supplies": 3, "piety": 2 },
+    "setScoring": [0, 1, 3, 5],
+    "setDescription": "Heroes without any matching roles or allegiance",
+    "efficiency": 0.338
+  },
+  {
+    "id": 36,
+    "name": "General in Chief who Guards the North",
+    "requirement": "Xiahou Dun, Xiahou Yuan, Yu Jin, Dian Wei or Yue Jin",
+    "cost": { "military": 6, "influence": 0, "supplies": 2, "piety": 2 },
+    "setScoring": [0, 2, 4, 6, 9],
+    "setDescription": "Generals from Wei",
+    "efficiency": 0.390
+  },
+  {
+    "id": 37,
+    "name": "Seeds of Rebellion",
+    "requirement": "Zhang Jue, Huang Shao, He Yi, Zhang Yan or Yuan Shu",
+    "cost": { "military": 4, "influence": 2, "supplies": 0, "piety": 4 },
+    "setScoring": [0, 2, 4, 6, 8],
+    "setDescription": "Rebels advisors, tacticians or administrators",
+    "efficiency": 0.350
+  },
+  {
+    "id": 38,
+    "name": "Campaign against the Tyrant",
+    "requirement": "Any Coalition hero",
+    "cost": { "military": 3, "influence": 4, "supplies": 3, "piety": 4 },
+    "setScoring": [0, 1, 3, 5, 7],
+    "setDescription": "Coalition heroes + Legends: +1 each",
+    "efficiency": 0.540
+  },
+  {
+    "id": 39,
+    "name": "Talented Individuals",
+    "requirement": "Any dual-role hero",
+    "cost": { "military": 4, "influence": 4, "supplies": 4, "piety": 4 },
+    "setScoring": [0, 1, 2, 3],
+    "setDescription": "Dual-role heroes",
+    "efficiency": 0.260
+  },
+  {
+    "id": 40,
+    "name": "Beauties of China",
+    "requirement": "Any female hero",
+    "cost": { "military": 2, "influence": 4, "supplies": 0, "piety": 4 },
+    "setScoring": [0, 1, 3, 5, 7],
+    "setDescription": "Female heroes + Legends: +1 each",
+    "efficiency": 0.525
+  }
+]
