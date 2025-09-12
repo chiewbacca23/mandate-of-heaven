@@ -27,10 +27,11 @@ const GAME_CONFIG = {
     TURN_1_HERO_BONUS: 2
 };
 
-// Add fallback function for resource icons
+// Add this function to handle resource icon lookup
 function getResourceIcon(resource) {
+    if (!resource) return '❓';
     const normalized = resource.toLowerCase();
-    return RESOURCE_ICONS[normalized] || '❓';
+    return RESOURCE_ICONS[normalized] || RESOURCE_ICONS[resource] || '❓';
 }
 
 // Export for use in other modules
