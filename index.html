@@ -1529,152 +1529,218 @@
             }
 
             // FIXED: Emergency resource logic - major overhaul
-            makePurchase() {
-                const preferTitles = this.game.turn > 2 || this.titlesPurchased.length < 2;
-                let purchased = false;
-                
-                // FIRST: Try to purchase with current resources (no emergency)
-                const currentResources = this.calculateBattlefieldResources();
-                
-                const affordableHeroes = this.game.heroMarket.filter(hero => 
-                    this.canAfford(hero.cost, currentResources)
-                );
-                
-                const affordableTitles = this.game.titleMarket.filter(title => 
-                    this.canAfford(title.cost, currentResources) && this.canRetireForTitle(title)
-                );
+makePurchase() {
+    const preferTitles = this.game.turn > 2 || this.titlesPurchased.length < 2;
+    let purchased = false;
+    
+    // FIRST: Try to purchase with current resources (no emergency)
+    const currentResources = this.calculateBattlefieldResources();
+    
+    // Add safety check for currentResources
+    if (!currentResources || typeof currentResources !== 'object') {
+        this.game.simulator.log(`${this.name} has invalid battlefield resources - passing turn`, 'error');
+        this.passedTurns++;
+        this.returnCardsToHand();
+        return;
+    }
+    
+    const affordableHeroes = this.game.heroMarket.filter(hero => 
+        hero && hero.cost && this.canAfford(hero.cost, currentResources)
+    );
+    
+    const affordableTitles = this.game.titleMarket.filter(title => 
+        title && title.cost && this.canAfford(title.cost, currentResources) && this.canRetireForTitle(title)
+    );
 
-                let target = null;
+    let target = null;
 
-                // Choose purchase target from immediately affordable options
-                if (preferTitles && affordableTitles.length > 0) {
-                    target = { type: 'title', item: this.chooseBestTitle(affordableTitles) };
-                } else if (affordableHeroes.length > 0) {
-                    target = { type: 'hero', item: this.chooseBestHero(affordableHeroes) };
-                } else if (affordableTitles.length > 0) {
-                    target = { type: 'title', item: this.chooseBestTitle(affordableTitles) };
-                }
+    // Choose purchase target from immediately affordable options
+    if (preferTitles && affordableTitles.length > 0) {
+        target = { type: 'title', item: this.chooseBestTitle(affordableTitles) };
+    } else if (affordableHeroes.length > 0) {
+        target = { type: 'hero', item: this.chooseBestHero(affordableHeroes) };
+    } else if (affordableTitles.length > 0) {
+        target = { type: 'title', item: this.chooseBestTitle(affordableTitles) };
+    }
 
-                if (target) {
-                    // Execute purchase with current resources
-                    purchased = this.executePurchase(target, 0);
-                    this.game.simulator.log(`${this.name} purchases ${target.item.name} (no emergency needed)`);
-                } else {
-                    // ONLY NOW: Consider emergency resources for high-value targets
-                    const emergencyTarget = this.findEmergencyWorthyTarget();
+    if (target && target.item) {
+        // Execute purchase with current resources
+        purchased = this.executePurchase(target, 0);
+        if (purchased) {
+            this.game.simulator.log(`${this.name} purchases ${target.item.name} (no emergency needed)`);
+        }
+    } else {
+        // ONLY NOW: Consider emergency resources for high-value targets
+        const emergencyTarget = this.findEmergencyWorthyTarget();
+        
+        if (emergencyTarget && emergencyTarget.item && this.emergencyUsed < 2) {
+            const deficit = this.calculateResourceDeficit(emergencyTarget.cost || emergencyTarget.item.cost, currentResources);
+            
+            // Only use emergency if deficit is small (1-3 total resources)
+            if (deficit && deficit.total <= 3 && deficit.total > 0) {
+                this.emergencyUsed++;
+                this.score -= 1;
+                
+                // Add strategic emergency resources with safety checks
+                const emergencyResources = this.calculateStrategicEmergencyBonus(deficit);
+                if (emergencyResources && typeof emergencyResources === 'object') {
+                    const boostedResources = {...currentResources};
                     
-                    if (emergencyTarget && this.emergencyUsed < 2) { // Limit emergency use per game
-                        const deficit = this.calculateResourceDeficit(emergencyTarget.cost, currentResources);
-                        
-                        // Only use emergency if deficit is small (1-3 total resources)
-                        if (deficit.total <= 3 && deficit.total > 0) {
-                            this.emergencyUsed++;
-                            this.score -= 1;
-                            
-                            // Add strategic emergency resources
-                            const emergencyResources = this.calculateStrategicEmergencyBonus(deficit);
-                            const boostedResources = {...currentResources};
-                            Object.entries(emergencyResources).forEach(([res, bonus]) => {
-                                boostedResources[res] += bonus;
-                            });
-                            
-                            if (this.canAfford(emergencyTarget.cost, boostedResources)) {
-                                purchased = this.executePurchase(emergencyTarget, 1);
-                                this.game.simulator.log(`${this.name} uses emergency (+${emergencyResources.military}⚔️ +${emergencyResources.influence}📜 +${emergencyResources.supplies}📦 +${emergencyResources.piety}🏛️) for ${emergencyTarget.item.name}`);
-                            }
+                    // Safe iteration over emergency resources
+                    ['military', 'influence', 'supplies', 'piety'].forEach(res => {
+                        if (emergencyResources[res]) {
+                            boostedResources[res] = (boostedResources[res] || 0) + emergencyResources[res];
+                        }
+                    });
+                    
+                    const targetCost = emergencyTarget.cost || emergencyTarget.item.cost;
+                    if (targetCost && this.canAfford(targetCost, boostedResources)) {
+                        purchased = this.executePurchase(emergencyTarget, 1);
+                        if (purchased) {
+                            this.game.simulator.log(`${this.name} uses emergency (+${emergencyResources.military || 0}⚔️ +${emergencyResources.influence || 0}📜 +${emergencyResources.supplies || 0}📦 +${emergencyResources.piety || 0}🏛️) for ${emergencyTarget.item.name}`);
                         }
                     }
-                    
-                    if (!purchased) {
-                        // Pass turn - no emergency abuse
-                        this.passedTurns++;
-                        this.game.simulator.log(`${this.name} passes turn - nothing affordable`);
-                    }
                 }
-
-                // Return cards to hand
-                this.returnCardsToHand();
             }
+        }
+        
+        if (!purchased) {
+            // Pass turn - no emergency abuse
+            this.passedTurns++;
+            this.game.simulator.log(`${this.name} passes turn - nothing affordable`);
+        }
+    }
+
+    // Always return cards to hand
+    this.returnCardsToHand();
+}
 
             // Helper method: Find targets worth using emergency resources
-            findEmergencyWorthyTarget() {
-                // Only consider high-value titles or efficient heroes
-                const valuableTitles = this.game.titleMarket.filter(title => {
-                    if (!this.canRetireForTitle(title)) return false;
-                    const score = this.calculateTitleScore(title);
-                    return score.points >= 3; // Only for 3+ point titles
-                });
-                
-                const efficientHeroes = this.game.heroMarket.filter(hero => {
-                    const value = this.calculateCardValue(hero);
-                    return value >= 6; // Only for 6+ total stat heroes
-                });
-                
-                if (valuableTitles.length > 0) {
-                    return { type: 'title', item: this.chooseBestTitle(valuableTitles) };
-                } else if (efficientHeroes.length > 0) {
-                    return { type: 'hero', item: this.chooseBestHero(efficientHeroes) };
-                }
-                
-                return null;
-            }
+findEmergencyWorthyTarget() {
+    // Safety checks for game state
+    if (!this.game.titleMarket || !this.game.heroMarket) {
+        return null;
+    }
+    
+    // Only consider high-value titles or efficient heroes
+    const valuableTitles = this.game.titleMarket.filter(title => {
+        if (!title || !this.canRetireForTitle(title)) return false;
+        try {
+            const score = this.calculateTitleScore(title);
+            return score && score.points >= 3; // Only for 3+ point titles
+        } catch (error) {
+            return false;
+        }
+    });
+    
+    const efficientHeroes = this.game.heroMarket.filter(hero => {
+        if (!hero) return false;
+        try {
+            const value = this.calculateCardValue(hero);
+            return value >= 6; // Only for 6+ total stat heroes
+        } catch (error) {
+            return false;
+        }
+    });
+    
+    if (valuableTitles.length > 0) {
+        const bestTitle = this.chooseBestTitle(valuableTitles);
+        return bestTitle ? { type: 'title', item: bestTitle } : null;
+    } else if (efficientHeroes.length > 0) {
+        const bestHero = this.chooseBestHero(efficientHeroes);
+        return bestHero ? { type: 'hero', item: bestHero } : null;
+    }
+    
+    return null;
+}
 
             // Helper method: Calculate resource deficit
-            calculateResourceDeficit(cost, currentResources) {
-                const deficit = { military: 0, influence: 0, supplies: 0, piety: 0, total: 0 };
-                
-                Object.entries(cost).forEach(([resource, needed]) => {
-                    const shortfall = Math.max(0, needed - (currentResources[resource] || 0));
-                    deficit[resource] = shortfall;
-                    deficit.total += shortfall;
-                });
-                
-                return deficit;
-            }
+calculateResourceDeficit(cost, currentResources) {
+    const deficit = { military: 0, influence: 0, supplies: 0, piety: 0, total: 0 };
+    
+    // Safety checks
+    if (!cost || typeof cost !== 'object') {
+        return deficit;
+    }
+    
+    if (!currentResources || typeof currentResources !== 'object') {
+        // If current resources is invalid, assume we need everything
+        ['military', 'influence', 'supplies', 'piety'].forEach(res => {
+            const needed = cost[res] || 0;
+            deficit[res] = needed;
+            deficit.total += needed;
+        });
+        return deficit;
+    }
+    
+    // Calculate actual deficits
+    ['military', 'influence', 'supplies', 'piety'].forEach(resource => {
+        const needed = cost[resource] || 0;
+        const available = currentResources[resource] || 0;
+        const shortfall = Math.max(0, needed - available);
+        deficit[resource] = shortfall;
+        deficit.total += shortfall;
+    });
+    
+    return deficit;
+}
 
             // Helper method: Calculate strategic emergency bonus
-            calculateStrategicEmergencyBonus(deficit) {
-                const bonus = { military: 0, influence: 0, supplies: 0, piety: 0 };
-                
-                // Emergency gives +1 to exactly two different resources
-                const resourcesNeeded = Object.entries(deficit)
-                    .filter(([res, amount]) => res !== 'total' && amount > 0)
-                    .sort(([,a], [,b]) => b - a); // Sort by deficit size
-                
-                if (resourcesNeeded.length >= 2) {
-                    // Cover the two biggest deficits
-                    bonus[resourcesNeeded[0][0]] = 1;
-                    bonus[resourcesNeeded[1][0]] = 1;
-                } else if (resourcesNeeded.length === 1) {
-                    // Cover the deficit + add to a useful resource
-                    bonus[resourcesNeeded[0][0]] = 1;
-                    // Add to leading resource or influence as fallback
-                    const leadingRes = this.game.currentEvent.leadingResource;
-                    if (leadingRes !== resourcesNeeded[0][0]) {
-                        bonus[leadingRes] = 1;
-                    } else {
-                        bonus.influence = 1; // Safe fallback
-                    }
-                } else {
-                    // Shouldn't happen, but fallback
-                    bonus.military = 1;
-                    bonus.influence = 1;
-                }
-                
-                return bonus;
-            }
+calculateStrategicEmergencyBonus(deficit) {
+    // Initialize with all zeros to prevent null/undefined issues
+    const bonus = { military: 0, influence: 0, supplies: 0, piety: 0 };
+    
+    // Safety check for deficit parameter
+    if (!deficit || typeof deficit !== 'object') {
+        // Return default bonus if deficit is invalid
+        bonus.military = 1;
+        bonus.influence = 1;
+        return bonus;
+    }
+    
+    // Emergency gives +1 to exactly two different resources
+    const resourcesNeeded = Object.entries(deficit)
+        .filter(([res, amount]) => res !== 'total' && amount > 0 && typeof amount === 'number')
+        .sort(([,a], [,b]) => b - a); // Sort by deficit size
+    
+    if (resourcesNeeded.length >= 2) {
+        // Cover the two biggest deficits
+        bonus[resourcesNeeded[0][0]] = 1;
+        bonus[resourcesNeeded[1][0]] = 1;
+    } else if (resourcesNeeded.length === 1) {
+        // Cover the deficit + add to a useful resource
+        bonus[resourcesNeeded[0][0]] = 1;
+        // Add to leading resource or influence as fallback
+        const leadingRes = this.game.currentEvent?.leadingResource || 'influence';
+        if (leadingRes !== resourcesNeeded[0][0]) {
+            bonus[leadingRes] = 1;
+        } else {
+            bonus.influence = 1; // Safe fallback
+        }
+    } else {
+        // Default emergency bonus
+        bonus.military = 1;
+        bonus.influence = 1;
+    }
+    
+    return bonus;
+}
 
             // FIXED: Better affordability checking
-            canAfford(cost, resources) {
-                // Ensure we handle all resource types and missing values
-                const resourceTypes = ['military', 'influence', 'supplies', 'piety'];
-                
-                return resourceTypes.every(resource => {
-                    const needed = cost[resource] || 0;
-                    const available = resources[resource] || 0;
-                    return available >= needed;
-                });
-            }
+canAfford(cost, resources) {
+    // Safety checks
+    if (!cost || typeof cost !== 'object') return false;
+    if (!resources || typeof resources !== 'object') return false;
+    
+    // Ensure we handle all resource types and missing values
+    const resourceTypes = ['military', 'influence', 'supplies', 'piety'];
+    
+    return resourceTypes.every(resource => {
+        const needed = cost[resource] || 0;
+        const available = resources[resource] || 0;
+        return available >= needed;
+    });
+}
 
             canRetireForTitle(title) {
                 const availableHeroes = [
