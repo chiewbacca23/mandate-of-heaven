@@ -18,6 +18,15 @@ class GameEngine {
         this.turnOrder = [];
     }
 
+    getResourceIcon(resource) {
+    const icons = {
+        military: '⚔️',
+        influence: '📜', 
+        supplies: '📦',
+        piety: '🏛️'
+    };
+    return icons[resource] || '❓';
+    }
     // Initialize new game
     initialize() {
         this.log('🎲 Initializing game...', 'important');
