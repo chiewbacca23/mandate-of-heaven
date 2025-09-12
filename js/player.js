@@ -40,25 +40,48 @@ class Player {
     }
 
     // Calculate resources on battlefield including column bonuses
-    calculateBattlefieldResources() {
-        const resources = { military: 0, influence: 0, supplies: 0, piety: 0 };
-        
-        // Sum all card values including negatives
-        Object.values(this.battlefield).flat().forEach(card => {
-            resources.military += card.military || 0;
-            resources.influence += card.influence || 0;
-            resources.supplies += card.supplies || 0;
-            resources.piety += card.piety || 0;
+    getBattlefieldResources() {
+        const resources = {
+            military: 0,
+            influence: 0,
+            supplies: 0,
+            piety: 0
+        };
+    
+        // Sum resources from all cards on battlefield (including peasants!)
+        ['wei', 'wu', 'shu'].forEach(kingdom => {
+            this.battlefield[kingdom].forEach(card => {
+                // Make sure we're reading the card properties correctly
+                resources.military += (card.military || 0);
+                resources.influence += (card.influence || 0);
+                resources.supplies += (card.supplies || 0);
+                resources.piety += (card.piety || 0);
+            });
         });
-        
-        // Add column bonuses (2+ cards in same kingdom)
-        Object.entries(this.battlefield).forEach(([kingdom, cards]) => {
-            if (cards.length >= 2) {
-                const bonusResource = KINGDOM_BONUSES[kingdom];
-                resources[bonusResource] += 1;
-            }
-        });
-        
+    
+        // Add kingdom bonuses for 2+ cards in same kingdom
+        if (this.battlefield.wei.length >= 2) {
+            resources.influence += 1; // Wei bonus
+        }
+        if (this.battlefield.wu.length >= 2) {
+            resources.supplies += 1; // Wu bonus  
+        }
+        if (this.battlefield.shu.length >= 2) {
+            resources.piety += 1; // Shu bonus
+        }
+    
+        // Debug log to verify calculation (remove this after testing)
+        if (this.battlefield.wei.length > 0 || this.battlefield.wu.length > 0 || this.battlefield.shu.length > 0) {
+            console.log(`${this.name} battlefield calculation:`, {
+                cards: {
+                    wei: this.battlefield.wei.map(c => `${c.name}(M:${c.military||0})`),
+                    wu: this.battlefield.wu.map(c => `${c.name}(M:${c.military||0})`), 
+                    shu: this.battlefield.shu.map(c => `${c.name}(M:${c.military||0})`)
+                },
+                totalResources: resources
+            });
+        }
+    
         return resources;
     }
 
