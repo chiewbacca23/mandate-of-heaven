@@ -1,6 +1,8 @@
 // game-engine.js - Core Game Logic Module
+import { Player } from './player.js';
+import { GAME_CONFIG } from './config.js';
 
-class GameEngine {
+export class GameEngine {
     constructor(gameData, playerCount, logger) {
         this.gameData = gameData;
         this.playerCount = playerCount;
@@ -16,17 +18,19 @@ class GameEngine {
         this.titleMarket = [];
         this.purchasedHeroes = [];
         this.turnOrder = [];
+        this.purchaseManager = null; // Will be set externally
     }
 
     getResourceIcon(resource) {
-    const icons = {
-        military: '⚔️',
-        influence: '📜', 
-        supplies: '📦',
-        piety: '🏛️'
-    };
-    return icons[resource] || '❓';
+        const icons = {
+            military: '⚔️',
+            influence: '📜', 
+            supplies: '📦',
+            piety: '🏛️'
+        };
+        return icons[resource] || '❓';
     }
+
     // Initialize new game
     initialize() {
         this.log('🎲 Initializing game...', 'important');
@@ -93,7 +97,7 @@ class GameEngine {
     deploymentPhase() {
         this.log(`--- Turn ${this.turn}: Deployment Phase ---`, 'important');
         const leadingRes = this.currentEvent.leadingResource;
-        const resIcon = getResourceIcon(leadingRes);
+        const resIcon = this.getResourceIcon(leadingRes);
         this.log(`Event: ${this.currentEvent.name} (Leading: ${resIcon} ${leadingRes})`);
 
         // All players deploy simultaneously
@@ -118,7 +122,7 @@ class GameEngine {
         const leadingResource = this.currentEvent.leadingResource;
 
         const playerData = this.players.map((player, index) => {
-            const resources = player.calculateBattlefieldResources();
+            const resources = player.getBattlefieldResources();
             const kingdoms = player.battlefield;
 
             return {
@@ -143,7 +147,6 @@ class GameEngine {
         this.turnOrder = playerData.map(pd => pd.player);
 
         // Log turn order
-        const resIcon = getResourceIcon(leadingResource);
         playerData.forEach((pd, i) => {
             const resourceIcon = this.getResourceIcon(leadingResource);
             this.log(`${i + 1}. ${pd.player.name}: ${resourceIcon}${pd.leadingValue} (S:${pd.shuCards} W:${pd.wuCards} WE:${pd.weiCards})`);
@@ -159,6 +162,7 @@ class GameEngine {
                 }
             });
         });
+    }
 
     // Phase 3: Players make purchases in turn order
     purchasePhase() {
@@ -178,11 +182,11 @@ class GameEngine {
                 player.passedTurns++;
                 player.returnCardsToHand();
             }
-    });
+        });
 
-    this.phase = 'cleanup';
-    return false;
-}
+        this.phase = 'cleanup';
+        return false;
+    }
 
     // Phase 4: Cleanup and advance turn
     cleanupPhase() {
@@ -240,7 +244,8 @@ class GameEngine {
             player.calculateFinalScore();
         });
 
-        // TODO: Add resource majority bonuses
+        // Resource majority bonuses
+        this.calculateResourceMajorityBonuses();
         
         // Sort players by score
         this.players.sort((a, b) => b.score - a.score);
@@ -251,12 +256,65 @@ class GameEngine {
         return true; // Game over
     }
 
+    // Calculate resource majority bonuses
+    calculateResourceMajorityBonuses() {
+        // Count how many times each resource was the leading resource in events
+        const resourceFrequency = {
+            military: 0,
+            influence: 0,
+            supplies: 0,
+            piety: 0
+        };
+
+        this.events.forEach(event => {
+            if (event && event.leadingResource) {
+                resourceFrequency[event.leadingResource]++;
+            }
+        });
+
+        this.log('--- Resource Majority Bonuses ---', 'important');
+
+        // Award bonuses for each resource type
+        Object.entries(resourceFrequency).forEach(([resource, frequency]) => {
+            if (frequency === 0) return;
+
+            // Find player(s) with most of this resource
+            let maxAmount = 0;
+            let winners = [];
+
+            this.players.forEach(player => {
+                const totalResources = player.getTotalResources();
+                const amount = totalResources[resource] || 0;
+                
+                if (amount > maxAmount) {
+                    maxAmount = amount;
+                    winners = [player];
+                } else if (amount === maxAmount && amount > 0) {
+                    winners.push(player);
+                }
+            });
+
+            // Award bonus points (only if there's a single winner)
+            if (winners.length === 1 && maxAmount > 0) {
+                winners[0].score += frequency;
+                this.log(`${winners[0].name} wins ${resource} majority (${maxAmount}) for +${frequency} points`);
+            } else if (winners.length > 1) {
+                this.log(`${resource} majority tied between ${winners.map(w => w.name).join(', ')} - no bonus awarded`);
+            }
+        });
+    }
+
     // Get current winner
     getWinner() {
         if (this.players.length === 0) return null;
         return this.players.reduce((winner, player) => 
             player.score > winner.score ? player : winner
         );
+    }
+
+    // Set the purchase manager
+    setPurchaseManager(purchaseManager) {
+        this.purchaseManager = purchaseManager;
     }
 
     // Utility: Shuffle array
@@ -268,9 +326,46 @@ class GameEngine {
         }
         return shuffled;
     }
-}
 
-// Export for use in other modules
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { GameEngine };
+    // Helper method for purchase manager to get affordable items
+    getAffordableMarketItems(player) {
+        const resources = player.getBattlefieldResources();
+        const affordable = [];
+
+        // Check heroes
+        this.heroMarket.forEach(hero => {
+            if (player.canAfford(hero.cost, resources)) {
+                affordable.push({
+                    ...hero,
+                    type: 'hero',
+                    totalCost: Object.values(hero.cost || {}).reduce((sum, val) => sum + (val || 0), 0)
+                });
+            }
+        });
+
+        // Check titles
+        this.titleMarket.forEach(title => {
+            if (player.canAfford(title.cost, resources) && this.canPlayerRetireHeroForTitle(player, title)) {
+                affordable.push({
+                    ...title,
+                    type: 'title',
+                    totalCost: Object.values(title.cost || {}).reduce((sum, val) => sum + (val || 0), 0)
+                });
+            }
+        });
+
+        return affordable.sort((a, b) => a.totalCost - b.totalCost);
+    }
+
+    // Helper method to check if player can retire a hero for a title
+    canPlayerRetireHeroForTitle(player, title) {
+        const availableHeroes = [
+            ...player.hand,
+            ...player.battlefield.wei,
+            ...player.battlefield.wu,
+            ...player.battlefield.shu
+        ].filter(card => card.type === 'hero' && !card.name.includes('Peasant'));
+        
+        return availableHeroes.length > 0;
+    }
 }
