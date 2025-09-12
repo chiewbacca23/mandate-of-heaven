@@ -1169,7 +1169,7 @@ this.simulator.log(`Event: ${this.currentEvent.name} (Leading: ${resIcon} ${lead
                 const leadingResource = this.currentEvent.leadingResource;
 
 playerData.forEach((pd, i) => {
-    const resValue = pd.leadingValue || 0;
+    const resValue = pd.leadingValue !== undefined ? pd.leadingValue : 0;
     const resIcon = RESOURCE_ICONS[leadingResource] || '❓';
     this.simulator.log(`${i + 1}. ${pd.player.name}: ${resIcon}${resValue} (S:${pd.shuCards} W:${pd.wuCards} WE:${pd.weiCards})`);
 });
