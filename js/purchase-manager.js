@@ -5,6 +5,14 @@ class PurchaseManager {
         this.game = gameEngine;
     }
 
+    get RESOURCE_ICONS() {
+    return {
+        military: '⚔️',
+        influence: '📜', 
+        supplies: '📦',
+        piety: '🏛️'
+        };
+    }
     // Main purchase logic for a player
     makePurchase(player) {
         const preferTitles = this.game.turn > 2 || player.titlesPurchased.length < 2;
@@ -193,8 +201,7 @@ class PurchaseManager {
                 if (targetCost && player.canAfford(targetCost, boostedResources)) {
                     const purchased = this.executePurchase(player, target, 1);
                     if (purchased) {
-                        const emergencyText = emergencyUsed > 0 ? ` (${emergencyUsed} emergency used)` : '';
-                        this.game.log(`${player.name} purchases title "${title.name}" retiring ${heroToRetire.name}${emergencyText}`);
+                        this.game.log(`${player.name} uses emergency (${this.formatEmergencyBonus(emergencyResources)}) for ${target.item.name}`);
                         return true;
                     }
                 }
