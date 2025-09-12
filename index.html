@@ -200,7 +200,9 @@
     <!-- Load modules in order -->
     <script src="js/config.js"></script>
     <script src="js/player.js"></script>
+    <script src="js/purchase-manager.js"></script>  <!-- Must come before game-engine -->
     <script src="js/game-engine.js"></script>
+    <script src="js/stats-manager.js"></script>
     
     <script>
         // Main application state
@@ -313,6 +315,7 @@
             
             try {
                 currentGame = new GameEngine(gameData, playerCount, log);
+                currentGame.purchaseManager = new PurchaseManager(currentGame);
                 currentGame.initialize();
                 
                 // Enable step controls
