@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Three Kingdoms: Mandate of Heaven - Minimal Simulator</title>
+    <title>Three Kingdoms: Mandate of Heaven - Modular Simulator</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -24,6 +24,9 @@
         }
         .controls {
             margin: 20px 0;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
         }
         button {
             padding: 10px 20px;
@@ -31,12 +34,57 @@
             color: black;
             border: none;
             border-radius: 5px;
-            margin: 5px;
             cursor: pointer;
+            font-weight: bold;
         }
         button:disabled {
             opacity: 0.5;
             cursor: not-allowed;
+        }
+        button:hover:not(:disabled) {
+            background: #b8860b;
+        }
+        .settings {
+            margin: 15px 0;
+        }
+        select {
+            padding: 5px;
+            background: #333;
+            color: white;
+            border: 1px solid #d4af37;
+            border-radius: 3px;
+            margin-left: 10px;
+        }
+        .game-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .info-panel {
+            background: rgba(0,0,0,0.8);
+            border: 2px solid #d4af37;
+            border-radius: 10px;
+            padding: 15px;
+        }
+        .players-area {
+            background: rgba(0,0,0,0.8);
+            border: 2px solid #d4af37;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .player-card {
+            background: rgba(255,255,255,0.1);
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .player-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
         }
         .log {
             background: rgba(0,0,0,0.8);
@@ -51,6 +99,7 @@
             padding: 5px;
             background: rgba(255,255,255,0.1);
             border-radius: 3px;
+            font-size: 0.9em;
         }
         .log-important {
             background: rgba(212,175,55,0.3);
@@ -78,32 +127,88 @@
         .status-error {
             background: rgba(255,0,0,0.3);
         }
+        .progress-bar {
+            background: rgba(255,255,255,0.2);
+            height: 8px;
+            border-radius: 4px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: #d4af37;
+            height: 100%;
+            transition: width 0.3s ease;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1>Three Kingdoms: Mandate of Heaven</h1>
-            <p>Minimal Working Simulator - Testing Core Functions</p>
+            <p>Modular Simulator - Step by Step Development</p>
             
             <div id="dataStatus" class="status status-loading">
                 Loading game data...
             </div>
+
+            <div class="settings">
+                <label>Players:</label>
+                <select id="playerCount">
+                    <option value="2">2 Players</option>
+                    <option value="3">3 Players</option>
+                    <option value="4">4 Players</option>
+                </select>
+            </div>
             
             <div class="controls">
-                <button onclick="testDataLoad()">Test Data Loading</button>
-                <button onclick="testGameStart()" id="startBtn" disabled>Start Test Game</button>
+                <button onclick="testModules()" id="testBtn">Test Modules</button>
+                <button onclick="startGame()" id="startBtn" disabled>New Game</button>
+                <button onclick="stepGame()" id="stepBtn" disabled>Next Step</button>
+                <button onclick="autoPlay()" id="autoBtn" disabled>Auto Play</button>
                 <button onclick="clearLog()">Clear Log</button>
             </div>
         </div>
 
+        <div class="game-info" id="gameInfo" style="display: none;">
+            <div class="info-panel">
+                <h3>Game Status</h3>
+                <div>Turn: <span id="turnDisplay">-</span></div>
+                <div>Phase: <span id="phaseDisplay">-</span></div>
+                <div>Event: <span id="eventDisplay">-</span></div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressBar" style="width: 0%"></div>
+                </div>
+            </div>
+            <div class="info-panel">
+                <h3>Markets</h3>
+                <div>Heroes: <span id="heroMarketCount">-</span></div>
+                <div>Titles: <span id="titleMarketCount">-</span></div>
+                <div>Pool Remaining: <span id="heroPoolCount">-</span></div>
+            </div>
+        </div>
+
+        <div class="players-area" id="playersArea" style="display: none;">
+            <h3>Players</h3>
+            <div id="playersContainer"></div>
+        </div>
+
         <div class="log" id="logArea">
-            <div class="log-entry log-important">Minimal simulator initialized. Testing core functions...</div>
+            <div class="log-entry log-important">Modular simulator initialized. Click "Test Modules" to verify all components load correctly.</div>
         </div>
     </div>
 
+    <!-- Load modules in order -->
+    <script src="js/config.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/game-engine.js"></script>
+    
     <script>
-        // Simple logging function
+        // Main application state
+        let gameData = null;
+        let currentGame = null;
+        let isAutoPlaying = false;
+
+        // Logging function
         function log(message, type = 'normal') {
             const logArea = document.getElementById('logArea');
             const entry = document.createElement('div');
@@ -112,63 +217,82 @@
             logArea.insertBefore(entry, logArea.firstChild);
             
             // Limit entries
-            while (logArea.children.length > 50) {
+            while (logArea.children.length > 100) {
                 logArea.removeChild(logArea.lastChild);
             }
             
             console.log(message);
         }
 
-        // Test data loading
-        async function testDataLoad() {
-            log('Testing data loading...', 'important');
+        // Test that all modules loaded correctly
+        function testModules() {
+            log('Testing module loading...', 'important');
             
             try {
-                log('Attempting to fetch heroes.json...');
-                const heroesRes = await fetch('./data/heroes.json');
-                log(`Heroes response: ${heroesRes.status} ${heroesRes.statusText}`);
+                // Test config module
+                if (typeof RESOURCE_ICONS === 'undefined') {
+                    throw new Error('RESOURCE_ICONS not loaded from config.js');
+                }
+                if (typeof GAME_CONFIG === 'undefined') {
+                    throw new Error('GAME_CONFIG not loaded from config.js');
+                }
+                log('✓ Config module loaded successfully', 'success');
                 
-                log('Attempting to fetch titles.json...');
-                const titlesRes = await fetch('./data/titles.json');
-                log(`Titles response: ${titlesRes.status} ${titlesRes.statusText}`);
+                // Test player module
+                if (typeof Player === 'undefined') {
+                    throw new Error('Player class not loaded from player.js');
+                }
+                const testPlayer = new Player(0, 'Test', null);
+                testPlayer.addPeasants();
+                if (testPlayer.hand.length !== 4) {
+                    throw new Error('Player peasant creation failed');
+                }
+                log('✓ Player module loaded successfully', 'success');
                 
-                log('Attempting to fetch events.json...');
-                const eventsRes = await fetch('./data/events.json');
-                log(`Events response: ${eventsRes.status} ${eventsRes.statusText}`);
+                // Test game engine module
+                if (typeof GameEngine === 'undefined') {
+                    throw new Error('GameEngine class not loaded from game-engine.js');
+                }
+                log('✓ Game Engine module loaded successfully', 'success');
+                
+                // Test data loading
+                loadGameData();
+                
+            } catch (error) {
+                log(`Module test failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Load game data
+        async function loadGameData() {
+            try {
+                log('Loading game data...', 'important');
+                
+                const [heroesRes, titlesRes, eventsRes] = await Promise.all([
+                    fetch('./data/heroes.json'),
+                    fetch('./data/titles.json'),
+                    fetch('./data/events.json')
+                ]);
 
                 if (!heroesRes.ok || !titlesRes.ok || !eventsRes.ok) {
-                    throw new Error(`HTTP errors: Heroes:${heroesRes.status} Titles:${titlesRes.status} Events:${eventsRes.status}`);
+                    throw new Error('Failed to fetch data files');
                 }
 
                 const heroes = await heroesRes.json();
                 const titles = await titlesRes.json();
                 const events = await eventsRes.json();
 
-                log(`Successfully loaded: ${heroes.length} heroes, ${titles.length} titles, ${events.length} events`, 'success');
+                gameData = { heroes, titles, events };
                 
-                // Test data structure
-                log('Testing data structure...');
-                if (heroes[0] && heroes[0].name && heroes[0].cost) {
-                    log(`Sample hero: ${heroes[0].name} - Cost: ${JSON.stringify(heroes[0].cost)}`, 'success');
-                }
-                
-                if (titles[0] && titles[0].name && titles[0].cost) {
-                    log(`Sample title: ${titles[0].name} - Cost: ${JSON.stringify(titles[0].cost)}`, 'success');
-                }
-                
-                if (events[0] && events[0].name && events[0].leadingResource) {
-                    log(`Sample event: ${events[0].name} - Leading: ${events[0].leadingResource}`, 'success');
-                }
+                log(`Data loaded: ${heroes.length} heroes, ${titles.length} titles, ${events.length} events`, 'success');
                 
                 // Update status
                 const statusEl = document.getElementById('dataStatus');
-                statusEl.textContent = `Data loaded successfully: ${heroes.length}H, ${titles.length}T, ${events.length}E`;
+                statusEl.textContent = `Ready: ${heroes.length}H, ${titles.length}T, ${events.length}E`;
                 statusEl.className = 'status status-ready';
                 
-                // Enable start button
+                // Enable game controls
                 document.getElementById('startBtn').disabled = false;
-                
-                log('Data loading test completed successfully!', 'success');
                 
             } catch (error) {
                 log(`Data loading failed: ${error.message}`, 'error');
@@ -178,54 +302,23 @@
             }
         }
 
-        // Test basic game mechanics
-        function testGameStart() {
-            log('Testing basic game mechanics...', 'important');
+        // Start new game
+        function startGame() {
+            if (!gameData) {
+                log('Cannot start game - data not loaded', 'error');
+                return;
+            }
+
+            const playerCount = parseInt(document.getElementById('playerCount').value);
             
             try {
-                // Test resource calculations
-                const testResources = { military: 5, influence: 3, supplies: 2, piety: 4 };
-                const totalResources = Object.values(testResources).reduce((a, b) => a + b, 0);
-                log(`Resource calculation test: Total = ${totalResources}`, 'success');
+                currentGame = new GameEngine(gameData, playerCount, log);
+                currentGame.initialize();
                 
-                // Test random selection
-                const testArray = [1, 2, 3, 4, 5];
-                const shuffled = testArray.sort(() => Math.random() - 0.5);
-                log(`Random shuffle test: [${shuffled.join(', ')}]`, 'success');
+                // Enable step controls
+                document.getElementById('stepBtn').disabled = false;
+                document.getElementById('autoBtn').disabled = false;
                 
-                // Test turn order logic
-                const players = [
-                    { name: 'Player 1', resources: { military: 3, influence: 2, supplies: 1, piety: 0 } },
-                    { name: 'Player 2', resources: { military: 1, influence: 4, supplies: 2, piety: 1 } }
-                ];
-                
-                const leadingResource = 'influence';
-                const sorted = players.sort((a, b) => b.resources[leadingResource] - a.resources[leadingResource]);
-                
-                log(`Turn order test (${leadingResource} leading):`, 'success');
-                sorted.forEach((player, i) => {
-                    log(`  ${i + 1}. ${player.name}: ${player.resources[leadingResource]} ${leadingResource}`);
-                });
-                
-                log('Basic game mechanics test completed!', 'success');
-                
-            } catch (error) {
-                log(`Game mechanics test failed: ${error.message}`, 'error');
-            }
-        }
-
-        // Clear log
-        function clearLog() {
-            document.getElementById('logArea').innerHTML = '<div class="log-entry log-important">Log cleared.</div>';
-        }
-
-        // Auto-run data loading test on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            log('Page loaded - ready for testing', 'important');
-            setTimeout(() => {
-                testDataLoad();
-            }, 1000);
-        });
-    </script>
-</body>
-</html>
+                // Show game info
+                document.getElementById('gameInfo').style.display = 'grid';
+                document.getElementById('playersArea').style.display = 'block
