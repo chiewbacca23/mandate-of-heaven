@@ -42,7 +42,6 @@ class PurchaseManager {
             // Execute immediate purchase
             purchased = this.executePurchase(player, target, 0);
             if (purchased) {
-                this.game.log(`${player.name} purchases ${target.item.name} (no emergency needed)`);
             }
         } else {
             // Consider emergency resources for high-value targets
@@ -194,7 +193,8 @@ class PurchaseManager {
                 if (targetCost && player.canAfford(targetCost, boostedResources)) {
                     const purchased = this.executePurchase(player, target, 1);
                     if (purchased) {
-                        this.game.log(`${player.name} uses emergency (${this.formatEmergencyBonus(emergencyResources)}) for ${target.item.name}`);
+                        const emergencyText = emergencyUsed > 0 ? ` (${emergencyUsed} emergency used)` : '';
+                        this.game.log(`${player.name} purchases title "${title.name}" retiring ${heroToRetire.name}${emergencyText}`);
                         return true;
                     }
                 }
@@ -297,7 +297,8 @@ class PurchaseManager {
         // Remove title from market
         this.game.titleMarket = this.game.titleMarket.filter(t => t.id !== title.id);
 
-        this.game.log(`${player.name} purchases "${title.name}" retiring ${heroToRetire.name} (${emergencyUsed} emergency)`);
+        const emergencyText = emergencyUsed > 0 ? ` (${emergencyUsed} emergency used)` : '';
+        this.game.log(`${player.name} purchases title "${title.name}" retiring ${heroToRetire.name}${emergencyText}`);
         return true;
     }
 
@@ -310,7 +311,8 @@ class PurchaseManager {
         this.game.heroMarket = this.game.heroMarket.filter(h => h.id !== hero.id);
         this.game.purchasedHeroes.push(hero);
 
-        this.game.log(`${player.name} purchases ${hero.name} (${emergencyUsed} emergency)`);
+        const emergencyText = emergencyUsed > 0 ? ` (${emergencyUsed} emergency used)` : '';
+        this.game.log(`${player.name} purchases ${hero.name}${emergencyText}`);
         return true;
     }
 
