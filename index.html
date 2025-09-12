@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Three Kingdoms: Mandate of Heaven - Minimal Simulator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #1a1a2e;
+            color: white;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            background: rgba(0,0,0,0.8);
+            padding: 20px;
+            border: 2px solid #d4af37;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .controls {
+            margin: 20px 0;
+        }
+        button {
+            padding: 10px 20px;
+            background: #d4af37;
+            color: black;
+            border: none;
+            border-radius: 5px;
+            margin: 5px;
+            cursor: pointer;
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .log {
+            background: rgba(0,0,0,0.8);
+            border: 2px solid #d4af37;
+            border-radius: 10px;
+            padding: 20px;
+            height: 400px;
+            overflow-y: auto;
+        }
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+        }
+        .log-important {
+            background: rgba(212,175,55,0.3);
+            font-weight: bold;
+        }
+        .log-error {
+            background: rgba(255,0,0,0.3);
+            color: #ff6b6b;
+        }
+        .log-success {
+            background: rgba(0,255,0,0.3);
+            color: #90EE90;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .status-loading {
+            background: rgba(255,165,0,0.3);
+        }
+        .status-ready {
+            background: rgba(0,255,0,0.3);
+        }
+        .status-error {
+            background: rgba(255,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Three Kingdoms: Mandate of Heaven</h1>
+            <p>Minimal Working Simulator - Testing Core Functions</p>
+            
+            <div id="dataStatus" class="status status-loading">
+                Loading game data...
+            </div>
+            
+            <div class="controls">
+                <button onclick="testDataLoad()">Test Data Loading</button>
+                <button onclick="testGameStart()" id="startBtn" disabled>Start Test Game</button>
+                <button onclick="clearLog()">Clear Log</button>
+            </div>
+        </div>
+
+        <div class="log" id="logArea">
+            <div class="log-entry log-important">Minimal simulator initialized. Testing core functions...</div>
+        </div>
+    </div>
+
+    <script>
+        // Simple logging function
+        function log(message, type = 'normal') {
+            const logArea = document.getElementById('logArea');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logArea.insertBefore(entry, logArea.firstChild);
+            
+            // Limit entries
+            while (logArea.children.length > 50) {
+                logArea.removeChild(logArea.lastChild);
+            }
+            
+            console.log(message);
+        }
+
+        // Test data loading
+        async function testDataLoad() {
+            log('Testing data loading...', 'important');
+            
+            try {
+                log('Attempting to fetch heroes.json...');
+                const heroesRes = await fetch('./data/heroes.json');
+                log(`Heroes response: ${heroesRes.status} ${heroesRes.statusText}`);
+                
+                log('Attempting to fetch titles.json...');
+                const titlesRes = await fetch('./data/titles.json');
+                log(`Titles response: ${titlesRes.status} ${titlesRes.statusText}`);
+                
+                log('Attempting to fetch events.json...');
+                const eventsRes = await fetch('./data/events.json');
+                log(`Events response: ${eventsRes.status} ${eventsRes.statusText}`);
+
+                if (!heroesRes.ok || !titlesRes.ok || !eventsRes.ok) {
+                    throw new Error(`HTTP errors: Heroes:${heroesRes.status} Titles:${titlesRes.status} Events:${eventsRes.status}`);
+                }
+
+                const heroes = await heroesRes.json();
+                const titles = await titlesRes.json();
+                const events = await eventsRes.json();
+
+                log(`Successfully loaded: ${heroes.length} heroes, ${titles.length} titles, ${events.length} events`, 'success');
+                
+                // Test data structure
+                log('Testing data structure...');
+                if (heroes[0] && heroes[0].name && heroes[0].cost) {
+                    log(`Sample hero: ${heroes[0].name} - Cost: ${JSON.stringify(heroes[0].cost)}`, 'success');
+                }
+                
+                if (titles[0] && titles[0].name && titles[0].cost) {
+                    log(`Sample title: ${titles[0].name} - Cost: ${JSON.stringify(titles[0].cost)}`, 'success');
+                }
+                
+                if (events[0] && events[0].name && events[0].leadingResource) {
+                    log(`Sample event: ${events[0].name} - Leading: ${events[0].leadingResource}`, 'success');
+                }
+                
+                // Update status
+                const statusEl = document.getElementById('dataStatus');
+                statusEl.textContent = `Data loaded successfully: ${heroes.length}H, ${titles.length}T, ${events.length}E`;
+                statusEl.className = 'status status-ready';
+                
+                // Enable start button
+                document.getElementById('startBtn').disabled = false;
+                
+                log('Data loading test completed successfully!', 'success');
+                
+            } catch (error) {
+                log(`Data loading failed: ${error.message}`, 'error');
+                const statusEl = document.getElementById('dataStatus');
+                statusEl.textContent = `Error: ${error.message}`;
+                statusEl.className = 'status status-error';
+            }
+        }
+
+        // Test basic game mechanics
+        function testGameStart() {
+            log('Testing basic game mechanics...', 'important');
+            
+            try {
+                // Test resource calculations
+                const testResources = { military: 5, influence: 3, supplies: 2, piety: 4 };
+                const totalResources = Object.values(testResources).reduce((a, b) => a + b, 0);
+                log(`Resource calculation test: Total = ${totalResources}`, 'success');
+                
+                // Test random selection
+                const testArray = [1, 2, 3, 4, 5];
+                const shuffled = testArray.sort(() => Math.random() - 0.5);
+                log(`Random shuffle test: [${shuffled.join(', ')}]`, 'success');
+                
+                // Test turn order logic
+                const players = [
+                    { name: 'Player 1', resources: { military: 3, influence: 2, supplies: 1, piety: 0 } },
+                    { name: 'Player 2', resources: { military: 1, influence: 4, supplies: 2, piety: 1 } }
+                ];
+                
+                const leadingResource = 'influence';
+                const sorted = players.sort((a, b) => b.resources[leadingResource] - a.resources[leadingResource]);
+                
+                log(`Turn order test (${leadingResource} leading):`, 'success');
+                sorted.forEach((player, i) => {
+                    log(`  ${i + 1}. ${player.name}: ${player.resources[leadingResource]} ${leadingResource}`);
+                });
+                
+                log('Basic game mechanics test completed!', 'success');
+                
+            } catch (error) {
+                log(`Game mechanics test failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Clear log
+        function clearLog() {
+            document.getElementById('logArea').innerHTML = '<div class="log-entry log-important">Log cleared.</div>';
+        }
+
+        // Auto-run data loading test on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            log('Page loaded - ready for testing', 'important');
+            setTimeout(() => {
+                testDataLoad();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
