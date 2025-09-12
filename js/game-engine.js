@@ -136,10 +136,20 @@ class GameEngine {
         // Log turn order
         const resIcon = getResourceIcon(leadingResource);
         playerData.forEach((pd, i) => {
-            const resValue = pd.leadingValue || 0;
-            this.log(`${i + 1}. ${pd.player.name}: ${resIcon}${resValue} (S:${pd.shuCards} W:${pd.wuCards} WE:${pd.weiCards})`);
+            const resourceIcon = this.getResourceIcon(leadingResource);
+            this.log(`${i + 1}. ${pd.player.name}: ${resourceIcon}${pd.leadingValue} (S:${pd.shuCards} W:${pd.wuCards} WE:${pd.weiCards})`);
+            
+            // Debug log to verify we're reading cards correctly (remove after testing)
+            console.log(`${pd.player.name} turn order debug:`, {
+                leadingResource,
+                leadingValue: pd.leadingValue,
+                battlefieldCards: {
+                    wei: pd.player.battlefield.wei.map(c => `${c.name}(${c.military||0}M)`),
+                    wu: pd.player.battlefield.wu.map(c => `${c.name}(${c.military||0}M)`),
+                    shu: pd.player.battlefield.shu.map(c => `${c.name}(${c.military||0}M)`)
+                }
+            });
         });
-    }
 
     // Phase 3: Players make purchases in turn order
     purchasePhase() {
