@@ -78,7 +78,7 @@ class GameEngine {
     deploymentPhase() {
         this.log(`--- Turn ${this.turn}: Deployment Phase ---`, 'important');
         const leadingRes = this.currentEvent.leadingResource;
-        const resIcon = RESOURCE_ICONS[leadingRes] || '❓';
+        const resIcon = getResourceIcon(leadingRes);
         this.log(`Event: ${this.currentEvent.name} (Leading: ${resIcon} ${leadingRes})`);
 
         // All players deploy simultaneously
