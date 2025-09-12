@@ -136,23 +136,28 @@ class GameEngine {
     }
 
     // Phase 3: Players make purchases in turn order
-    purchasePhase() {
-        this.log(`--- Turn ${this.turn}: Purchase Phase ---`, 'important');
+purchasePhase() {
+    this.log(`--- Turn ${this.turn}: Purchase Phase ---`, 'important');
 
-        // Simple purchase phase for testing - players just pass for now
-        this.turnOrder.forEach(player => {
-            try {
-                // Simplified: just return cards to hand for now
+    this.turnOrder.forEach(player => {
+        try {
+            if (this.purchaseManager) {
+                this.purchaseManager.makePurchase(player);
+            } else {
+                // Fallback if purchase manager not initialized
                 player.returnCardsToHand();
-                this.log(`${player.name} returns cards to hand (purchase logic coming soon)`);
-            } catch (error) {
-                this.log(`ERROR in ${player.name} purchase: ${error.message}`, 'error');
+                this.log(`${player.name} returns cards to hand (no purchase manager)`);
             }
-        });
+        } catch (error) {
+            this.log(`ERROR in ${player.name} purchase: ${error.message}`, 'error');
+            player.passedTurns++;
+            player.returnCardsToHand();
+        }
+    });
 
-        this.phase = 'cleanup';
-        return false; // Game continues
-    }
+    this.phase = 'cleanup';
+    return false;
+}
 
     // Phase 4: Cleanup and advance turn
     cleanupPhase() {
