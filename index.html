@@ -1,4 +1,396 @@
-<!DOCTYPE html>
+        // Main application state
+        let gameData = null;
+        let currentGame = null;
+        let isAutoPlaying = false;
+        let statsManager = null;
+
+        // Initialize stats manager when modules are loaded
+        function initializeStatsManager() {
+            if (typeof StatsManager !== 'undefined') {
+                statsManager = new StatsManager();
+                document.getElementById('exportJsonBtn').disabled = false;
+                document.getElementById('exportCsvBtn').disabled = false;
+            }
+        }
+
+        // Logging function
+        function log(message, type = 'normal') {
+            const logArea = document.getElementById('logArea');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logArea.insertBefore(entry, logArea.firstChild);
+            
+            // Limit entries
+            while (logArea.children.length > 100) {
+                logArea.removeChild(logArea.lastChild);
+            }
+            
+            console.log(message);
+        }
+
+        // Test that all modules loaded correctly
+        function testModules() {
+            log('Testing module loading...', 'important');
+            
+            try {
+                // Test config module
+                if (typeof RESOURCE_ICONS === 'undefined') {
+                    throw new Error('RESOURCE_ICONS not loaded from config.js');
+                }
+                if (typeof GAME_CONFIG === 'undefined') {
+                    throw new Error('GAME_CONFIG not loaded from config.js');
+                }
+                log('✓ Config module loaded successfully', 'success');
+                
+                // Test player module
+                if (typeof Player === 'undefined') {
+                    throw new Error('Player class not loaded from player.js');
+                }
+                const testPlayer = new Player(0, 'Test', null);
+                testPlayer.addPeasants();
+                if (testPlayer.hand.length !== 4) {
+                    throw new Error('Player peasant creation failed');
+                }
+                log('✓ Player module loaded successfully', 'success');
+                
+                // Test game engine module
+                if (typeof GameEngine === 'undefined') {
+                    throw new Error('GameEngine class not loaded from game-engine.js');
+                }
+                log('✓ Game Engine module loaded successfully', 'success');
+                
+                // Test purchase manager module
+                if (typeof PurchaseManager === 'undefined') {
+                    throw new Error('PurchaseManager class not loaded from purchase-manager.js');
+                }
+                log('✓ Purchase Manager module loaded successfully', 'success');
+                
+                // Test stats manager module
+                if (typeof StatsManager === 'undefined') {
+                    throw new Error('StatsManager class not loaded from stats-manager.js');
+                }
+                log('✓ Stats Manager module loaded successfully', 'success');
+                
+                // Initialize stats manager
+                initializeStatsManager();
+                
+                // Test data loading
+                loadGameData();
+                
+            } catch (error) {
+                log(`Module test failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Load game data
+        async function loadGameData() {
+            try {
+                log('Loading game data...', 'important');
+                
+                const [heroesRes, titlesRes, eventsRes] = await Promise.all([
+                    fetch('./data/heroes.json'),
+                    fetch('./data/titles.json'),
+                    fetch('./data/events.json')
+                ]);
+
+                if (!heroesRes.ok || !titlesRes.ok || !eventsRes.ok) {
+                    throw new Error('Failed to fetch data files');
+                }
+
+                const heroes = await heroesRes.json();
+                const titles = await titlesRes.json();
+                const events = await eventsRes.json();
+
+                gameData = { heroes, titles, events };
+                
+                log(`Data loaded: ${heroes.length} heroes, ${titles.length} titles, ${events.length} events`, 'success');
+                
+                // Update status
+                const statusEl = document.getElementById('dataStatus');
+                statusEl.textContent = `Ready: ${heroes.length}H, ${titles.length}T, ${events.length}E`;
+                statusEl.className = 'status status-ready';
+                
+                // Enable game controls
+                document.getElementById('startBtn').disabled = false;
+                document.getElementById('bulkBtn').disabled = false;
+                document.getElementById('bulkSettings').style.display = 'block';
+                
+            } catch (error) {
+                log(`Data loading failed: ${error.message}`, 'error');
+                const statusEl = document.getElementById('dataStatus');
+                statusEl.textContent = `Error: ${error.message}`;
+                statusEl.className = 'status status-error';
+            }
+        }
+
+        // Start new game
+        function startGame() {
+            if (!gameData) {
+                log('Cannot start game - data not loaded', 'error');
+                return;
+            }
+
+            const playerCount = parseInt(document.getElementById('playerCount').value);
+            
+            try {
+                currentGame = new GameEngine(gameData, playerCount, log);
+                
+                // Initialize purchase manager for this game
+                currentGame.purchaseManager = new PurchaseManager(currentGame);
+                
+                currentGame.initialize();
+                
+                // Enable step controls
+                document.getElementById('stepBtn').disabled = false;
+                document.getElementById('autoBtn').disabled = false;
+                
+                // Show game info
+                document.getElementById('gameInfo').style.display = 'grid';
+                document.getElementById('playersArea').style.display = 'block';
+                
+                updateDisplay();
+                log(`Game started with ${playerCount} players!`, 'success');
+                
+            } catch (error) {
+                log(`Failed to start game: ${error.message}`, 'error');
+            }
+        }
+
+        // Execute one step of the game
+        function stepGame() {
+            if (!currentGame) {
+                log('No active game to step', 'error');
+                return;
+            }
+
+            try {
+                const gameOver = currentGame.executeStep();
+                updateDisplay();
+                
+                if (gameOver) {
+                    // Record game in stats
+                    if (statsManager) {
+                        statsManager.recordGame(currentGame);
+                        updateStatsDisplay();
+                        log('Game recorded in statistics', 'success');
+                    }
+                    
+                    log('Game completed!', 'success');
+                    document.getElementById('stepBtn').disabled = true;
+                    document.getElementById('autoBtn').disabled = true;
+                }
+                
+            } catch (error) {
+                log(`Step execution error: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-play the game
+        async function autoPlay() {
+            if (!currentGame || isAutoPlaying) return;
+            
+            isAutoPlaying = true;
+            document.getElementById('autoBtn').textContent = 'Stop Auto';
+            
+            try {
+                while (!currentGame.phase === 'complete' && isAutoPlaying) {
+                    const gameOver = currentGame.executeStep();
+                    updateDisplay();
+                    
+                    if (gameOver) {
+                        // Record game in stats
+                        if (statsManager) {
+                            statsManager.recordGame(currentGame);
+                            updateStatsDisplay();
+                        }
+                        break;
+                    }
+                    
+                    // Small delay to see the steps
+                    await new Promise(resolve => setTimeout(resolve, 200));
+                }
+                
+            } catch (error) {
+                log(`Auto-play error: ${error.message}`, 'error');
+            }
+            
+            isAutoPlaying = false;
+            document.getElementById('autoBtn').textContent = 'Auto Play';
+        }
+
+        // Run bulk simulation
+        async function runBulkSim() {
+            if (!gameData || !statsManager) {
+                log('Cannot run bulk simulation - data or stats manager not ready', 'error');
+                return;
+            }
+
+            const bulkCount = parseInt(document.getElementById('bulkCount').value) || 10;
+            const playerCount = parseInt(document.getElementById('playerCount').value);
+            
+            log(`Starting bulk simulation: ${bulkCount} games with ${playerCount} players`, 'important');
+            
+            // Disable controls during simulation
+            document.getElementById('bulkBtn').disabled = true;
+            document.getElementById('startBtn').disabled = true;
+            
+            try {
+                const results = await statsManager.runBulkSimulation(
+                    gameData, 
+                    playerCount, 
+                    bulkCount, 
+                    (completed, total) => {
+                        if (completed % Math.max(1, Math.floor(total / 10)) === 0) {
+                            log(`Progress: ${completed}/${total} games completed`);
+                            updateStatsDisplay();
+                        }
+                    }
+                );
+                
+                log(`Bulk simulation completed: ${bulkCount} games`, 'success');
+                log(`Average score: ${results.scoreStats?.average || 'N/A'}`, 'success');
+                
+                updateStatsDisplay();
+                
+            } catch (error) {
+                log(`Bulk simulation error: ${error.message}`, 'error');
+            }
+            
+            // Re-enable controls
+            document.getElementById('bulkBtn').disabled = false;
+            document.getElementById('startBtn').disabled = false;
+        }
+
+        // Export statistics
+        function exportStats(format) {
+            if (!statsManager) {
+                log('Stats manager not initialized', 'error');
+                return;
+            }
+
+            try {
+                const exportData = statsManager.exportData(format);
+                log(`Statistics exported as ${format.toUpperCase()}`, 'success');
+                log(`Exported ${exportData.exportInfo.totalGames} games of data`, 'success');
+                
+            } catch (error) {
+                log(`Export failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Clear statistics
+        function clearStats() {
+            if (statsManager) {
+                statsManager.clearStats();
+                updateStatsDisplay();
+                log('Statistics cleared', 'important');
+            }
+        }
+
+        // Update all display elements
+        function updateDisplay() {
+            if (!currentGame) return;
+
+            // Update game status
+            document.getElementById('turnDisplay').textContent = `${currentGame.turn}/${GAME_CONFIG.TOTAL_TURNS}`;
+            document.getElementById('phaseDisplay').textContent = currentGame.phase;
+            document.getElementById('eventDisplay').textContent = currentGame.currentEvent ? currentGame.currentEvent.name : '-';
+            
+            // Update progress bar
+            const progress = (currentGame.turn / GAME_CONFIG.TOTAL_TURNS) * 100;
+            document.getElementById('progressBar').style.width = `${Math.min(100, progress)}%`;
+            
+            // Update markets
+            document.getElementById('heroMarketCount').textContent = currentGame.heroMarket.length;
+            document.getElementById('titleMarketCount').textContent = currentGame.titleMarket.length;
+            
+            const availableHeroes = currentGame.gameData.heroes.length - currentGame.purchasedHeroes.length - currentGame.heroMarket.length;
+            document.getElementById('heroPoolCount').textContent = availableHeroes;
+            
+            // Update players
+            updatePlayersDisplay();
+            
+            // Update stats if available
+            updateStatsDisplay();
+        }
+
+        // Update statistics display
+        function updateStatsDisplay() {
+            if (!statsManager) return;
+            
+            const summary = statsManager.getSummary();
+            
+            if (summary.gamesPlayed) {
+                document.getElementById('statsGamesPlayed').textContent = summary.gamesPlayed;
+                document.getElementById('statsAvgScore').textContent = summary.scoreStats?.average || '-';
+            }
+        }
+
+        // Update players display
+        function updatePlayersDisplay() {
+            if (!currentGame) return;
+            
+            const container = document.getElementById('playersContainer');
+            container.innerHTML = '';
+            
+            currentGame.players.forEach((player, index) => {
+                const playerDiv = document.createElement('div');
+                playerDiv.className = 'player-card';
+                
+                const resources = player.calculateBattlefieldResources();
+                const totalResources = player.calculateTotalResources();
+                const allHeroes = player.getAllHeroes();
+                
+                // Create resource display with proper icons
+                const resourceDisplay = Object.entries(resources)
+                    .map(([res, val]) => `${RESOURCE_ICONS[res] || '?'}${val}`)
+                    .join(' ');
+                
+                const totalDisplay = Object.entries(totalResources)
+                    .map(([res, val]) => `${RESOURCE_ICONS[res] || '?'}${val}`)
+                    .join(' ');
+                
+                // Show battlefield deployment
+                const battlefieldInfo = Object.entries(player.battlefield)
+                    .map(([kingdom, cards]) => `${kingdom.toUpperCase()}: ${cards.length}`)
+                    .filter(info => !info.endsWith(': 0'))
+                    .join(', ') || 'Empty';
+                
+                // Show titles purchased
+                const titlesInfo = player.titlesPurchased.length > 0 
+                    ? player.titlesPurchased.map(title => title.name).join(', ')
+                    : 'None';
+                
+                playerDiv.innerHTML = `
+                    <div class="player-header">
+                        <h4>${player.name}</h4>
+                        <span>Score: ${player.score}</span>
+                    </div>
+                    <div><strong>Hand:</strong> ${player.hand.length} | <strong>Battlefield:</strong> ${battlefieldInfo}</div>
+                    <div><strong>Current Resources:</strong> ${resourceDisplay}</div>
+                    <div><strong>Total Collection:</strong> ${totalDisplay}</div>
+                    <div><strong>Heroes Owned:</strong> ${allHeroes.length} | <strong>Titles:</strong> ${player.titlesPurchased.length}</div>
+                    <div><strong>Titles:</strong> ${titlesInfo}</div>
+                    <div><strong>Emergency:</strong> ${player.emergencyUsed} | <strong>Passed:</strong> ${player.passedTurns}</div>
+                `;
+                
+                container.appendChild(playerDiv);
+            });
+        }
+
+        // Clear log
+        function clearLog() {
+            document.getElementById('logArea').innerHTML = '<div class="log-entry log-important">Log cleared.</div>';
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            log('Modular simulator loaded. Click "Test Modules" to begin.', 'important');
+        });
+    </script>
+</body>
+</html><!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
