@@ -321,4 +321,139 @@
                 
                 // Show game info
                 document.getElementById('gameInfo').style.display = 'grid';
-                document.getElementById('playersArea').style.display = 'block
+                document.getElementById('playersArea').style.display = 'block';
+                
+                updateDisplay();
+                log(`Game started with ${playerCount} players!`, 'success');
+                
+            } catch (error) {
+                log(`Failed to start game: ${error.message}`, 'error');
+            }
+        }
+
+        // Execute one step of the game
+        function stepGame() {
+            if (!currentGame) {
+                log('No active game to step', 'error');
+                return;
+            }
+
+            try {
+                const gameOver = currentGame.executeStep();
+                updateDisplay();
+                
+                if (gameOver) {
+                    log('Game completed!', 'success');
+                    document.getElementById('stepBtn').disabled = true;
+                    document.getElementById('autoBtn').disabled = true;
+                }
+                
+            } catch (error) {
+                log(`Step execution error: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-play the game
+        async function autoPlay() {
+            if (!currentGame || isAutoPlaying) return;
+            
+            isAutoPlaying = true;
+            document.getElementById('autoBtn').textContent = 'Stop Auto';
+            
+            try {
+                while (!currentGame.phase === 'complete' && isAutoPlaying) {
+                    const gameOver = currentGame.executeStep();
+                    updateDisplay();
+                    
+                    if (gameOver) {
+                        break;
+                    }
+                    
+                    // Small delay to see the steps
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
+                
+            } catch (error) {
+                log(`Auto-play error: ${error.message}`, 'error');
+            }
+            
+            isAutoPlaying = false;
+            document.getElementById('autoBtn').textContent = 'Auto Play';
+        }
+
+        // Update all display elements
+        function updateDisplay() {
+            if (!currentGame) return;
+
+            // Update game status
+            document.getElementById('turnDisplay').textContent = `${currentGame.turn}/${GAME_CONFIG.TOTAL_TURNS}`;
+            document.getElementById('phaseDisplay').textContent = currentGame.phase;
+            document.getElementById('eventDisplay').textContent = currentGame.currentEvent ? currentGame.currentEvent.name : '-';
+            
+            // Update progress bar
+            const progress = (currentGame.turn / GAME_CONFIG.TOTAL_TURNS) * 100;
+            document.getElementById('progressBar').style.width = `${Math.min(100, progress)}%`;
+            
+            // Update markets
+            document.getElementById('heroMarketCount').textContent = currentGame.heroMarket.length;
+            document.getElementById('titleMarketCount').textContent = currentGame.titleMarket.length;
+            
+            const availableHeroes = currentGame.gameData.heroes.length - currentGame.purchasedHeroes.length - currentGame.heroMarket.length;
+            document.getElementById('heroPoolCount').textContent = availableHeroes;
+            
+            // Update players
+            updatePlayersDisplay();
+        }
+
+        // Update players display
+        function updatePlayersDisplay() {
+            if (!currentGame) return;
+            
+            const container = document.getElementById('playersContainer');
+            container.innerHTML = '';
+            
+            currentGame.players.forEach((player, index) => {
+                const playerDiv = document.createElement('div');
+                playerDiv.className = 'player-card';
+                
+                const resources = player.calculateBattlefieldResources();
+                const totalResources = player.calculateTotalResources();
+                const allHeroes = player.getAllHeroes();
+                
+                // Create resource display
+                const resourceDisplay = Object.entries(resources)
+                    .map(([res, val]) => `${RESOURCE_ICONS[res]}${val}`)
+                    .join(' ');
+                
+                const totalDisplay = Object.entries(totalResources)
+                    .map(([res, val]) => `${RESOURCE_ICONS[res]}${val}`)
+                    .join(' ');
+                
+                playerDiv.innerHTML = `
+                    <div class="player-header">
+                        <h4>${player.name}</h4>
+                        <span>Score: ${player.score}</span>
+                    </div>
+                    <div>Hand: ${player.hand.length} | Battlefield: ${Object.values(player.battlefield).flat().length}</div>
+                    <div>Current Resources: ${resourceDisplay}</div>
+                    <div>Total Collection: ${totalDisplay}</div>
+                    <div>Heroes Owned: ${allHeroes.length} | Titles: ${player.titlesPurchased.length}</div>
+                    <div>Emergency Used: ${player.emergencyUsed} | Passed: ${player.passedTurns}</div>
+                `;
+                
+                container.appendChild(playerDiv);
+            });
+        }
+
+        // Clear log
+        function clearLog() {
+            document.getElementById('logArea').innerHTML = '<div class="log-entry log-important">Log cleared.</div>';
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            log('Modular simulator loaded. Click "Test Modules" to begin.', 'important');
+        });
+    </script>
+</body>
+</html>
