@@ -1,0 +1,1539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Three Kingdoms: Mandate of Heaven - Strategic Simulator</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: rgba(0,0,0,0.8);
+            padding: 25px;
+            border-radius: 15px;
+            border: 3px solid #d4af37;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        
+        .title {
+            font-size: 2.5em;
+            color: #d4af37;
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
+            font-weight: bold;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #ccc;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+        
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .control-group {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #d4af37;
+        }
+        
+        .control-label {
+            color: #d4af37;
+            font-weight: bold;
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 8px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            border: 2px solid #d4af37;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            background: linear-gradient(145deg, #d4af37, #b8860b);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            background: #666;
+        }
+        
+        .btn.danger {
+            background: linear-gradient(145deg, #ff6b6b, #d63031);
+            color: white;
+        }
+        
+        .stats-panel {
+            background: rgba(0,0,0,0.8);
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid #d4af37;
+            margin-bottom: 25px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .stat-section {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        .stat-title {
+            color: #d4af37;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+            padding: 3px 0;
+        }
+        
+        .stat-value {
+            color: #90EE90;
+            font-weight: bold;
+        }
+        
+        .game-area {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 25px;
+        }
+        
+        .players-panel {
+            background: rgba(0,0,0,0.8);
+            border-radius: 15px;
+            border: 2px solid #d4af37;
+            padding: 20px;
+        }
+        
+        .players-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+        }
+        
+        .player-card {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid #666;
+            transition: all 0.3s ease;
+        }
+        
+        .player-card.winner {
+            border-color: #00ff00;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+        }
+        
+        .player-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #d4af37;
+        }
+        
+        .player-name {
+            color: #d4af37;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        .player-score {
+            background: rgba(212, 175, 55, 0.2);
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-weight: bold;
+            color: #d4af37;
+        }
+        
+        .resource-display {
+            display: flex;
+            gap: 12px;
+            margin: 10px 0;
+            padding: 8px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 8px;
+            font-size: 0.9em;
+        }
+        
+        .resource-item {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+        
+        .collection-summary {
+            margin: 12px 0;
+            padding: 10px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            font-size: 0.85em;
+        }
+        
+        .titles-list {
+            margin-top: 10px;
+        }
+        
+        .title-entry {
+            background: rgba(139, 69, 19, 0.6);
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 8px;
+            border-left: 4px solid #d4af37;
+            font-size: 0.9em;
+        }
+        
+        .title-name {
+            font-weight: bold;
+            color: #d4af37;
+            margin-bottom: 3px;
+        }
+        
+        .title-details {
+            color: #ccc;
+            font-size: 0.85em;
+        }
+        
+        .log-panel {
+            background: rgba(0,0,0,0.8);
+            border: 2px solid #d4af37;
+            border-radius: 15px;
+            padding: 20px;
+            height: 800px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .log-header {
+            color: #d4af37;
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            text-align: center;
+        }
+        
+        .log-content {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        .log-entry {
+            padding: 8px 12px;
+            margin: 3px 0;
+            background: rgba(255,255,255,0.05);
+            border-radius: 6px;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+        
+        .log-entry.important {
+            background: rgba(212,175,55,0.2);
+            border-left: 4px solid #d4af37;
+            font-weight: bold;
+        }
+        
+        .log-entry.error {
+            background: rgba(255,0,0,0.2);
+            border-left: 4px solid #ff0000;
+            color: #ff6b6b;
+        }
+        
+        .log-entry.success {
+            background: rgba(0,255,0,0.2);
+            border-left: 4px solid #00ff00;
+            color: #90EE90;
+        }
+        
+        .log-entry.debug {
+            background: rgba(255,165,0,0.2);
+            border-left: 4px solid #ffa500;
+            color: #ffa500;
+            font-size: 0.8em;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2em;
+            color: #d4af37;
+        }
+        
+        .phase-indicator {
+            background: rgba(212, 175, 55, 0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            color: #d4af37;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        
+        .event-display {
+            background: rgba(139, 69, 19, 0.6);
+            padding: 12px;
+            border-radius: 10px;
+            border: 2px solid #d4af37;
+            margin-bottom: 15px;
+        }
+        
+        .event-name {
+            color: #d4af37;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .leading-resource {
+            color: #90EE90;
+            font-size: 0.9em;
+        }
+        
+        .markets-info {
+            background: rgba(255,255,255,0.1);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+        }
+        
+        .progress-bar {
+            background: rgba(255,255,255,0.2);
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #d4af37, #ffd700);
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+        
+        /* Scrollbar styling */
+        .log-content::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .log-content::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+        }
+        
+        .log-content::-webkit-scrollbar-thumb {
+            background: #d4af37;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">🏛️ Three Kingdoms: Mandate of Heaven</h1>
+            <p class="subtitle">Strategic Balance Simulator v3.2 - WITH HERO MARKET DEBUG</p>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <label class="control-label">Game Configuration</label>
+                    <select id="playerCount">
+                        <option value="2">2 Players</option>
+                        <option value="3">3 Players</option>
+                        <option value="4">4 Players</option>
+                    </select>
+                    <select id="aiStrategy" style="margin-top: 8px;">
+                        <option value="strategic">Strategic AI</option>
+                        <option value="balanced">Balanced AI</option>
+                        <option value="aggressive">Aggressive AI</option>
+                        <option value="random">Random AI</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label">Simulation Settings</label>
+                    <input type="number" id="bulkCount" min="1" max="1000" value="10" placeholder="Bulk Games">
+                    <select id="speedSetting" style="margin-top: 8px;">
+                        <option value="instant">Instant</option>
+                        <option value="fast">Fast (100ms)</option>
+                        <option value="normal">Normal (500ms)</option>
+                        <option value="slow">Slow (1000ms)</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label">Data Status</label>
+                    <div id="dataStatus" style="padding: 8px; border-radius: 6px; background: rgba(255,0,0,0.2);">
+                        Loading...
+                    </div>
+                </div>
+            </div>
+            
+            <div class="button-grid">
+                <button class="btn" onclick="gameSimulator.newGame()">New Game</button>
+                <button class="btn" id="stepButton" onclick="gameSimulator.step()" disabled>Next Step</button>
+                <button class="btn" id="autoButton" onclick="gameSimulator.autoPlay()" disabled>Auto Play</button>
+                <button class="btn" id="bulkButton" onclick="gameSimulator.runBulk()" disabled>Run Bulk</button>
+                <button class="btn danger" onclick="gameSimulator.clearStats()">Clear Stats</button>
+                <button class="btn" onclick="gameSimulator.exportData()">Export Data</button>
+            </div>
+        </div>
+
+        <div class="stats-panel">
+            <div class="stats-grid">
+                <div class="stat-section">
+                    <div class="stat-title">📊 Game Statistics</div>
+                    <div class="stat-row"><span>Games Played:</span> <span class="stat-value" id="gamesPlayed">0</span></div>
+                    <div class="stat-row"><span>Average Score:</span> <span class="stat-value" id="avgScore">-</span></div>
+                    <div class="stat-row"><span>Score Range:</span> <span class="stat-value" id="scoreRange">-</span></div>
+                    <div class="stat-row"><span>Winner Variety:</span> <span class="stat-value" id="winnerVariety">-</span></div>
+                </div>
+                
+                <div class="stat-section">
+                    <div class="stat-title">⚔️ Purchase Analysis</div>
+                    <div class="stat-row"><span>Avg Titles/Game:</span> <span class="stat-value" id="avgTitles">-</span></div>
+                    <div class="stat-row"><span>Avg Heroes/Game:</span> <span class="stat-value" id="avgHeroes">-</span></div>
+                    <div class="stat-row"><span>Pass Rate:</span> <span class="stat-value" id="passRate">-</span></div>
+                    <div class="stat-row"><span>Emergency Rate:</span> <span class="stat-value" id="emergencyRate">-</span></div>
+                </div>
+                
+                <div class="stat-section">
+                    <div class="stat-title">🎯 Balance Metrics</div>
+                    <div class="stat-row"><span>Turn Order Spread:</span> <span class="stat-value" id="turnOrderSpread">-</span></div>
+                    <div class="stat-row"><span>First Player Wins:</span> <span class="stat-value" id="firstPlayerWins">-</span></div>
+                    <div class="stat-row"><span>Resource Balance:</span> <span class="stat-value" id="resourceBalance">-</span></div>
+                    <div class="stat-row"><span>Title Variety:</span> <span class="stat-value" id="titleVariety">-</span></div>
+                </div>
+                
+                <div class="stat-section">
+                    <div class="stat-title">📈 Live Game Info</div>
+                    <div class="stat-row"><span>Current Turn:</span> <span class="stat-value" id="currentTurn">-</span></div>
+                    <div class="stat-row"><span>Phase:</span> <span class="stat-value" id="currentPhase">-</span></div>
+                    <div class="stat-row"><span>Hero Pool:</span> <span class="stat-value" id="heroPool">-</span></div>
+                    <div class="stat-row"><span>Title Pool:</span> <span class="stat-value" id="titlePool">-</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="game-area">
+            <div class="players-panel">
+                <div class="phase-indicator" id="phaseDisplay">Setup Phase</div>
+                
+                <div class="event-display" id="eventDisplay">
+                    <div class="event-name">No Event Active</div>
+                    <div class="leading-resource">Leading Resource: None</div>
+                </div>
+                
+                <div class="markets-info" id="marketsInfo">
+                    Markets: Heroes: - | Titles: -
+                </div>
+                
+                <div class="progress-bar">
+                    <div class="progress-fill" id="gameProgress" style="width: 0%"></div>
+                </div>
+                
+                <div class="players-grid" id="playersArea">
+                    <div class="loading">Initialize a new game to begin simulation</div>
+                </div>
+            </div>
+            
+            <div class="log-panel">
+                <div class="log-header">📜 Game Log</div>
+                <div class="log-content" id="logContent">
+                    <div class="log-entry important">Simulator ready. Load game data and start a new game to begin.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Resource icons and constants
+        const RESOURCE_ICONS = {
+            military: '⚔️',
+            influence: '📜', 
+            supplies: '📦',
+            piety: '🏛️'
+        };
+        
+        const KINGDOM_BONUSES = {
+            wei: 'influence',
+            wu: 'supplies', 
+            shu: 'piety'
+        };
+
+        // Main game simulator
+        const gameSimulator = {
+            // Data storage
+            gameData: {
+                heroes: [],
+                titles: [], 
+                events: [],
+                loaded: false
+            },
+            
+            // Game state
+            currentGame: null,
+            isRunning: false,
+            autoPlayActive: false,
+            
+            // Statistics
+            stats: {
+                gamesPlayed: 0,
+                totalScores: [],
+                winnerCounts: {},
+                titlePurchases: {},
+                heroPurchases: {},
+                emergencyUses: 0,
+                passedTurns: 0,
+                turnOrderStats: {},
+                resourceMajorities: { military: 0, influence: 0, supplies: 0, piety: 0 }
+            },
+
+            // Initialize simulator
+            async init() {
+                this.log('🚀 Initializing Three Kingdoms Simulator...', 'important');
+                
+                try {
+                    await this.loadGameData();
+                    this.updateDataStatus(true);
+                    this.enableControls();
+                    this.log('✅ Simulator ready! All game data loaded successfully.', 'success');
+                } catch (error) {
+                    this.log(`❌ Failed to load game data: ${error.message}`, 'error');
+                    this.updateDataStatus(false, error.message);
+                }
+            },
+
+            // Load JSON data files
+            async loadGameData() {
+                this.log('📁 Loading game data from JSON files...');
+                
+                const [heroesRes, titlesRes, eventsRes] = await Promise.all([
+                    fetch('./data/heroes.json'),
+                    fetch('./data/titles.json'), 
+                    fetch('./data/events.json')
+                ]);
+
+                if (!heroesRes.ok || !titlesRes.ok || !eventsRes.ok) {
+                    throw new Error('Failed to fetch one or more data files. Check file paths.');
+                }
+
+                this.gameData.heroes = await heroesRes.json();
+                this.gameData.titles = await titlesRes.json();
+                this.gameData.events = await eventsRes.json();
+                this.gameData.loaded = true;
+
+                this.log(`📊 Loaded: ${this.gameData.heroes.length} heroes, ${this.gameData.titles.length} titles, ${this.gameData.events.length} events`);
+                
+                // Validate data structure
+                this.validateGameData();
+            },
+
+            // Validate loaded data
+            validateGameData() {
+                const requiredHeroFields = ['id', 'name', 'allegiance', 'military', 'influence', 'supplies', 'piety', 'cost'];
+                const requiredTitleFields = ['id', 'name', 'requirement', 'cost'];
+                const requiredEventFields = ['id', 'name', 'leadingResource'];
+
+                // Sample validation
+                if (this.gameData.heroes.length === 0) throw new Error('No heroes loaded');
+                if (this.gameData.titles.length === 0) throw new Error('No titles loaded');
+                if (this.gameData.events.length === 0) throw new Error('No events loaded');
+
+                const sampleHero = this.gameData.heroes[0];
+                requiredHeroFields.forEach(field => {
+                    if (!(field in sampleHero)) throw new Error(`Missing hero field: ${field}`);
+                });
+
+                this.log(`✅ Data validation passed`);
+            },
+
+            // Update data status display
+            updateDataStatus(success, errorMsg = '') {
+                const statusEl = document.getElementById('dataStatus');
+                if (success) {
+                    statusEl.style.background = 'rgba(0,255,0,0.2)';
+                    statusEl.textContent = `✅ Ready: ${this.gameData.heroes.length}H, ${this.gameData.titles.length}T, ${this.gameData.events.length}E`;
+                } else {
+                    statusEl.style.background = 'rgba(255,0,0,0.2)';
+                    statusEl.textContent = `❌ Error: ${errorMsg}`;
+                }
+            },
+
+            // Enable/disable controls
+            enableControls() {
+                document.getElementById('stepButton').disabled = false;
+                document.getElementById('autoButton').disabled = false;
+                document.getElementById('bulkButton').disabled = false;
+            },
+
+            // Create new game
+            newGame() {
+                if (!this.gameData.loaded) {
+                    this.log('❌ Cannot start game - data not loaded', 'error');
+                    return;
+                }
+
+                const playerCount = parseInt(document.getElementById('playerCount').value);
+                this.currentGame = new ThreeKingdomsGame(this.gameData, playerCount, this);
+                this.currentGame.initialize();
+                
+                this.isRunning = true;
+                this.autoPlayActive = false;
+                
+                this.log(`🎮 New ${playerCount}-player game started!`, 'important');
+                this.updateDisplay();
+            },
+
+            // Single step execution
+            step() {
+                if (!this.currentGame || !this.isRunning) return;
+
+                try {
+                    const gameOver = this.currentGame.executeStep();
+                    this.updateDisplay();
+                    
+                    if (gameOver) {
+                        this.endGame();
+                    }
+                } catch (error) {
+                    this.log(`❌ Step execution error: ${error.message}`, 'error');
+                    this.isRunning = false;
+                }
+            },
+
+            // Auto-play entire game
+            async autoPlay() {
+                if (!this.currentGame || !this.isRunning) return;
+
+                this.autoPlayActive = true;
+                const speed = document.getElementById('speedSetting').value;
+                const delay = speed === 'instant' ? 0 : 
+                            speed === 'fast' ? 100 :
+                            speed === 'normal' ? 500 : 1000;
+
+                this.log('🤖 Auto-play started...', 'important');
+
+                while (this.isRunning && this.autoPlayActive) {
+                    const gameOver = this.currentGame.executeStep();
+                    this.updateDisplay();
+                    
+                    if (gameOver) {
+                        this.endGame();
+                        break;
+                    }
+                    
+                    if (delay > 0) {
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                    }
+                }
+            },
+
+            // Run bulk simulations
+            async runBulk() {
+                if (!this.gameData.loaded) return;
+
+                const bulkCount = parseInt(document.getElementById('bulkCount').value);
+                const playerCount = parseInt(document.getElementById('playerCount').value);
+                
+                this.log(`🔥 Starting bulk simulation: ${bulkCount} games`, 'important');
+
+                for (let i = 0; i < bulkCount; i++) {
+                    this.currentGame = new ThreeKingdomsGame(this.gameData, playerCount, this);
+                    this.currentGame.initialize();
+                    
+                    // Run game to completion instantly
+                    this.isRunning = true;
+                    while (this.isRunning) {
+                        const gameOver = this.currentGame.executeStep();
+                        if (gameOver) {
+                            this.endGame(true); // Silent end
+                            break;
+                        }
+                    }
+                    
+                    // Update progress
+                    if (i % Math.max(1, Math.floor(bulkCount / 10)) === 0) {
+                        this.updateDisplay();
+                        await new Promise(resolve => setTimeout(resolve, 1));
+                    }
+                }
+
+                this.log(`✅ Bulk simulation completed: ${bulkCount} games`, 'success');
+                this.updateDisplay();
+                this.showBulkAnalysis();
+            },
+
+            // End current game
+            endGame(silent = false) {
+                if (!this.currentGame) return;
+
+                this.isRunning = false;
+                this.autoPlayActive = false;
+
+                // Record statistics
+                this.recordGameStats();
+
+                if (!silent) {
+                    this.log('🏁 Game completed!', 'success');
+                    this.showGameResults();
+                }
+
+                this.updateDisplay();
+            },
+
+            // Record game statistics
+            recordGameStats() {
+                this.stats.gamesPlayed++;
+                
+                // Record scores
+                this.currentGame.players.forEach(player => {
+                    this.stats.totalScores.push(player.score);
+                });
+
+                // Record winner
+                const winner = this.currentGame.getWinner();
+                if (winner) {
+                    this.stats.winnerCounts[winner.name] = (this.stats.winnerCounts[winner.name] || 0) + 1;
+                }
+
+                // Record purchases
+                this.currentGame.players.forEach(player => {
+                    player.titlesPurchased.forEach(title => {
+                        this.stats.titlePurchases[title.name] = (this.stats.titlePurchases[title.name] || 0) + 1;
+                    });
+                    
+                    this.stats.emergencyUses += player.emergencyUsed;
+                    this.stats.passedTurns += player.passedTurns;
+                });
+            },
+
+            // Show game results
+            showGameResults() {
+                const winner = this.currentGame.getWinner();
+                if (winner) {
+                    this.log(`👑 Winner: ${winner.name} with ${winner.score} points!`, 'success');
+                }
+
+                this.currentGame.players.forEach((player, index) => {
+                    this.log(`${index + 1}. ${player.name}: ${player.score} pts (${player.titlesPurchased.length} titles, ${player.emergencyUsed} emergency)`, 'important');
+                });
+            },
+
+            // Show bulk analysis
+            showBulkAnalysis() {
+                this.log('📊 BULK ANALYSIS RESULTS', 'important');
+                
+                const avgScore = this.stats.totalScores.reduce((a, b) => a + b, 0) / this.stats.totalScores.length;
+                const minScore = Math.min(...this.stats.totalScores);
+                const maxScore = Math.max(...this.stats.totalScores);
+                
+                this.log(`Average Score: ${avgScore.toFixed(2)} (Range: ${minScore}-${maxScore})`);
+                
+                // Winner analysis
+                const sortedWinners = Object.entries(this.stats.winnerCounts)
+                    .sort(([,a], [,b]) => b - a)
+                    .slice(0, 3);
+                
+                this.log(`Top Winners: ${sortedWinners.map(([name, wins]) => `${name}: ${wins}`).join(', ')}`);
+                
+                // Title popularity
+                const sortedTitles = Object.entries(this.stats.titlePurchases)
+                    .sort(([,a], [,b]) => b - a)
+                    .slice(0, 5);
+                
+                this.log(`Popular Titles: ${sortedTitles.map(([name, count]) => `${name}: ${count}`).join(', ')}`);
+                
+                // Emergency and pass rates
+                const avgEmergency = this.stats.emergencyUses / this.stats.gamesPlayed;
+                const totalTurns = this.stats.gamesPlayed * 8 * parseInt(document.getElementById('playerCount').value);
+                const passRate = (this.stats.passedTurns / totalTurns) * 100;
+                
+                this.log(`Emergency Uses/Game: ${avgEmergency.toFixed(2)}`);
+                this.log(`Pass Rate: ${passRate.toFixed(1)}%`);
+                
+                // Resource majority summary
+                const totalMajorities = Object.values(this.stats.resourceMajorities).reduce((a, b) => a + b, 0);
+                if (totalMajorities > 0) {
+                    this.log(`Resource Majorities Awarded: ${totalMajorities} total`);
+                    Object.entries(this.stats.resourceMajorities).forEach(([res, count]) => {
+                        if (count > 0) {
+                            this.log(`  ${RESOURCE_ICONS[res]} ${res}: ${count} times`);
+                        }
+                    });
+                }
+            },
+
+            // Clear all statistics
+            clearStats() {
+                this.stats = {
+                    gamesPlayed: 0,
+                    totalScores: [],
+                    winnerCounts: {},
+                    titlePurchases: {},
+                    heroPurchases: {},
+                    emergencyUses: 0,
+                    passedTurns: 0,
+                    turnOrderStats: {},
+                    resourceMajorities: { military: 0, influence: 0, supplies: 0, piety: 0 }
+                };
+                
+                this.log('🗑️ Statistics cleared', 'important');
+                this.updateDisplay();
+            },
+
+            // Export simulation data
+            exportData() {
+                const exportData = {
+                    timestamp: new Date().toISOString(),
+                    stats: this.stats,
+                    gameData: {
+                        heroCount: this.gameData.heroes.length,
+                        titleCount: this.gameData.titles.length,
+                        eventCount: this.gameData.events.length
+                    }
+                };
+
+                const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `three-kingdoms-stats-${Date.now()}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+
+                this.log('📤 Statistics exported', 'success');
+            },
+
+            // Update all display elements
+            updateDisplay() {
+                this.updateStatsDisplay();
+                this.updateGameDisplay();
+                this.updateProgressBar();
+            },
+
+            // Update statistics display
+            updateStatsDisplay() {
+                const elements = {
+                    gamesPlayed: document.getElementById('gamesPlayed'),
+                    avgScore: document.getElementById('avgScore'),
+                    scoreRange: document.getElementById('scoreRange'),
+                    avgTitles: document.getElementById('avgTitles'),
+                    avgHeroes: document.getElementById('avgHeroes'),
+                    passRate: document.getElementById('passRate'),
+                    emergencyRate: document.getElementById('emergencyRate'),
+                    heroPool: document.getElementById('heroPool'),
+                    titlePool: document.getElementById('titlePool'),
+                    currentTurn: document.getElementById('currentTurn'),
+                    currentPhase: document.getElementById('currentPhase')
+                };
+
+                // Basic stats
+                if (elements.gamesPlayed) elements.gamesPlayed.textContent = this.stats.gamesPlayed;
+                if (elements.heroPool) elements.heroPool.textContent = this.gameData.heroes.length;
+                if (elements.titlePool) elements.titlePool.textContent = this.gameData.titles.length;
+
+                if (this.stats.gamesPlayed > 0) {
+                    const avgScore = this.stats.totalScores.reduce((a, b) => a + b, 0) / this.stats.totalScores.length;
+                    const minScore = Math.min(...this.stats.totalScores);
+                    const maxScore = Math.max(...this.stats.totalScores);
+
+                    if (elements.avgScore) elements.avgScore.textContent = avgScore.toFixed(1);
+                    if (elements.scoreRange) elements.scoreRange.textContent = `${minScore}-${maxScore}`;
+
+                    const totalPurchases = Object.values(this.stats.titlePurchases).reduce((a, b) => a + b, 0);
+                    const avgTitlesPerGame = totalPurchases / this.stats.gamesPlayed;
+                    if (elements.avgTitles) elements.avgTitles.textContent = avgTitlesPerGame.toFixed(1);
+
+                    const playerCount = parseInt(document.getElementById('playerCount').value);
+                    const totalTurns = this.stats.gamesPlayed * 8 * playerCount;
+                    const passRate = (this.stats.passedTurns / totalTurns) * 100;
+                    if (elements.passRate) elements.passRate.textContent = `${passRate.toFixed(1)}%`;
+
+                    const emergencyRate = (this.stats.emergencyUses / this.stats.gamesPlayed);
+                    if (elements.emergencyRate) elements.emergencyRate.textContent = emergencyRate.toFixed(1);
+                }
+
+                // Current game info
+                if (this.currentGame) {
+                    if (elements.currentTurn) elements.currentTurn.textContent = `${this.currentGame.turn}/8`;
+                    if (elements.currentPhase) elements.currentPhase.textContent = this.currentGame.phase;
+                }
+            },
+
+            // Update game display
+            updateGameDisplay() {
+                if (!this.currentGame) return;
+
+                // Update phase indicator
+                const phaseEl = document.getElementById('phaseDisplay');
+                if (phaseEl) {
+                    phaseEl.textContent = `Turn ${this.currentGame.turn}/8 - ${this.currentGame.phase}`;
+                }
+
+                // Update event display - FIXED resource icon display
+                const eventEl = document.getElementById('eventDisplay');
+                if (eventEl && this.currentGame.currentEvent) {
+                    const leadingRes = this.currentGame.currentEvent.leadingResource;
+                    const resIcon = RESOURCE_ICONS[leadingRes] || '❓';
+                    eventEl.innerHTML = `
+                        <div class="event-name">${this.currentGame.currentEvent.name}</div>
+                        <div class="leading-resource">Leading: ${resIcon} ${leadingRes}</div>
+                    `;
+                }
+
+                // Update markets info
+                const marketsEl = document.getElementById('marketsInfo');
+                if (marketsEl) {
+                    marketsEl.textContent = `Markets: Heroes: ${this.currentGame.heroMarket.length} | Titles: ${this.currentGame.titleMarket.length}`;
+                }
+
+                // Update players display
+                this.updatePlayersDisplay();
+            },
+
+            // Update players display
+            updatePlayersDisplay() {
+                const playersArea = document.getElementById('playersArea');
+                if (!playersArea || !this.currentGame) return;
+
+                playersArea.innerHTML = '';
+
+                this.currentGame.players.forEach((player, index) => {
+                    const playerCard = document.createElement('div');
+                    playerCard.className = 'player-card';
+                    
+                    // Highlight winner
+                    const winner = this.currentGame.getWinner();
+                    if (winner && winner.id === player.id && this.currentGame.turn > 8) {
+                        playerCard.classList.add('winner');
+                    }
+
+                    const resources = player.calculateBattlefieldResources();
+                    const totalResources = player.calculateTotalResources();
+
+                    // Collection summary
+                    const roleCount = this.countByProperty(player.getAllHeroes(), 'role');
+                    const allegianceCount = this.countByProperty(player.getAllHeroes(), 'allegiance');
+
+                    playerCard.innerHTML = `
+                        <div class="player-header">
+                            <div class="player-name">${player.name}</div>
+                            <div class="player-score">${player.score} pts</div>
+                        </div>
+                        
+                        <div class="resource-display">
+                            <div class="resource-item">
+                                <span>Battlefield:</span>
+                                ${Object.entries(resources).map(([res, val]) => 
+                                    `<span>${RESOURCE_ICONS[res]}${val}</span>`
+                                ).join('')}
+                            </div>
+                        </div>
+                        
+                        <div class="resource-display">
+                            <div class="resource-item">
+                                <span>Total Collection:</span>
+                                ${Object.entries(totalResources).map(([res, val]) => 
+                                    `<span>${RESOURCE_ICONS[res]}${val}</span>`
+                                ).join('')}
+                            </div>
+                        </div>
+                        
+                        <div class="collection-summary">
+                            <strong>Collection:</strong> ${player.getAllHeroes().length} heroes<br>
+                            <strong>Hand:</strong> ${player.hand.length} | <strong>Emergency:</strong> ${player.emergencyUsed}<br>
+                            <strong>Battlefield:</strong> ${Object.values(player.battlefield).flat().length} deployed
+                        </div>
+                        
+                        <div class="collection-summary">
+                            <strong>Roles:</strong> ${Object.entries(roleCount).map(([role, count]) => `${role}: ${count}`).join(', ')}<br>
+                            <strong>Allegiances:</strong> ${Object.entries(allegianceCount).map(([allegiance, count]) => `${allegiance}: ${count}`).join(', ')}
+                        </div>
+                        
+                        <div class="titles-list">
+                            ${player.titlesPurchased.map(title => {
+                                const collectionScore = player.calculateTitleScore(title);
+                                return `
+                                    <div class="title-entry">
+                                        <div class="title-name">${title.name}</div>
+                                        <div class="title-details">
+                                            Collection: ${collectionScore.collectionSize} | Points: ${collectionScore.points}<br>
+                                            <small>Retired: ${title.retiredHero?.name || 'Unknown'}</small>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    `;
+
+                    playersArea.appendChild(playerCard);
+                });
+            },
+
+            // Update progress bar
+            updateProgressBar() {
+                const progressEl = document.getElementById('gameProgress');
+                if (progressEl && this.currentGame) {
+                    const progress = (this.currentGame.turn / 8) * 100;
+                    progressEl.style.width = `${Math.min(100, progress)}%`;
+                }
+            },
+
+            // Utility function to count by property
+            countByProperty(array, property) {
+                return array.reduce((counts, item) => {
+                    const value = item[property];
+                    counts[value] = (counts[value] || 0) + 1;
+                    return counts;
+                }, {});
+            },
+
+            // Logging function
+            log(message, type = 'normal') {
+                const logContent = document.getElementById('logContent');
+                if (!logContent) return;
+
+                const entry = document.createElement('div');
+                entry.className = `log-entry ${type}`;
+                entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+
+                logContent.insertBefore(entry, logContent.firstChild);
+
+                // Limit log entries
+                while (logContent.children.length > 200) {
+                    logContent.removeChild(logContent.lastChild);
+                }
+
+                console.log(message);
+            }
+        };
+
+        // Three Kingdoms Game Class
+        class ThreeKingdomsGame {
+            constructor(gameData, playerCount, simulator) {
+                this.gameData = gameData;
+                this.playerCount = playerCount;
+                this.simulator = simulator;
+                this.players = [];
+                this.turn = 1;
+                this.phase = 'setup';
+                this.currentEvent = null;
+                this.events = [];
+                this.heroMarket = [];
+                this.titleMarket = [];
+                this.purchasedHeroes = [];
+                this.turnOrder = [];
+            }
+
+            initialize() {
+                this.simulator.log('🎲 Initializing game...');
+                
+                // Create players
+                for (let i = 0; i < this.playerCount; i++) {
+                    this.players.push(new Player(i, `Player ${i + 1}`, this));
+                }
+
+                // Shuffle and select events
+                this.events = this.shuffleArray([...this.gameData.events]).slice(0, 8);
+                this.currentEvent = this.events[0];
+
+                // Initialize markets
+                this.setupMarkets();
+
+                // Give players starting cards (4 peasants each)
+                this.players.forEach(player => {
+                    player.addPeasants();
+                });
+
+                this.phase = 'deployment';
+                this.simulator.log(`✅ Game initialized: ${this.playerCount} players, 8 turns`);
+            }
+
+            setupMarkets() {
+                // Hero market: 4 for 2p, 6 for 3-4p, +2 bonus on turn 1
+                const baseHeroSize = this.playerCount === 2 ? 4 : 6;
+                const turn1Bonus = this.turn === 1 ? 2 : 0;
+                const heroMarketSize = baseHeroSize + turn1Bonus;
+
+                this.heroMarket = this.shuffleArray([...this.gameData.heroes]).slice(0, heroMarketSize);
+
+                // Title market: playerCount + 2
+                const titleMarketSize = this.playerCount + 2;
+                this.titleMarket = this.shuffleArray([...this.gameData.titles]).slice(0, titleMarketSize);
+
+                this.simulator.log(`📊 Markets: ${this.heroMarket.length} heroes, ${this.titleMarket.length} titles`);
+            }
+
+            executeStep() {
+                switch (this.phase) {
+                    case 'deployment':
+                        return this.deploymentPhase();
+                    case 'reveal':
+                        return this.revealPhase();
+                    case 'purchase':
+                        return this.purchasePhase();
+                    case 'cleanup':
+                        return this.cleanupPhase();
+                    case 'endgame':
+                        return this.endGamePhase();
+                    default:
+                        return true; // Game over
+                }
+            }
+
+            deploymentPhase() {
+                this.simulator.log(`--- Turn ${this.turn}: Deployment Phase ---`, 'important');
+                const leadingRes = this.currentEvent.leadingResource;
+                const resIcon = RESOURCE_ICONS[leadingRes] || '❓';
+                this.simulator.log(`Event: ${this.currentEvent.name} (Leading: ${resIcon} ${leadingRes})`);
+
+                // All players deploy simultaneously
+                this.players.forEach(player => {
+                    player.deployCards();
+                });
+
+                this.phase = 'reveal';
+                return false;
+            }
+
+            revealPhase() {
+                this.simulator.log(`--- Turn ${this.turn}: Reveal & Turn Order ---`, 'important');
+
+                // Calculate turn order
+                this.calculateTurnOrder();
+
+                this.phase = 'purchase';
+                return false;
+            }
+
+            calculateTurnOrder() {
+                const leadingResource = this.currentEvent.leadingResource;
+
+                const playerData = this.players.map((player, index) => {
+                    const resources = player.calculateBattlefieldResources();
+                    const kingdoms = player.battlefield;
+
+                    return {
+                        player: player,
+                        index: index,
+                        leadingValue: resources[leadingResource] || 0,
+                        shuCards: kingdoms.shu.length,
+                        wuCards: kingdoms.wu.length,
+                        weiCards: kingdoms.wei.length
+                    };
+                });
+
+                // Sort by turn order rules
+                playerData.sort((a, b) => {
+                    if (a.leadingValue !== b.leadingValue) return b.leadingValue - a.leadingValue;
+                    if (a.shuCards !== b.shuCards) return b.shuCards - a.shuCards;
+                    if (a.wuCards !== b.wuCards) return b.wuCards - a.wuCards;
+                    if (a.weiCards !== b.weiCards) return b.weiCards - a.weiCards;
+                    return a.index - b.index; // Fallback to player order
+                });
+
+                this.turnOrder = playerData.map(pd => pd.player);
+
+                // Log turn order - FIXED display
+                playerData.forEach((pd, i) => {
+                    const resValue = pd.leadingValue || 0;
+                    const resIcon = RESOURCE_ICONS[leadingResource] || '❓';
+                    this.simulator.log(`${i + 1}. ${pd.player.name}: ${resIcon}${resValue} (S:${pd.shuCards} W:${pd.wuCards} WE:${pd.weiCards})`);
+                });
+            }
+
+            purchasePhase() {
+                this.simulator.log(`--- Turn ${this.turn}: Purchase Phase ---`, 'important');
+
+                // Each player makes purchases in turn order
+                this.turnOrder.forEach(player => {
+                    try {
+                        player.makePurchase();
+                    } catch (error) {
+                        this.simulator.log(`ERROR in ${player.name} purchase: ${error.message}`, 'error');
+                        player.passedTurns++;
+                        player.returnCardsToHand();
+                    }
+                });
+
+                this.phase = 'cleanup';
+                return false;
+            }
+
+            cleanupPhase() {
+                this.simulator.log(`--- Turn ${this.turn}: Cleanup ---`);
+
+                // Market cleanup - discard bottom 2 heroes
+                if (this.heroMarket.length >= 2) {
+                    const discarded = this.heroMarket.splice(-2, 2);
+                    this.simulator.log(`Market cleanup: Discarded ${discarded.map(h => h.name).join(', ')}`);
+                }
+
+                // Refill hero market with DEBUG info
+                this.refillHeroMarket();
+
+                // Advance turn
+                this.turn++;
+                
+                if (this.turn > 8) {
+                    this.phase = 'endgame';
+                } else {
+                    this.currentEvent = this.events[this.turn - 1];
+                    this.phase = 'deployment';
+                    this.simulator.log(`Turn ${this.turn} begins: ${this.currentEvent.name}`, 'important');
+                }
+
+                return false;
+            }
+
+            // HERO MARKET DEBUG VERSION
+            refillHeroMarket() {
+                const targetSize = this.playerCount === 2 ? 4 : 6;
+                const totalHeroes = this.gameData.heroes.length;
+                const purchasedCount = this.purchasedHeroes.length;
+                const currentMarketSize = this.heroMarket.length;
+                
+                const availableHeroes = this.gameData.heroes.filter(hero => 
+                    !this.heroMarket.some(mh => mh.id === hero.id) && 
+                    !this.purchasedHeroes.some(ph => ph.id === hero.id)
+                );
+                
+                const availableCount = availableHeroes.length;
+                
+                this.simulator.log(`🔄 Market refill: Target=${targetSize}, Current=${currentMarketSize}, Available=${availableCount}, Purchased=${purchasedCount}/${totalHeroes}`, 'debug');
+                
+                // Debug: Show current market costs
+                const currentCosts = this.heroMarket.map(h => {
+                    const totalCost = (h.cost.military || 0) + (h.cost.influence || 0) + (h.cost.supplies || 0) + (h.cost.piety || 0);
+                    return `${h.name}(${totalCost})`;
+                });
+                this.simulator.log(`📋 Current market: [${currentCosts.join(', ')}]`, 'debug');
+
+                while (this.heroMarket.length < targetSize && availableHeroes.length > 0) {
+                    const randomIndex = Math.floor(Math.random() * availableHeroes.length);
+                    const newHero = availableHeroes.splice(randomIndex, 1)[0];
+                    this.heroMarket.push(newHero);
+                    
+                    const newCost = (newHero.cost.military || 0) + (newHero.cost.influence || 0) + (newHero.cost.supplies || 0) + (newHero.cost.piety || 0);
+                    this.simulator.log(`➕ Added ${newHero.name}(${newCost}) to market`, 'debug');
+                }
+                
+                if (availableHeroes.length === 0 && this.heroMarket.length < targetSize) {
+                    this.simulator.log(`⚠️ HERO POOL DEPLETED! Only ${this.heroMarket.length}/${targetSize} heroes in market`, 'error');
+                }
+            }
+
+            endGamePhase() {
+                this.simulator.log(`=== FINAL SCORING ===`, 'important');
+
+                // Calculate final scores
+                this.players.forEach(player => {
+                    player.calculateFinalScore();
+                });
+
+                // Calculate resource majority bonuses
+                this.calculateResourceMajorities();
+
+                // Sort players by score
+                this.players.sort((a, b) => b.score - a.score);
+
+                this.phase = 'complete';
+                return true; // Game over
+            }
+
+            // FIXED: Resource majority scoring
+            calculateResourceMajorities() {
+                this.simulator.log(`--- RESOURCE MAJORITY BONUSES ---`, 'important');
+                
+                // Count how many times each resource was leading in the 8 events played
+                const resourceCounts = { military: 0, influence: 0, supplies: 0, piety: 0 };
+                
+                // Only count the 8 events actually played in this game
+                const eventsPlayed = this.events.slice(0, 8);
+                eventsPlayed.forEach(event => {
+                    resourceCounts[event.leadingResource]++;
+                });
+
+                this.simulator.log(`Resource frequencies: ${Object.entries(resourceCounts).map(([res, count]) => `${RESOURCE_ICONS[res]}${count}`).join(' ')}`);
+
+                // Award bonuses for each resource type
+                Object.entries(resourceCounts).forEach(([resource, bonusPoints]) => {
+                    if (bonusPoints === 0) return;
+
+                    let maxValue = 0;
+                    let winners = [];
+
+                    // Find player(s) with highest total in this resource
+                    this.players.forEach(player => {
+                        const total = player.calculateTotalResources()[resource];
+                        if (total > maxValue) {
+                            maxValue = total;
+                            winners = [player];
+                        } else if (total === maxValue && total > 0) {
+                            winners.push(player);
+                        }
+                    });
+
+                    // Award bonus only if there's a clear winner (no ties)
+                    if (winners.length === 1 && maxValue > 0) {
+                        winners[0].score += bonusPoints;
+                        this.simulator.log(`${winners[0].name} wins ${resource} majority (${maxValue} total) for +${bonusPoints} points`, 'success');
+                        
+                        // Track for statistics
+                        this.simulator.stats.resourceMajorities[resource]++;
+                    } else if (maxValue > 0) {
+                        this.simulator.log(`${resource} majority tied between ${winners.map(w => w.name).join(', ')} (${maxValue} each) - no bonus awarded`);
+                    }
+                });
+            }
+
+            getWinner() {
+                if (this.players.length === 0) return null;
+                return this.players.reduce((winner, player) => 
+                    player.score > winner.score ? player : winner
+                );
+            }
+
+            shuffleArray(array) {
+                const shuffled = [...array];
+                for (let i = shuffled.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+                }
+                return shuffled;
+            }
+        }
+
+        // Player Class - WITH PURCHASE DEBUGGING
+        class Player {
+            constructor(id, name, game) {
+                this.id = id;
+                this.name = name;
+                this.game = game;
+                this.hand = [];
+                this.battlefield = { wei: [], wu: [], shu: [] };
+                this.titlesPurchased = [];
+                this.retiredHeroes = [];
+                this.score = 0;
+                this.emergencyUsed = 0;
+                this.passedTurns = 0;
+            }
+
+            addPeasants() {
+                const peasantTypes = ['military', 'influence', 'supplies', 'piety'];
+                peasantTypes.forEach((type, index) => {
+                    const peasant = this.createPeasant(type);
+                    this.hand.push(peasant);
+                });
+            }
+
+            createPeasant(type) {
+                const peasant = {
+                    id: `peasant_${type}`,
+                    name: `${type.charAt(0).toUpperCase() + type.slice(1)} Peasant`,
+                    allegiance: 'Peasant',
+                    role: 'Peasant',
+                    military: 0,
+                    influence: 0,
+                    supplies: 0,
+                    piety: 0
+                };
+                peasant[type] = 2;
+                return peasant;
+            }
+
+            deployCards() {
+                const strategy = document.getElementById('aiStrategy').value;
+                const maxCards = Math.min(3, this.hand.length);
+                
+                if (maxCards === 0) {
+                    this.game.simulator.log(`${this.name} has no cards to deploy`);
+                    return;
+                }
+
+                // Choose cards to deploy based on strategy
+                let cardsToPlay = [];
+                
+                if (strategy === 'strategic') {
+                    cardsToPlay = this.chooseStrategicCards(maxCards);
+                } else if (strategy === 'balanced') {
+                    cardsToPlay = this.chooseBalancedCards(maxCards);
+                } else if (strategy === 'aggressive') {
+                    cardsToPlay = this.chooseAggressiveCards(maxCards);
+                } else {
+                    cardsToPlay = this.chooseRandomCards(maxCards);
+                }
+
+                // Deploy chosen cards
+                const deployed = [];
+                cardsToPlay.forEach(card => {
+                    const kingdom = this.chooseBestKingdom(card, strategy);
+                    this.battlefield[kingdom].push(card);
+                    this.hand.splice(this.hand.indexOf(card), 1);
+                    deployed.push(`${card.name} → ${kingdom.toUpperCase()}`);
+                });
+
+                if (deployed.length > 0) {
+                    this.game.simulator.log(`${this.name} deploys: ${deployed.join(', ')}`);
+                    
+                    const resources = this.calculateBattlefieldResources();
+                    this.game.simulator.log(`  Resources: ${Object.entries(resources).map(([res, val]) => `${RESOURCE_ICONS[res]}${val}`).join(' ')}`);
+                }
+            }
+
+            chooseStrategicCards(maxCards) {
+                // Prefer non-peasants, then highest value cards
+                const sortedCards = [...this.hand].sort((a, b) => {
+                    const aPeasant = a.name.includes('Peasant') ? 0 : 1;
+                    const bPeasant = b.name.includes('Peasant') ? 0 : 1;
+                    if (aPeasant !== bPeasant) return bPeasant - aPeasant;
+                    
+                    const aValue = this.calculateCardValue(a);
+                    const bValue = this.calculateCardValue(b);
+                    return bValue - aValue;
+                });
+                
+                return sortedCards.slice(0, maxCards);
+            }
+
+            chooseBalancedCards(maxCards) {
+                // Mix of good cards and resource balance
+                const nonPeasants = this.hand.filter(card => !card.name.includes('Peasant'));
+                const peasants = this.hand.filter(card => card.name.includes('Peasant'));
+                
+                const cards = [];
+                const targetNonPeasants = Math.min(nonPeasants.length, Math.ceil(maxCards * 0.7));
+                
+                cards.push(...nonPeasants.slice(0, targetNonPeasants));
+                cards.push(...peasants.slice(0, maxCards - cards.length));
+                
+                return cards;
+            }
+
+            chooseAggressiveCards(maxCards) {
+                // All best available cards
+                const sortedCards = [...this.hand].sort((a, b) => {
+                    const aValue = this.calculateCardValue(a);
+                    const bValue = this.calculateCardValue(b);
+                    return bValue - aValue;
+                });
+                
+                return sortedCards.slice(0, maxCards);
+            }
+
+            chooseRandomCards(maxCards) {
+                const shuffled = [...this.hand].sort(() => Math.random() - 0.5);
+                return shuffled.slice(0, maxCards);
+            }
+
+            calculateCardValue(card) {
+                // Simple card value calculation
+                return Math.max(0, card.military || 0) + 
+                       Math.max(0, card.influence || 0) + 
+                       Math.max(0, card.supplies || 0) + 
+                       Math.max(0, card.piety || 0);
+            }
+
+            chooseBestKingdom(card, strategy) {
+                const availableKingdoms = ['wei', 'wu', 'shu'].filter(k => 
+                    this.battlefield[k].length < 3
+                );
+                
+                if (availableKingdoms.length === 0) return 'wei'; // Fallback
+                
+                if (strategy === 'strategic') {
+                    // Try to get column bonuses
+                    const almostBonus = availableKingdoms.filter(k => 
+                        this.battlefield[k].length === 1
+                    );
+                    
+                    if (almostBonus.length > 0) {
+                        return almostBonus[0];
+                    }
+                }
+                
+                // Random selection from available
+                return availableKingdoms[Math.floor(Math.random() * availableKingdoms.length)];
+            }
+
+            // FIXED: Include negative values in battlefield calculations
+            calculateBattlefieldResources() {
+                const resources = { military: 0, influence: 0, supplies: 0, piety: 0 };
+                
+                // Sum all card values INCLUDING negatives
+                Object.values(this.battlefield).flat().forEach(card => {
+                    resources.military += card.military || 0;
+                    resources.influence += card.influence || 0;
+                    resources.supplies += card.supplies || 0;
+                    resources.piety += card.piety || 0;
+                });
+                
+                // Add column bonuses
+                Object.entries(this.battlefield).forEach(([kingdom, cards]) => {
+                    if (cards.length >= 2) {
+                        const bonusResource = KINGDOM_BONUSES[kingdom];
+                        resources[bonusResource] += 1;
+                    }
+                });
+                
+                return resources;
