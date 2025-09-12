@@ -27,6 +27,12 @@ const GAME_CONFIG = {
     TURN_1_HERO_BONUS: 2
 };
 
+// Add fallback function for resource icons
+function getResourceIcon(resource) {
+    const normalized = resource.toLowerCase();
+    return RESOURCE_ICONS[normalized] || '❓';
+}
+
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = { RESOURCE_ICONS, KINGDOM_BONUSES, GAME_CONFIG };
