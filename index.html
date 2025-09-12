@@ -1143,8 +1143,9 @@
 
             deploymentPhase() {
                 this.simulator.log(`--- Turn ${this.turn}: Deployment Phase ---`, 'important');
-                this.simulator.log(`Event: ${this.currentEvent.name} (Leading: ${RESOURCE_ICONS[this.currentEvent.leadingResource]} ${this.currentEvent.leadingResource})`);
-
+const leadingRes = this.currentEvent.leadingResource;
+const resIcon = RESOURCE_ICONS[leadingRes] || '❓';
+this.simulator.log(`Event: ${this.currentEvent.name} (Leading: ${resIcon} ${leadingRes})`);
                 // All players deploy simultaneously
                 this.players.forEach(player => {
                     player.deployCards();
@@ -1167,9 +1168,11 @@
             calculateTurnOrder() {
                 const leadingResource = this.currentEvent.leadingResource;
 
-                const playerData = this.players.map((player, index) => {
-                    const resources = player.calculateBattlefieldResources();
-                    const kingdoms = player.battlefield;
+playerData.forEach((pd, i) => {
+    const resValue = pd.leadingValue || 0;
+    const resIcon = RESOURCE_ICONS[leadingResource] || '❓';
+    this.simulator.log(`${i + 1}. ${pd.player.name}: ${resIcon}${resValue} (S:${pd.shuCards} W:${pd.wuCards} WE:${pd.weiCards})`);
+});
 
                     return {
                         player: player,
