@@ -29,8 +29,14 @@ class GameEngine {
             this.players.push(player);
         }
 
-        // Shuffle and select events for this game
-        this.events = this.shuffleArray([...this.gameData.events]).slice(0, GAME_CONFIG.TOTAL_TURNS);
+        // Ensure first event is always "Power of Han Wanes", then shuffle the rest
+        const powerOfHan = this.gameData.events.find(e => e.name === "The power of the Han wanes") || 
+                          this.gameData.events.find(e => e.leadingResource === "military");
+                          
+        const otherEvents = this.gameData.events.filter(e => e.id !== powerOfHan?.id);
+        const shuffledOthers = this.shuffleArray(otherEvents).slice(0, GAME_CONFIG.TOTAL_TURNS - 1);
+        
+        this.events = [powerOfHan, ...shuffledOthers];
         this.currentEvent = this.events[0];
 
         // Initialize markets
@@ -128,7 +134,7 @@ class GameEngine {
         this.turnOrder = playerData.map(pd => pd.player);
 
         // Log turn order
-        const resIcon = RESOURCE_ICONS[leadingResource] || '❓';
+        const resIcon = getResourceIcon(leadingResource);
         playerData.forEach((pd, i) => {
             const resValue = pd.leadingValue || 0;
             this.log(`${i + 1}. ${pd.player.name}: ${resIcon}${resValue} (S:${pd.shuCards} W:${pd.wuCards} WE:${pd.weiCards})`);
@@ -136,23 +142,23 @@ class GameEngine {
     }
 
     // Phase 3: Players make purchases in turn order
-purchasePhase() {
-    this.log(`--- Turn ${this.turn}: Purchase Phase ---`, 'important');
-
-    this.turnOrder.forEach(player => {
-        try {
-            if (this.purchaseManager) {
-                this.purchaseManager.makePurchase(player);
-            } else {
-                // Fallback if purchase manager not initialized
+    purchasePhase() {
+        this.log(`--- Turn ${this.turn}: Purchase Phase ---`, 'important');
+    
+        this.turnOrder.forEach(player => {
+            try {
+                if (this.purchaseManager) {
+                    this.purchaseManager.makePurchase(player);
+                } else {
+                    // Fallback if purchase manager not initialized
+                    player.returnCardsToHand();
+                    this.log(`${player.name} returns cards to hand (no purchase manager)`);
+                }
+            } catch (error) {
+                this.log(`ERROR in ${player.name} purchase: ${error.message}`, 'error');
+                player.passedTurns++;
                 player.returnCardsToHand();
-                this.log(`${player.name} returns cards to hand (no purchase manager)`);
             }
-        } catch (error) {
-            this.log(`ERROR in ${player.name} purchase: ${error.message}`, 'error');
-            player.passedTurns++;
-            player.returnCardsToHand();
-        }
     });
 
     this.phase = 'cleanup';
