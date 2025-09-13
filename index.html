@@ -197,15 +197,23 @@
         </div>
     </div>
 
-    <!-- Load modules in order -->
-    <script src="js/config.js"></script>
-    <script src="js/player.js"></script>
-    <script src="js/purchase-manager.js"></script>  <!-- Must come before game-engine -->
-    <script src="js/game-engine.js"></script>
-    <script src="js/stats-manager.js"></script>
+<script type="module">
+    // Import all ES6 modules
+    import { GAME_CONFIG, RESOURCE_ICONS } from './js/config.js';
+    import { Player } from './js/player.js';  
+    import { PurchaseManager } from './js/purchase-manager.js';
+    import { GameEngine } from './js/game-engine.js';
+    import { StatsManager } from './js/stats-manager.js';
+
+        // Make available globally for HTML onclick functions
+    window.GAME_CONFIG = GAME_CONFIG;
+    window.RESOURCE_ICONS = RESOURCE_ICONS;
+    window.Player = Player;
+    window.PurchaseManager = PurchaseManager;
+    window.GameEngine = GameEngine;
+    window.StatsManager = StatsManager;
     
-    <script>
-        // Main application state
+            // Main application state
         let gameData = null;
         let currentGame = null;
         let isAutoPlaying = false;
