@@ -465,6 +465,33 @@
         document.addEventListener('DOMContentLoaded', () => {
             log('Modular simulator loaded. Click "Test Modules" to begin.', 'important');
         });
+
+        let gameData = null;
+    let currentGame = null;
+    let isAutoPlaying = false;
+
+    function log(message, type = 'normal') {
+        const logArea = document.getElementById('logArea');
+        const entry = document.createElement('div');
+        entry.className = `log-entry log-${type}`;
+        entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+        logArea.insertBefore(entry, logArea.firstChild);
+        
+        while (logArea.children.length > 100) {
+            logArea.removeChild(logArea.lastChild);
+        }
+        console.log(message);
+    }
+
+    function testModules() {
+        log('Testing module loading...', 'important');
+        // Rest of your testModules function
+    }
+
+    // Make functions globally available for onclick handlers
+    window.testModules = testModules;
+    window.log = log;
+    
     </script>
 </body>
 </html>
