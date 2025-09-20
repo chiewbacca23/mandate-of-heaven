@@ -3,495 +3,388 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Three Kingdoms: Mandate of Heaven - Modular Simulator</title>
+    <title>Three Kingdoms: Mandate of Heaven - Strategic Simulator</title>
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: Arial, sans-serif;
-            background: #1a1a2e;
-            color: white;
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%);
+            color: #fff;
+            min-height: 100vh;
             padding: 20px;
         }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+        .container { max-width: 1600px; margin: 0 auto; }
         .header {
             background: rgba(0,0,0,0.8);
             padding: 20px;
-            border: 2px solid #d4af37;
             border-radius: 10px;
+            border: 2px solid #d4af37;
             margin-bottom: 20px;
         }
-        .controls {
-            margin: 20px 0;
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
+        .title { 
+            font-size: 2em; 
+            color: #d4af37; 
+            text-align: center; 
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
-        button {
+        .controls { 
+            display: flex; 
+            gap: 10px; 
+            justify-content: center; 
+            margin-top: 15px; 
+            flex-wrap: wrap; 
+        }
+        .btn {
             padding: 10px 20px;
             background: #d4af37;
-            color: black;
+            color: #000;
             border: none;
             border-radius: 5px;
             cursor: pointer;
             font-weight: bold;
+            transition: all 0.3s ease;
         }
-        button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
+        .btn:hover { 
+            opacity: 0.9; 
+            transform: translateY(-2px);
         }
-        button:hover:not(:disabled) {
-            background: #b8860b;
+        .btn:disabled { 
+            opacity: 0.5; 
+            cursor: not-allowed; 
+            transform: none;
         }
-        .settings {
-            margin: 15px 0;
+        .btn.success { background: #28a745; color: white; }
+        .btn.danger { background: #dc3545; color: white; }
+        
+        .status-panel {
+            background: rgba(0,0,0,0.8);
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #d4af37;
+            margin-bottom: 20px;
         }
-        select {
-            padding: 5px;
-            background: #333;
-            color: white;
-            border: 1px solid #d4af37;
-            border-radius: 3px;
-            margin-left: 10px;
-        }
-        .game-info {
+        
+        .status-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
         }
-        .info-panel {
-            background: rgba(0,0,0,0.8);
-            border: 2px solid #d4af37;
-            border-radius: 10px;
-            padding: 15px;
-        }
-        .players-area {
-            background: rgba(0,0,0,0.8);
-            border: 2px solid #d4af37;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 20px;
-        }
-        .player-card {
+        
+        .status-item {
             background: rgba(255,255,255,0.1);
-            margin: 10px 0;
-            padding: 15px;
-            border-radius: 8px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
         }
-        .player-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
+        
+        .status-item.success { 
+            background: rgba(40, 167, 69, 0.3); 
+            border: 1px solid #28a745;
         }
-        .log {
+        
+        .status-item.error { 
+            background: rgba(220, 53, 69, 0.3); 
+            border: 1px solid #dc3545;
+        }
+        
+        .log-panel {
             background: rgba(0,0,0,0.8);
             border: 2px solid #d4af37;
             border-radius: 10px;
-            padding: 20px;
+            padding: 15px;
             height: 400px;
             overflow-y: auto;
         }
-        .log-entry {
-            margin: 5px 0;
-            padding: 5px;
-            background: rgba(255,255,255,0.1);
+        
+        .log-entry { 
+            padding: 5px; 
+            margin: 2px 0; 
+            background: rgba(255,255,255,0.05); 
             border-radius: 3px;
             font-size: 0.9em;
+            font-family: 'Consolas', 'Monaco', monospace;
         }
-        .log-important {
-            background: rgba(212,175,55,0.3);
-            font-weight: bold;
-        }
-        .log-error {
-            background: rgba(255,0,0,0.3);
-            color: #ff6b6b;
-        }
-        .log-success {
-            background: rgba(0,255,0,0.3);
+        
+        .log-entry.success { 
+            background: rgba(40, 167, 69, 0.2); 
             color: #90EE90;
         }
-        .status {
-            padding: 10px;
-            border-radius: 5px;
-            margin: 10px 0;
+        
+        .log-entry.error {
+            background: rgba(220, 53, 69, 0.2);
+            color: #ff6b6b;
         }
-        .status-loading {
-            background: rgba(255,165,0,0.3);
+        
+        .log-entry.info {
+            background: rgba(23, 162, 184, 0.2);
+            color: #87CEEB;
         }
-        .status-ready {
-            background: rgba(0,255,0,0.3);
-        }
-        .status-error {
-            background: rgba(255,0,0,0.3);
-        }
-        .progress-bar {
-            background: rgba(255,255,255,0.2);
-            height: 8px;
-            border-radius: 4px;
-            margin: 10px 0;
-            overflow: hidden;
-        }
-        .progress-fill {
-            background: #d4af37;
-            height: 100%;
-            transition: width 0.3s ease;
+        
+        .log-entry.important {
+            background: rgba(212,175,55,0.3); 
+            font-weight: bold;
+            border-left: 3px solid #d4af37;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>Three Kingdoms: Mandate of Heaven</h1>
-            <p>Modular Simulator - Step by Step Development</p>
-            
-            <div id="dataStatus" class="status status-loading">
-                Loading game data...
-            </div>
-
-            <div class="settings">
-                <label>Players:</label>
-                <select id="playerCount">
-                    <option value="2">2 Players</option>
-                    <option value="3">3 Players</option>
-                    <option value="4">4 Players</option>
-                </select>
-            </div>
-            
+            <h1 class="title">🏛️ Three Kingdoms: Mandate of Heaven - Strategic Simulator</h1>
             <div class="controls">
-                <button onclick="testModules()" id="testBtn">Test Modules</button>
-                <button onclick="startGame()" id="startBtn" disabled>New Game</button>
-                <button onclick="stepGame()" id="stepBtn" disabled>Next Step</button>
-                <button onclick="autoPlay()" id="autoBtn" disabled>Auto Play</button>
-                <button onclick="clearLog()">Clear Log</button>
+                <button class="btn" id="testModulesBtn">Test Modules</button>
+                <button class="btn" id="initBtn" disabled>Initialize Game</button>
+                <button class="btn" id="testBtn" disabled>Quick Test</button>
+                <button class="btn" id="bulkBtn" disabled>Bulk Simulation</button>
+                <button class="btn" id="exportBtn" disabled>Export Data</button>
+                <button class="btn" id="clearBtn">Clear Logs</button>
             </div>
         </div>
 
-        <div class="game-info" id="gameInfo" style="display: none;">
-            <div class="info-panel">
-                <h3>Game Status</h3>
-                <div>Turn: <span id="turnDisplay">-</span></div>
-                <div>Phase: <span id="phaseDisplay">-</span></div>
-                <div>Event: <span id="eventDisplay">-</span></div>
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progressBar" style="width: 0%"></div>
-                </div>
-            </div>
-            <div class="info-panel">
-                <h3>Markets</h3>
-                <div>Heroes: <span id="heroMarketCount">-</span></div>
-                <div>Titles: <span id="titleMarketCount">-</span></div>
-                <div>Pool Remaining: <span id="heroPoolCount">-</span></div>
+        <div class="status-panel">
+            <h3 style="color: #d4af37; margin-bottom: 10px;">System Status</h3>
+            <div class="status-grid" id="statusGrid">
+                <div class="status-item" id="configStatus">Config: ❌ Not Loaded</div>
+                <div class="status-item" id="playerStatus">Player: ❌ Not Loaded</div>
+                <div class="status-item" id="gameEngineStatus">Game Engine: ❌ Not Loaded</div>
+                <div class="status-item" id="gameStatus">Game State: ❌ Not Ready</div>
             </div>
         </div>
 
-        <div class="players-area" id="playersArea" style="display: none;">
-            <h3>Players</h3>
-            <div id="playersContainer"></div>
-        </div>
-
-        <div class="log" id="logArea">
-            <div class="log-entry log-important">Modular simulator initialized. Click "Test Modules" to verify all components load correctly.</div>
+        <div class="log-panel">
+            <h3 style="color: #d4af37; margin-bottom: 10px;">System Log</h3>
+            <div id="logArea"></div>
         </div>
     </div>
 
-<script type="module">
-    // Import all ES6 modules
-    import { GAME_CONFIG, RESOURCE_ICONS } from './js/config.js';
-    import { Player } from './js/player.js';  
-    import { PurchaseManager } from './js/purchase-manager.js';
-    import { GameEngine } from './js/game-engine.js';
-    import { StatsManager } from './js/stats-manager.js';
-
-        // Make available globally for HTML onclick functions
-    window.GAME_CONFIG = GAME_CONFIG;
-    window.RESOURCE_ICONS = RESOURCE_ICONS;
-    window.Player = Player;
-    window.PurchaseManager = PurchaseManager;
-    window.GameEngine = GameEngine;
-    window.StatsManager = StatsManager;
-    
-            // Main application state
-        let gameData = null;
-        let currentGame = null;
-        let isAutoPlaying = false;
-
+    <!-- SINGLE MODULE SCRIPT - NO CONFLICTS -->
+    <script type="module">
+        // Module tracking
+        let moduleStatus = {
+            config: false,
+            player: false,
+            gameEngine: false
+        };
+        
+        let gameEngineInstance = null;
+        
         // Logging function
-        function log(message, type = 'normal') {
+        function addLog(message, type = 'info') {
             const logArea = document.getElementById('logArea');
             const entry = document.createElement('div');
-            entry.className = `log-entry log-${type}`;
+            entry.className = `log-entry ${type}`;
             entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
             logArea.insertBefore(entry, logArea.firstChild);
             
-            // Limit entries
-            while (logArea.children.length > 100) {
+            // Keep only last 50 entries
+            while (logArea.children.length > 50) {
                 logArea.removeChild(logArea.lastChild);
             }
             
-            console.log(message);
+            console.log(`[${type.toUpperCase()}] ${message}`);
         }
-
-        // Test that all modules loaded correctly
-        function testModules() {
-            log('Testing module loading...', 'important');
-            
-            try {
-                // Test config module
-                if (typeof RESOURCE_ICONS === 'undefined') {
-                    throw new Error('RESOURCE_ICONS not loaded from config.js');
-                }
-                if (typeof GAME_CONFIG === 'undefined') {
-                    throw new Error('GAME_CONFIG not loaded from config.js');
-                }
-                log('✓ Config module loaded successfully', 'success');
-                
-                // Test player module
-                if (typeof Player === 'undefined') {
-                    throw new Error('Player class not loaded from player.js');
-                }
-                const testPlayer = new Player(0, 'Test', null);
-                testPlayer.addPeasants();
-                if (testPlayer.hand.length !== 4) {
-                    throw new Error('Player peasant creation failed');
-                }
-                log('✓ Player module loaded successfully', 'success');
-                
-                // Test game engine module
-                if (typeof GameEngine === 'undefined') {
-                    throw new Error('GameEngine class not loaded from game-engine.js');
-                }
-                log('✓ Game Engine module loaded successfully', 'success');
-                
-                // Test data loading
-                loadGameData();
-                
-            } catch (error) {
-                log(`Module test failed: ${error.message}`, 'error');
-            }
-        }
-
-        // Load game data
-        async function loadGameData() {
-            try {
-                log('Loading game data...', 'important');
-                
-                const [heroesRes, titlesRes, eventsRes] = await Promise.all([
-                    fetch('./data/heroes.json'),
-                    fetch('./data/titles.json'),
-                    fetch('./data/events.json')
-                ]);
-
-                if (!heroesRes.ok || !titlesRes.ok || !eventsRes.ok) {
-                    throw new Error('Failed to fetch data files');
-                }
-
-                const heroes = await heroesRes.json();
-                const titles = await titlesRes.json();
-                const events = await eventsRes.json();
-
-                gameData = { heroes, titles, events };
-                
-                log(`Data loaded: ${heroes.length} heroes, ${titles.length} titles, ${events.length} events`, 'success');
-                
-                // Update status
-                const statusEl = document.getElementById('dataStatus');
-                statusEl.textContent = `Ready: ${heroes.length}H, ${titles.length}T, ${events.length}E`;
-                statusEl.className = 'status status-ready';
-                
-                // Enable game controls
-                document.getElementById('startBtn').disabled = false;
-                
-            } catch (error) {
-                log(`Data loading failed: ${error.message}`, 'error');
-                const statusEl = document.getElementById('dataStatus');
-                statusEl.textContent = `Error: ${error.message}`;
-                statusEl.className = 'status status-error';
-            }
-        }
-
-        // Start new game
-        function startGame() {
-            if (!gameData) {
-                log('Cannot start game - data not loaded', 'error');
-                return;
-            }
-
-            const playerCount = parseInt(document.getElementById('playerCount').value);
-            
-            try {
-                currentGame = new GameEngine(gameData, playerCount, log);
-                currentGame.purchaseManager = new PurchaseManager(currentGame);
-                currentGame.initialize();
-                
-                // Enable step controls
-                document.getElementById('stepBtn').disabled = false;
-                document.getElementById('autoBtn').disabled = false;
-                
-                // Show game info
-                document.getElementById('gameInfo').style.display = 'grid';
-                document.getElementById('playersArea').style.display = 'block';
-                
-                updateDisplay();
-                log(`Game started with ${playerCount} players!`, 'success');
-                
-            } catch (error) {
-                log(`Failed to start game: ${error.message}`, 'error');
-            }
-        }
-
-        // Execute one step of the game
-        function stepGame() {
-            if (!currentGame) {
-                log('No active game to step', 'error');
-                return;
-            }
-
-            try {
-                const gameOver = currentGame.executeStep();
-                updateDisplay();
-                
-                if (gameOver) {
-                    log('Game completed!', 'success');
-                    document.getElementById('stepBtn').disabled = true;
-                    document.getElementById('autoBtn').disabled = true;
-                }
-                
-            } catch (error) {
-                log(`Step execution error: ${error.message}`, 'error');
-            }
-        }
-
-        // Auto-play the game
-        async function autoPlay() {
-            if (!currentGame || isAutoPlaying) return;
-            
-            isAutoPlaying = true;
-            document.getElementById('autoBtn').textContent = 'Stop Auto';
-            
-            try {
-                while (!currentGame.phase === 'complete' && isAutoPlaying) {
-                    const gameOver = currentGame.executeStep();
-                    updateDisplay();
-                    
-                    if (gameOver) {
-                        break;
-                    }
-                    
-                    // Small delay to see the steps
-                    await new Promise(resolve => setTimeout(resolve, 500));
-                }
-                
-            } catch (error) {
-                log(`Auto-play error: ${error.message}`, 'error');
-            }
-            
-            isAutoPlaying = false;
-            document.getElementById('autoBtn').textContent = 'Auto Play';
-        }
-
-        // Update all display elements
-        function updateDisplay() {
-            if (!currentGame) return;
-
-            // Update game status
-            document.getElementById('turnDisplay').textContent = `${currentGame.turn}/${GAME_CONFIG.TOTAL_TURNS}`;
-            document.getElementById('phaseDisplay').textContent = currentGame.phase;
-            document.getElementById('eventDisplay').textContent = currentGame.currentEvent ? currentGame.currentEvent.name : '-';
-            
-            // Update progress bar
-            const progress = (currentGame.turn / GAME_CONFIG.TOTAL_TURNS) * 100;
-            document.getElementById('progressBar').style.width = `${Math.min(100, progress)}%`;
-            
-            // Update markets
-            document.getElementById('heroMarketCount').textContent = currentGame.heroMarket.length;
-            document.getElementById('titleMarketCount').textContent = currentGame.titleMarket.length;
-            
-            const availableHeroes = currentGame.gameData.heroes.length - currentGame.purchasedHeroes.length - currentGame.heroMarket.length;
-            document.getElementById('heroPoolCount').textContent = availableHeroes;
-            
-            // Update players
-            updatePlayersDisplay();
-        }
-
-        // Update players display
-        function updatePlayersDisplay() {
-            if (!currentGame) return;
-            
-            const container = document.getElementById('playersContainer');
-            container.innerHTML = '';
-            
-            currentGame.players.forEach((player, index) => {
-                const playerDiv = document.createElement('div');
-                playerDiv.className = 'player-card';
-                
-                const resources = player.calculateBattlefieldResources();
-                const totalResources = player.calculateTotalResources();
-                const allHeroes = player.getAllHeroes();
-                
-                // Create resource display
-                const resourceDisplay = Object.entries(resources)
-                    .map(([res, val]) => `${RESOURCE_ICONS[res]}${val}`)
-                    .join(' ');
-                
-                const totalDisplay = Object.entries(totalResources)
-                    .map(([res, val]) => `${RESOURCE_ICONS[res]}${val}`)
-                    .join(' ');
-                
-                playerDiv.innerHTML = `
-                    <div class="player-header">
-                        <h4>${player.name}</h4>
-                        <span>Score: ${player.score}</span>
-                    </div>
-                    <div>Hand: ${player.hand.length} | Battlefield: ${Object.values(player.battlefield).flat().length}</div>
-                    <div>Current Resources: ${resourceDisplay}</div>
-                    <div>Total Collection: ${totalDisplay}</div>
-                    <div>Heroes Owned: ${allHeroes.length} | Titles: ${player.titlesPurchased.length}</div>
-                    <div>Emergency Used: ${player.emergencyUsed} | Passed: ${player.passedTurns}</div>
-                `;
-                
-                container.appendChild(playerDiv);
-            });
-        }
-
-        // Clear log
-        function clearLog() {
-            document.getElementById('logArea').innerHTML = '<div class="log-entry log-important">Log cleared.</div>';
-        }
-
-        // Initialize when page loads
-        document.addEventListener('DOMContentLoaded', () => {
-            log('Modular simulator loaded. Click "Test Modules" to begin.', 'important');
-        });
-
-        let gameData = null;
-    let currentGame = null;
-    let isAutoPlaying = false;
-
-    function log(message, type = 'normal') {
-        const logArea = document.getElementById('logArea');
-        const entry = document.createElement('div');
-        entry.className = `log-entry log-${type}`;
-        entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
-        logArea.insertBefore(entry, logArea.firstChild);
         
-        while (logArea.children.length > 100) {
-            logArea.removeChild(logArea.lastChild);
+        // Update status display
+        function updateModuleStatus(module, success, message = '') {
+            const statusEl = document.getElementById(`${module}Status`);
+            if (statusEl) {
+                if (success) {
+                    statusEl.className = 'status-item success';
+                    statusEl.textContent = `${module.charAt(0).toUpperCase() + module.slice(1)}: ✅ Loaded`;
+                    moduleStatus[module] = true;
+                } else {
+                    statusEl.className = 'status-item error';
+                    statusEl.textContent = `${module.charAt(0).toUpperCase() + module.slice(1)}: ❌ ${message}`;
+                    moduleStatus[module] = false;
+                }
+            }
+            
+            updateButtonStates();
         }
-        console.log(message);
-    }
-
-    function testModules() {
-        log('Testing module loading...', 'important');
-        // Rest of your testModules function
-    }
-
-    // Make functions globally available for onclick handlers
-    window.testModules = testModules;
-    window.log = log;
-    
+        
+        // Update button states
+        function updateButtonStates() {
+            const allLoaded = Object.values(moduleStatus).every(loaded => loaded);
+            const gameReady = allLoaded && gameEngineInstance !== null;
+            
+            document.getElementById('initBtn').disabled = !allLoaded;
+            document.getElementById('testBtn').disabled = !gameReady;
+            document.getElementById('bulkBtn').disabled = !gameReady;
+            document.getElementById('exportBtn').disabled = !gameReady;
+            
+            // Update game status
+            const gameStatusEl = document.getElementById('gameStatus');
+            if (gameStatusEl) {
+                if (gameReady) {
+                    gameStatusEl.className = 'status-item success';
+                    gameStatusEl.textContent = 'Game State: ✅ Ready';
+                } else if (allLoaded) {
+                    gameStatusEl.className = 'status-item';
+                    gameStatusEl.textContent = 'Game State: ⚠️ Modules Loaded, Need Init';
+                } else {
+                    gameStatusEl.className = 'status-item error';
+                    gameStatusEl.textContent = 'Game State: ❌ Not Ready';
+                }
+            }
+        }
+        
+        // Test module loading
+        async function testModuleLoading() {
+            addLog('Testing ES6 module loading...', 'info');
+            
+            try {
+                // Test Config
+                addLog('Loading config.js...', 'info');
+                const configModule = await import('./js/config.js');
+                updateModuleStatus('config', true);
+                addLog(`Config loaded: ${Object.keys(configModule.GAME_CONFIG).length} settings`, 'success');
+                
+                // Test Player
+                addLog('Loading player.js...', 'info');
+                const playerModule = await import('./js/player.js');
+                updateModuleStatus('player', true);
+                addLog('Player class loaded successfully', 'success');
+                
+                // Test Game Engine
+                addLog('Loading game-engine.js...', 'info');
+                const gameEngineModule = await import('./js/game-engine.js');
+                updateModuleStatus('gameEngine', true);
+                addLog('GameEngine class loaded successfully', 'success');
+                
+                // Store references globally for button handlers
+                window.ConfigModule = configModule;
+                window.PlayerModule = playerModule;
+                window.GameEngineModule = gameEngineModule;
+                
+                addLog('All modules loaded successfully! ✅', 'success');
+                
+            } catch (error) {
+                addLog(`Module loading failed: ${error.message}`, 'error');
+                console.error('Module loading error:', error);
+                
+                // Update failed module status
+                if (error.message.includes('config')) updateModuleStatus('config', false, 'Failed to load');
+                else if (error.message.includes('player')) updateModuleStatus('player', false, 'Failed to load');
+                else if (error.message.includes('game-engine')) updateModuleStatus('gameEngine', false, 'Failed to load');
+                else {
+                    // Generic failure - mark all as failed
+                    updateModuleStatus('config', false, 'Import error');
+                    updateModuleStatus('player', false, 'Import error');
+                    updateModuleStatus('gameEngine', false, 'Import error');
+                }
+            }
+        }
+        
+        // Initialize game instance
+        async function initializeGameEngine() {
+            try {
+                addLog('Initializing game instance...', 'info');
+                
+                if (!window.GameEngineModule) {
+                    throw new Error('GameEngine module not loaded');
+                }
+                
+                gameEngineInstance = new window.GameEngineModule.GameEngine();
+                await gameEngineInstance.initialize();
+                
+                addLog('Game engine initialized successfully! 🎮', 'success');
+                updateButtonStates();
+                
+            } catch (error) {
+                addLog(`Game initialization failed: ${error.message}`, 'error');
+                console.error('Game initialization error:', error);
+            }
+        }
+        
+        // Quick test function
+        async function runQuickTest() {
+            if (!gameEngineInstance) {
+                addLog('Game engine not initialized!', 'error');
+                return;
+            }
+            
+            try {
+                addLog('Running quick test (1 game)...', 'info');
+                const result = await gameEngineInstance.runSimulation(1);
+                addLog(`Quick test completed: Winner was ${result[0].winner.name} with ${result[0].winner.score} points`, 'success');
+                
+            } catch (error) {
+                addLog(`Quick test failed: ${error.message}`, 'error');
+                console.error('Quick test error:', error);
+            }
+        }
+        
+        // Bulk simulation
+        async function runBulkSimulation() {
+            if (!gameEngineInstance) {
+                addLog('Game engine not initialized!', 'error');
+                return;
+            }
+            
+            try {
+                addLog('Running bulk simulation (10 games)...', 'info');
+                const results = await gameEngineInstance.runSimulation(10);
+                
+                const winners = {};
+                results.forEach(result => {
+                    const winnerName = result.winner.name;
+                    winners[winnerName] = (winners[winnerName] || 0) + 1;
+                });
+                
+                addLog(`Bulk simulation completed: ${Object.entries(winners).map(([name, wins]) => `${name}: ${wins} wins`).join(', ')}`, 'success');
+                
+            } catch (error) {
+                addLog(`Bulk simulation failed: ${error.message}`, 'error');
+                console.error('Bulk simulation error:', error);
+            }
+        }
+        
+        // Export data
+        function exportSimulationData() {
+            if (!gameEngineInstance) {
+                addLog('Game engine not initialized!', 'error');
+                return;
+            }
+            
+            try {
+                const exportData = gameEngineInstance.exportData();
+                const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `three-kingdoms-simulation-${new Date().toISOString().slice(0, 10)}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                addLog('Data exported successfully! 📊', 'success');
+                
+            } catch (error) {
+                addLog(`Export failed: ${error.message}`, 'error');
+                console.error('Export error:', error);
+            }
+        }
+        
+        // Clear logs
+        function clearAllLogs() {
+            document.getElementById('logArea').innerHTML = '';
+            addLog('Logs cleared', 'info');
+        }
+        
+        // Event listeners
+        document.getElementById('testModulesBtn').addEventListener('click', testModuleLoading);
+        document.getElementById('initBtn').addEventListener('click', initializeGameEngine);
+        document.getElementById('testBtn').addEventListener('click', runQuickTest);
+        document.getElementById('bulkBtn').addEventListener('click', runBulkSimulation);
+        document.getElementById('exportBtn').addEventListener('click', exportSimulationData);
+        document.getElementById('clearBtn').addEventListener('click', clearAllLogs);
+        
+        // Initialize on page load
+        window.addEventListener('load', function() {
+            addLog('Three Kingdoms Simulator loaded. Click "Test Modules" to begin.', 'info');
+            updateButtonStates();
+        });
+        
     </script>
 </body>
 </html>
