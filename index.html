@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Three Kingdoms: Mandate of Heaven - Strategic Simulator</title>
+    <title>Three Kingdoms: Debug Version</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -26,17 +26,10 @@
             color: #d4af37; 
             text-align: center; 
             margin-bottom: 15px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-        }
-        .subtitle {
-            text-align: center;
-            color: #ccc;
-            margin-bottom: 15px;
-            font-style: italic;
         }
         .controls { 
             display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
             gap: 8px; 
             margin-top: 15px; 
         }
@@ -48,55 +41,32 @@
             border-radius: 5px;
             cursor: pointer;
             font-weight: bold;
-            transition: all 0.3s ease;
             font-size: 0.85em;
         }
-        .btn:hover { 
-            opacity: 0.9; 
-            transform: translateY(-2px);
-        }
-        .btn:disabled { 
-            opacity: 0.5; 
-            cursor: not-allowed; 
-            transform: none;
-        }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
         .btn.success { background: #28a745; color: white; }
-        .btn.primary { background: #007bff; color: white; }
-        .btn.info { background: #17a2b8; color: white; }
-        .btn.warning { background: #ffc107; color: black; }
+        .btn.danger { background: #dc3545; color: white; }
         
-        .panels {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        
-        .panel {
+        .debug-panel {
             background: rgba(0,0,0,0.8);
             padding: 15px;
             border-radius: 10px;
-            border: 2px solid #d4af37;
+            border: 2px solid #ff6b6b;
+            margin-bottom: 20px;
         }
         
-        .panel h3 {
-            color: #d4af37;
-            margin-bottom: 10px;
-            font-size: 1.1em;
-        }
-        
-        .status-grid, .stats-grid, .data-grid {
+        .status-grid {
             display: grid;
-            grid-template-columns: 1fr;
-            gap: 6px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
         }
         
-        .status-item, .stat-item, .data-item {
+        .status-item {
             background: rgba(255,255,255,0.1);
-            padding: 6px 8px;
+            padding: 8px;
             border-radius: 4px;
-            text-align: center;
-            font-size: 0.85em;
+            font-size: 0.9em;
         }
         
         .status-item.success { 
@@ -109,29 +79,12 @@
             border: 1px solid #dc3545;
         }
         
-        .settings {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-        
-        select {
-            padding: 5px 10px;
-            background: #333;
-            color: white;
-            border: 1px solid #d4af37;
-            border-radius: 3px;
-        }
-        
         .log-panel {
             background: rgba(0,0,0,0.8);
             border: 2px solid #d4af37;
             border-radius: 10px;
             padding: 15px;
-            height: 500px;
+            height: 400px;
             overflow-y: auto;
         }
         
@@ -142,7 +95,6 @@
             border-radius: 3px;
             font-size: 0.8em;
             font-family: 'Consolas', 'Monaco', monospace;
-            line-height: 1.2;
         }
         
         .log-entry.success { 
@@ -155,9 +107,9 @@
             color: #ff6b6b;
         }
         
-        .log-entry.info {
-            background: rgba(23, 162, 184, 0.2);
-            color: #87CEEB;
+        .log-entry.debug {
+            background: rgba(255, 165, 0, 0.2);
+            color: #ffa500;
         }
         
         .log-entry.important {
@@ -170,490 +122,283 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1 class="title">🏛️ Three Kingdoms: Mandate of Heaven</h1>
-            <p class="subtitle">Strategic Balance Simulator - Using Real Game Data</p>
-            
-            <div class="settings">
-                <label>Players:</label>
-                <select id="playerCount">
-                    <option value="2">2 Players</option>
-                    <option value="3">3 Players</option>
-                    <option value="4">4 Players</option>
-                </select>
-                
-                <label>Bulk Games:</label>
-                <select id="bulkCount">
-                    <option value="10">10 Games</option>
-                    <option value="25">25 Games</option>
-                    <option value="50">50 Games</option>
-                    <option value="100">100 Games</option>
-                </select>
-                
-                <label>Strategy:</label>
-                <select id="strategy">
-                    <option value="strategic">Strategic AI</option>
-                    <option value="balanced">Balanced AI</option>
-                    <option value="random">Random AI</option>
-                </select>
-            </div>
-            
+            <h1 class="title">🐛 Three Kingdoms: Debug Version</h1>
             <div class="controls">
                 <button class="btn success" id="testModulesBtn">✅ Test Modules</button>
-                <button class="btn warning" id="checkDataBtn" disabled>📁 Check Data Files</button>
-                <button class="btn" id="initBtn" disabled>🎮 Initialize Engine</button>
-                <button class="btn primary" id="quickGameBtn" disabled>⚡ Quick Game</button>
-                <button class="btn primary" id="stepGameBtn" disabled>👣 Step Game</button>
-                <button class="btn info" id="bulkSimBtn" disabled>📊 Bulk Simulation</button>
-                <button class="btn" id="exportBtn" disabled>💾 Export Data</button>
-                <button class="btn" id="clearBtn">🗑️ Clear Logs</button>
+                <button class="btn" id="checkDataBtn" disabled>📁 Check Data</button>
+                <button class="btn" id="initBtn" disabled>🎮 Initialize</button>
+                <button class="btn" id="debugBtn">🐛 Debug Status</button>
+                <button class="btn danger" id="clearBtn">🗑️ Clear</button>
             </div>
         </div>
 
-        <div class="panels">
-            <div class="panel">
-                <h3>🔧 System Status</h3>
-                <div class="status-grid">
-                    <div class="status-item" id="configStatus">Config Module: ❌</div>
-                    <div class="status-item" id="playerStatus">Player Module: ❌</div>
-                    <div class="status-item" id="gameEngineStatus">Game Engine: ❌</div>
-                    <div class="status-item" id="gameStatus">Game Ready: ❌</div>
-                </div>
-            </div>
-            
-            <div class="panel">
-                <h3>📊 Game Data</h3>
-                <div class="data-grid">
-                    <div class="data-item" id="heroesData">Heroes: <span id="heroCount">Loading...</span></div>
-                    <div class="data-item" id="titlesData">Titles: <span id="titleCount">Loading...</span></div>
-                    <div class="data-item" id="eventsData">Events: <span id="eventCount">Loading...</span></div>
-                    <div class="data-item" id="dataStatus">Data Status: <span id="dataStatusText">Not Loaded</span></div>
-                </div>
-            </div>
-            
-            <div class="panel">
-                <h3>📈 Statistics</h3>
-                <div class="stats-grid">
-                    <div class="stat-item">Games Played: <span id="gamesCount">0</span></div>
-                    <div class="stat-item">Average Score: <span id="avgScore">-</span></div>
-                    <div class="stat-item">Player 1 Wins: <span id="p1Wins">0</span> (<span id="p1Rate">0%</span>)</div>
-                    <div class="stat-item">Player 2 Wins: <span id="p2Wins">0</span> (<span id="p2Rate">0%</span>)</div>
-                </div>
+        <div class="debug-panel">
+            <h3 style="color: #ff6b6b; margin-bottom: 10px;">🐛 Debug Information</h3>
+            <div class="status-grid">
+                <div class="status-item" id="configStatus">Config: ❌</div>
+                <div class="status-item" id="playerStatus">Player: ❌</div>
+                <div class="status-item" id="gameEngineStatus">Engine: ❌</div>
+                <div class="status-item" id="heroesStatus">Heroes: ❌</div>
+                <div class="status-item" id="titlesStatus">Titles: ❌</div>
+                <div class="status-item" id="eventsStatus">Events: ❌</div>
+                <div class="status-item" id="initBtnStatus">Init Button: ❌ Disabled</div>
+                <div class="status-item" id="logicStatus">Logic Check: ❌</div>
             </div>
         </div>
 
         <div class="log-panel">
-            <h3 style="color: #d4af37; margin-bottom: 10px;">📜 Simulation Log</h3>
+            <h3 style="color: #d4af37; margin-bottom: 10px;">📜 Debug Log</h3>
             <div id="logArea"></div>
         </div>
     </div>
 
     <script type="module">
-        // Module tracking and game state
-        let moduleStatus = {
-            config: false,
-            player: false,
-            gameEngine: false
+        // Debug tracking
+        let debugState = {
+            modules: {
+                config: false,
+                player: false,
+                gameEngine: false
+            },
+            data: {
+                heroes: false,
+                titles: false,
+                events: false
+            },
+            buttonLogic: {
+                allModulesLoaded: false,
+                allDataLoaded: false,
+                shouldEnable: false
+            }
         };
         
         let gameEngineInstance = null;
-        let dataLoadStatus = {
-            heroes: false,
-            titles: false,
-            events: false
-        };
         
-        // Make addLog globally available
+        // Enhanced logging with debug support
         window.addLog = function(message, type = 'info') {
             const logArea = document.getElementById('logArea');
             const entry = document.createElement('div');
             entry.className = `log-entry ${type}`;
-            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            const timestamp = new Date().toLocaleTimeString();
+            entry.textContent = `[${timestamp}] ${message}`;
             logArea.insertBefore(entry, logArea.firstChild);
             
-            // Keep only last 150 entries
-            while (logArea.children.length > 150) {
+            while (logArea.children.length > 100) {
                 logArea.removeChild(logArea.lastChild);
             }
             
             console.log(`[${type.toUpperCase()}] ${message}`);
         };
         
-        // Update status displays
-        function updateModuleStatus(module, success, message = '') {
-            const statusEl = document.getElementById(`${module}Status`);
+        // Debug-specific logging
+        function debugLog(message) {
+            addLog(`🐛 DEBUG: ${message}`, 'debug');
+        }
+        
+        // Enhanced status update with debug info
+        function updateStatus(category, item, success, count = null) {
+            const statusEl = document.getElementById(`${item}Status`);
             if (statusEl) {
                 if (success) {
                     statusEl.className = 'status-item success';
-                    statusEl.textContent = `${module.charAt(0).toUpperCase() + module.slice(1)} Module: ✅`;
-                    moduleStatus[module] = true;
+                    const countText = count !== null ? ` (${count})` : '';
+                    statusEl.textContent = `${item.charAt(0).toUpperCase() + item.slice(1)}: ✅${countText}`;
                 } else {
                     statusEl.className = 'status-item error';
-                    statusEl.textContent = `${module.charAt(0).toUpperCase() + module.slice(1)} Module: ❌`;
-                    moduleStatus[module] = false;
+                    statusEl.textContent = `${item.charAt(0).toUpperCase() + item.slice(1)}: ❌`;
                 }
             }
-            updateButtonStates();
-        }
-        
-        function updateDataStatus(dataType, count, success = true) {
-            const countEl = document.getElementById(`${dataType}Count`);
-            const statusEl = document.getElementById('dataStatusText');
             
-            if (countEl) {
-                countEl.textContent = success ? count : 'Error';
-                dataLoadStatus[dataType] = success;
+            // Update debug state
+            if (debugState[category]) {
+                debugState[category][item] = success;
+                debugLog(`${category}.${item} = ${success}`);
             }
             
-            const allDataLoaded = Object.values(dataLoadStatus).every(loaded => loaded);
-            if (statusEl) {
-                statusEl.textContent = allDataLoaded ? 'All Loaded ✅' : 'Loading...';
-            }
-            
-            updateButtonStates();
+            updateButtonLogic();
         }
         
-        function updateButtonStates() {
-            const allModulesLoaded = Object.values(moduleStatus).every(loaded => loaded);
-            const allDataLoaded = Object.values(dataLoadStatus).every(loaded => loaded);
-            const gameReady = allModulesLoaded && gameEngineInstance !== null;
+        // Enhanced button logic with detailed debugging
+        function updateButtonLogic() {
+            const allModulesLoaded = Object.values(debugState.modules).every(loaded => loaded);
+            const allDataLoaded = Object.values(debugState.data).every(loaded => loaded);
+            const shouldEnable = allModulesLoaded && allDataLoaded;
             
+            // Update debug state
+            debugState.buttonLogic = {
+                allModulesLoaded,
+                allDataLoaded,
+                shouldEnable
+            };
+            
+            // Debug logging
+            debugLog(`Modules loaded: ${JSON.stringify(debugState.modules)}`);
+            debugLog(`Data loaded: ${JSON.stringify(debugState.data)}`);
+            debugLog(`All modules: ${allModulesLoaded}, All data: ${allDataLoaded}`);
+            debugLog(`Should enable init button: ${shouldEnable}`);
+            
+            // Update button states
             document.getElementById('checkDataBtn').disabled = !allModulesLoaded;
-            document.getElementById('initBtn').disabled = !allModulesLoaded || !allDataLoaded;
-            document.getElementById('quickGameBtn').disabled = !gameReady;
-            document.getElementById('stepGameBtn').disabled = !gameReady;
-            document.getElementById('bulkSimBtn').disabled = !gameReady;
-            document.getElementById('exportBtn').disabled = !gameReady;
+            document.getElementById('initBtn').disabled = !shouldEnable;
             
-            // Update game status
-            const gameStatusEl = document.getElementById('gameStatus');
-            if (gameStatusEl) {
-                if (gameReady) {
-                    gameStatusEl.className = 'status-item success';
-                    gameStatusEl.textContent = 'Game Ready: ✅';
-                } else if (allModulesLoaded && allDataLoaded) {
-                    gameStatusEl.className = 'status-item';
-                    gameStatusEl.textContent = 'Game Ready: ⚠️ Need Init';
+            // Update status displays
+            const initBtnEl = document.getElementById('initBtnStatus');
+            const logicEl = document.getElementById('logicStatus');
+            
+            if (initBtnEl) {
+                if (shouldEnable) {
+                    initBtnEl.className = 'status-item success';
+                    initBtnEl.textContent = 'Init Button: ✅ Enabled';
                 } else {
-                    gameStatusEl.className = 'status-item error';
-                    gameStatusEl.textContent = 'Game Ready: ❌';
+                    initBtnEl.className = 'status-item error';
+                    initBtnEl.textContent = 'Init Button: ❌ Disabled';
                 }
             }
-        }
-        
-        function updateStats() {
-            if (!gameEngineInstance) return;
             
-            const stats = gameEngineInstance.getStats();
-            document.getElementById('gamesCount').textContent = stats.gamesPlayed;
-            document.getElementById('avgScore').textContent = stats.averageScore;
-            
-            const p1Wins = stats.winners['Player 1'] || 0;
-            const p2Wins = stats.winners['Player 2'] || 0;
-            const totalGames = stats.gamesPlayed;
-            
-            document.getElementById('p1Wins').textContent = p1Wins;
-            document.getElementById('p2Wins').textContent = p2Wins;
-            
-            if (totalGames > 0) {
-                const p1Rate = ((p1Wins / totalGames) * 100).toFixed(1);
-                const p2Rate = ((p2Wins / totalGames) * 100).toFixed(1);
-                document.getElementById('p1Rate').textContent = `${p1Rate}%`;
-                document.getElementById('p2Rate').textContent = `${p2Rate}%`;
+            if (logicEl) {
+                logicEl.className = shouldEnable ? 'status-item success' : 'status-item error';
+                logicEl.textContent = `Logic Check: ${allModulesLoaded ? '✅' : '❌'} Modules, ${allDataLoaded ? '✅' : '❌'} Data`;
             }
+            
+            // Log button state change
+            addLog(`Button update: Init=${shouldEnable ? 'ENABLED' : 'DISABLED'} (Modules=${allModulesLoaded}, Data=${allDataLoaded})`, shouldEnable ? 'success' : 'debug');
         }
         
-        // Test module loading
+        // Test modules with enhanced debugging
         async function testModuleLoading() {
-            addLog('🔍 Testing ES6 module loading...', 'info');
+            addLog('🔍 Testing module loading...', 'important');
             
             try {
                 // Test Config
                 addLog('Loading config.js...', 'info');
                 const configModule = await import('./js/config.js');
                 if (!configModule?.GAME_CONFIG) throw new Error('Config missing GAME_CONFIG');
-                updateModuleStatus('config', true);
+                updateStatus('modules', 'config', true);
                 addLog(`✅ Config loaded: ${Object.keys(configModule.GAME_CONFIG).length} settings`, 'success');
                 
                 // Test Player
                 addLog('Loading player.js...', 'info');
                 const playerModule = await import('./js/player.js');
                 if (!playerModule?.Player) throw new Error('Player missing Player class');
-                updateModuleStatus('player', true);
-                addLog('✅ Player class loaded successfully', 'success');
+                updateStatus('modules', 'player', true);
+                addLog('✅ Player class loaded', 'success');
                 
                 // Test Game Engine
                 addLog('Loading game-engine.js...', 'info');
                 const gameEngineModule = await import('./js/game-engine.js');
                 if (!gameEngineModule?.GameEngine) throw new Error('GameEngine missing GameEngine class');
-                updateModuleStatus('gameEngine', true);
-                addLog('✅ GameEngine class loaded successfully', 'success');
+                updateStatus('modules', 'gameEngine', true);
+                addLog('✅ GameEngine class loaded', 'success');
                 
-                // Store references globally
+                // Store globally
                 window.ConfigModule = configModule;
                 window.PlayerModule = playerModule;
                 window.GameEngineModule = gameEngineModule;
                 
-                addLog('🎉 All modules loaded successfully! Ready to check data files.', 'important');
+                addLog('🎉 All modules loaded successfully!', 'important');
                 
             } catch (error) {
                 addLog(`❌ Module loading failed: ${error.message}`, 'error');
-                console.error('Module loading error:', error);
+                debugLog(`Module error details: ${error.stack}`);
             }
         }
         
-        // Check data files
+        // Check data with enhanced debugging
         async function checkDataFiles() {
-            addLog('📁 Checking JSON data files...', 'info');
+            addLog('📁 Checking data files...', 'important');
             
             try {
+                if (!window.ConfigModule?.dataLoader) {
+                    throw new Error('DataLoader not available - modules not loaded properly');
+                }
+                
                 const dataLoader = window.ConfigModule.dataLoader;
                 
                 // Check heroes
                 addLog('Loading heroes.json...', 'info');
                 const heroes = await dataLoader.loadHeroes();
-                updateDataStatus('hero', heroes.length, true);
-                addLog(`✅ Heroes loaded: ${heroes.length} heroes`, 'success');
+                updateStatus('data', 'heroes', true, heroes.length);
+                addLog(`✅ Heroes: ${heroes.length} loaded`, 'success');
                 
-                // Check titles  
+                // Check titles
                 addLog('Loading titles.json...', 'info');
                 const titles = await dataLoader.loadTitles();
-                updateDataStatus('title', titles.length, true);
-                addLog(`✅ Titles loaded: ${titles.length} titles`, 'success');
+                updateStatus('data', 'titles', true, titles.length);
+                addLog(`✅ Titles: ${titles.length} loaded`, 'success');
                 
                 // Check events
                 addLog('Loading events.json...', 'info');
                 const events = await dataLoader.loadEvents();
-                updateDataStatus('event', events.length, true);
-                addLog(`✅ Events loaded: ${events.length} events`, 'success');
+                updateStatus('data', 'events', true, events.length);
+                addLog(`✅ Events: ${events.length} loaded`, 'success');
                 
-                addLog('🎉 All game data loaded successfully! Ready to initialize engine.', 'important');
-                
-                // Show some sample data for verification
-                if (heroes.length > 0) {
-                    addLog(`📊 Sample hero: ${heroes[0].name} (${heroes[0].allegiance}) - ${heroes[0].roles?.join(', ') || 'No roles'}`, 'info');
-                }
-                if (titles.length > 0) {
-                    addLog(`📊 Sample title: ${titles[0].name} - ${JSON.stringify(titles[0].cost || {})}`, 'info');
-                }
-                if (events.length > 0) {
-                    addLog(`📊 Sample event: ${events[0].name} (${events[0].leadingResource})`, 'info');
-                }
+                addLog('🎉 All data files loaded successfully!', 'important');
                 
             } catch (error) {
                 addLog(`❌ Data loading failed: ${error.message}`, 'error');
-                console.error('Data loading error:', error);
+                debugLog(`Data error details: ${error.stack}`);
                 
-                // Update failed data status
-                updateDataStatus('hero', 0, false);
-                updateDataStatus('title', 0, false);
-                updateDataStatus('event', 0, false);
+                // Mark all data as failed
+                updateStatus('data', 'heroes', false);
+                updateStatus('data', 'titles', false);
+                updateStatus('data', 'events', false);
             }
         }
         
-        // Initialize game engine
-        async function initializeGameEngine() {
+        // Initialize with debugging
+        async function initializeEngine() {
+            addLog('🎮 Initializing game engine...', 'important');
+            
             try {
-                addLog('🎮 Initializing game engine with real data...', 'info');
-                
                 if (!window.GameEngineModule?.GameEngine) {
-                    throw new Error('GameEngine module not loaded');
+                    throw new Error('GameEngine not loaded');
                 }
                 
                 gameEngineInstance = new window.GameEngineModule.GameEngine();
                 await gameEngineInstance.initialize();
                 
-                addLog('🎉 Game engine initialized successfully!', 'success');
-                
-                // Show data summary
-                const stats = gameEngineInstance.getStats();
-                if (stats.dataStats) {
-                    addLog(`📊 Engine loaded: ${stats.dataStats.heroes} heroes, ${stats.dataStats.titles} titles, ${stats.dataStats.events} events`, 'info');
-                }
-                
-                updateButtonStates();
+                addLog('✅ Game engine initialized!', 'success');
                 
             } catch (error) {
-                addLog(`❌ Engine initialization failed: ${error.message}`, 'error');
-                console.error('Engine initialization error:', error);
+                addLog(`❌ Engine init failed: ${error.message}`, 'error');
+                debugLog(`Engine error details: ${error.stack}`);
             }
         }
         
-        // Run quick game
-        async function runQuickGame() {
-            if (!gameEngineInstance) {
-                addLog('❌ Game engine not initialized!', 'error');
-                return;
-            }
+        // Debug status dump
+        function debugStatus() {
+            addLog('🐛 === DEBUG STATUS DUMP ===', 'debug');
+            addLog(`Debug State: ${JSON.stringify(debugState, null, 2)}`, 'debug');
+            addLog(`Window objects: ConfigModule=${!!window.ConfigModule}, PlayerModule=${!!window.PlayerModule}, GameEngineModule=${!!window.GameEngineModule}`, 'debug');
+            addLog(`Game instance: ${!!gameEngineInstance}`, 'debug');
             
-            try {
-                const playerCount = parseInt(document.getElementById('playerCount').value);
-                const strategy = document.getElementById('strategy').value;
-                
-                addLog(`🚀 Starting quick game: ${playerCount} players, ${strategy} AI...`, 'important');
-                
-                const startTime = Date.now();
-                const results = await gameEngineInstance.runSimulation(1, playerCount, strategy);
-                const duration = ((Date.now() - startTime) / 1000).toFixed(2);
-                const result = results[0];
-                
-                addLog(`🏆 Game completed in ${duration}s! Winner: ${result.winner} with ${result.winnerScore} points`, 'success');
-                result.players.forEach(player => {
-                    addLog(`  ${player.name}: ${player.score} pts (${player.titles} titles, ${player.heroes} heroes, ${player.emergencyUsed} emergency)`, 'info');
-                });
-                
-                updateStats();
-                
-            } catch (error) {
-                addLog(`❌ Quick game failed: ${error.message}`, 'error');
-                console.error('Quick game error:', error);
-            }
-        }
-        
-        // Run step game
-        async function runStepGame() {
-            if (!gameEngineInstance) {
-                addLog('❌ Game engine not initialized!', 'error');
-                return;
-            }
+            // Check button element
+            const initBtn = document.getElementById('initBtn');
+            addLog(`Init button disabled: ${initBtn?.disabled}, element exists: ${!!initBtn}`, 'debug');
             
-            try {
-                const playerCount = parseInt(document.getElementById('playerCount').value);
-                addLog(`👣 Starting step-by-step game: ${playerCount} players...`, 'important');
-                
-                const gameState = gameEngineInstance.startNewGame(playerCount);
-                addLog(`🎮 Game initialized. Use Quick Game to complete or run Bulk Simulation.`, 'info');
-                
-                gameState.players.forEach(player => {
-                    const summary = player.getSummary();
-                    addLog(`${summary.name}: Hand=${summary.hand} cards, Score=${summary.score}`, 'info');
-                });
-                
-            } catch (error) {
-                addLog(`❌ Step game failed: ${error.message}`, 'error');
-                console.error('Step game error:', error);
-            }
+            // Manual logic check
+            const manualModulesCheck = Object.values(debugState.modules).every(loaded => loaded);
+            const manualDataCheck = Object.values(debugState.data).every(loaded => loaded);
+            addLog(`Manual check - Modules: ${manualModulesCheck}, Data: ${manualDataCheck}`, 'debug');
         }
         
-        // Run bulk simulation
-        async function runBulkSimulation() {
-            if (!gameEngineInstance) {
-                addLog('❌ Game engine not initialized!', 'error');
-                return;
-            }
-            
-            try {
-                const playerCount = parseInt(document.getElementById('playerCount').value);
-                const gameCount = parseInt(document.getElementById('bulkCount').value);
-                const strategy = document.getElementById('strategy').value;
-                
-                addLog(`📊 Starting bulk simulation: ${gameCount} games, ${playerCount} players, ${strategy} AI...`, 'important');
-                
-                const startTime = Date.now();
-                const results = await gameEngineInstance.runSimulation(gameCount, playerCount, strategy);
-                const duration = ((Date.now() - startTime) / 1000).toFixed(2);
-                
-                // Analyze results
-                const winners = {};
-                const scores = [];
-                let totalTitles = 0;
-                let totalEmergency = 0;
-                
-                results.forEach(result => {
-                    winners[result.winner] = (winners[result.winner] || 0) + 1;
-                    scores.push(result.winnerScore);
-                    result.players.forEach(p => {
-                        scores.push(p.score);
-                        totalTitles += p.titles;
-                        totalEmergency += p.emergencyUsed;
-                    });
-                });
-                
-                const avgScore = (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1);
-                const avgTitles = (totalTitles / (gameCount * playerCount)).toFixed(1);
-                const avgEmergency = (totalEmergency / (gameCount * playerCount)).toFixed(1);
-                
-                addLog(`✅ Bulk simulation completed in ${duration}s (${(gameCount/parseFloat(duration)).toFixed(1)} games/sec)`, 'success');
-                addLog(`📈 Average Score: ${avgScore} points, Titles: ${avgTitles}, Emergency: ${avgEmergency}`, 'info');
-                
-                // Win rate analysis
-                const winRates = Object.entries(winners)
-                    .map(([player, wins]) => `${player}: ${((wins/gameCount)*100).toFixed(1)}%`)
-                    .join(', ');
-                addLog(`🏆 Win Rates: ${winRates}`, 'info');
-                
-                // Balance analysis
-                const winRateValues = Object.values(winners).map(w => (w/gameCount)*100);
-                const maxWinRate = Math.max(...winRateValues);
-                const minWinRate = Math.min(...winRateValues);
-                const variance = maxWinRate - minWinRate;
-                
-                if (variance <= 10) {
-                    addLog(`✅ Excellent balance: Win rate variance ${variance.toFixed(1)}%`, 'success');
-                } else if (variance <= 20) {
-                    addLog(`⚠️ Good balance: Win rate variance ${variance.toFixed(1)}%`, 'info');
-                } else {
-                    addLog(`❌ Poor balance: Win rate variance ${variance.toFixed(1)}% - needs adjustment`, 'error');
-                }
-                
-                updateStats();
-                
-            } catch (error) {
-                addLog(`❌ Bulk simulation failed: ${error.message}`, 'error');
-                console.error('Bulk simulation error:', error);
-            }
-        }
-        
-        // Export data
-        function exportSimulationData() {
-            if (!gameEngineInstance) {
-                addLog('❌ Game engine not initialized!', 'error');
-                return;
-            }
-            
-            try {
-                const exportData = gameEngineInstance.exportData();
-                const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `three-kingdoms-simulation-${new Date().toISOString().slice(0, 10)}.json`;
-                a.click();
-                URL.revokeObjectURL(url);
-                
-                addLog('💾 Simulation data exported successfully!', 'success');
-                addLog(`📊 Export included ${exportData.stats.gamesPlayed} games of data`, 'info');
-                
-            } catch (error) {
-                addLog(`❌ Export failed: ${error.message}`, 'error');
-                console.error('Export error:', error);
-            }
-        }
-        
-        // Clear logs
-        function clearAllLogs() {
+        function clearLogs() {
             document.getElementById('logArea').innerHTML = '';
-            addLog('🗑️ Logs cleared - simulator ready', 'info');
+            addLog('🗑️ Logs cleared - ready for debugging', 'info');
         }
         
         // Event listeners
         document.getElementById('testModulesBtn').addEventListener('click', testModuleLoading);
         document.getElementById('checkDataBtn').addEventListener('click', checkDataFiles);
-        document.getElementById('initBtn').addEventListener('click', initializeGameEngine);
-        document.getElementById('quickGameBtn').addEventListener('click', runQuickGame);
-        document.getElementById('stepGameBtn').addEventListener('click', runStepGame);
-        document.getElementById('bulkSimBtn').addEventListener('click', runBulkSimulation);
-        document.getElementById('exportBtn').addEventListener('click', exportSimulationData);
-        document.getElementById('clearBtn').addEventListener('click', clearAllLogs);
+        document.getElementById('initBtn').addEventListener('click', initializeEngine);
+        document.getElementById('debugBtn').addEventListener('click', debugStatus);
+        document.getElementById('clearBtn').addEventListener('click', clearLogs);
         
-        // Initialize on page load
+        // Initialize
         window.addEventListener('load', function() {
-            addLog('🏛️ Three Kingdoms Strategic Simulator loaded - Real Game Data Version', 'success');
-            addLog('📋 Follow these steps:', 'info');
-            addLog('1️⃣ Click "✅ Test Modules" to verify ES6 modules', 'info');
-            addLog('2️⃣ Click "📁 Check Data Files" to load JSON data', 'info');
-            addLog('3️⃣ Click "🎮 Initialize Engine" to prepare for simulation', 'info');
-            addLog('4️⃣ Use "⚡ Quick Game" or "📊 Bulk Simulation" to test balance!', 'info');
-            updateButtonStates();
+            addLog('🐛 Debug version loaded - enhanced logging enabled', 'important');
+            addLog('Click "🐛 Debug Status" anytime to see detailed state information', 'info');
+            updateButtonLogic();
         });
         
     </script>
