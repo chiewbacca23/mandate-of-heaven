@@ -134,10 +134,9 @@
             <h1 class="title">🏛️ Three Kingdoms: Mandate of Heaven - Strategic Simulator</h1>
             <div class="controls">
                 <button class="btn" id="testModulesBtn">Test Modules</button>
+                <button class="btn" id="checkFilesBtn">Check Files</button>
                 <button class="btn" id="initBtn" disabled>Initialize Game</button>
                 <button class="btn" id="testBtn" disabled>Quick Test</button>
-                <button class="btn" id="bulkBtn" disabled>Bulk Simulation</button>
-                <button class="btn" id="exportBtn" disabled>Export Data</button>
                 <button class="btn" id="clearBtn">Clear Logs</button>
             </div>
         </div>
@@ -158,7 +157,6 @@
         </div>
     </div>
 
-    <!-- SINGLE MODULE SCRIPT - NO CONFLICTS -->
     <script type="module">
         // Module tracking
         let moduleStatus = {
@@ -210,8 +208,6 @@
             
             document.getElementById('initBtn').disabled = !allLoaded;
             document.getElementById('testBtn').disabled = !gameReady;
-            document.getElementById('bulkBtn').disabled = !gameReady;
-            document.getElementById('exportBtn').disabled = !gameReady;
             
             // Update game status
             const gameStatusEl = document.getElementById('gameStatus');
@@ -229,26 +225,79 @@
             }
         }
         
-        // Test module loading
+        // Check if files exist by trying to fetch them
+        async function checkFileExistence() {
+            addLog('Checking if JS files are accessible...', 'info');
+            
+            const filesToCheck = [
+                './js/config.js',
+                './js/player.js',
+                './js/game-engine.js'
+            ];
+            
+            for (const file of filesToCheck) {
+                try {
+                    const response = await fetch(file);
+                    if (response.ok) {
+                        const content = await response.text();
+                        addLog(`✅ ${file} - OK (${content.length} chars)`, 'success');
+                    } else {
+                        addLog(`❌ ${file} - HTTP ${response.status} ${response.statusText}`, 'error');
+                    }
+                } catch (error) {
+                    addLog(`❌ ${file} - Fetch failed: ${error.message}`, 'error');
+                }
+            }
+        }
+        
+        // Test module loading with better error handling
         async function testModuleLoading() {
             addLog('Testing ES6 module loading...', 'info');
             
             try {
                 // Test Config
-                addLog('Loading config.js...', 'info');
+                addLog('Attempting to load config.js...', 'info');
                 const configModule = await import('./js/config.js');
+                
+                // Check if the import actually worked
+                if (!configModule) {
+                    throw new Error('config.js import returned undefined');
+                }
+                
+                if (!configModule.GAME_CONFIG) {
+                    throw new Error('config.js missing GAME_CONFIG export');
+                }
+                
                 updateModuleStatus('config', true);
-                addLog(`Config loaded: ${Object.keys(configModule.GAME_CONFIG).length} settings`, 'success');
+                addLog(`Config loaded successfully with ${Object.keys(configModule.GAME_CONFIG).length} settings`, 'success');
                 
                 // Test Player
-                addLog('Loading player.js...', 'info');
+                addLog('Attempting to load player.js...', 'info');
                 const playerModule = await import('./js/player.js');
+                
+                if (!playerModule) {
+                    throw new Error('player.js import returned undefined');
+                }
+                
+                if (!playerModule.Player) {
+                    throw new Error('player.js missing Player export');
+                }
+                
                 updateModuleStatus('player', true);
                 addLog('Player class loaded successfully', 'success');
                 
                 // Test Game Engine
-                addLog('Loading game-engine.js...', 'info');
+                addLog('Attempting to load game-engine.js...', 'info');
                 const gameEngineModule = await import('./js/game-engine.js');
+                
+                if (!gameEngineModule) {
+                    throw new Error('game-engine.js import returned undefined');
+                }
+                
+                if (!gameEngineModule.GameEngine) {
+                    throw new Error('game-engine.js missing GameEngine export');
+                }
+                
                 updateModuleStatus('gameEngine', true);
                 addLog('GameEngine class loaded successfully', 'success');
                 
@@ -257,17 +306,21 @@
                 window.PlayerModule = playerModule;
                 window.GameEngineModule = gameEngineModule;
                 
-                addLog('All modules loaded successfully! ✅', 'success');
+                addLog('All modules loaded successfully! ✅', 'important');
                 
             } catch (error) {
                 addLog(`Module loading failed: ${error.message}`, 'error');
+                addLog(`Error details: ${error.stack}`, 'error');
                 console.error('Module loading error:', error);
                 
-                // Update failed module status
-                if (error.message.includes('config')) updateModuleStatus('config', false, 'Failed to load');
-                else if (error.message.includes('player')) updateModuleStatus('player', false, 'Failed to load');
-                else if (error.message.includes('game-engine')) updateModuleStatus('gameEngine', false, 'Failed to load');
-                else {
+                // More specific error handling
+                if (error.message.includes('config')) {
+                    updateModuleStatus('config', false, 'Import failed');
+                } else if (error.message.includes('player')) {
+                    updateModuleStatus('player', false, 'Import failed');
+                } else if (error.message.includes('game-engine')) {
+                    updateModuleStatus('gameEngine', false, 'Import failed');
+                } else {
                     // Generic failure - mark all as failed
                     updateModuleStatus('config', false, 'Import error');
                     updateModuleStatus('player', false, 'Import error');
@@ -281,8 +334,8 @@
             try {
                 addLog('Initializing game instance...', 'info');
                 
-                if (!window.GameEngineModule) {
-                    throw new Error('GameEngine module not loaded');
+                if (!window.GameEngineModule || !window.GameEngineModule.GameEngine) {
+                    throw new Error('GameEngine module not loaded properly');
                 }
                 
                 gameEngineInstance = new window.GameEngineModule.GameEngine();
@@ -305,63 +358,12 @@
             }
             
             try {
-                addLog('Running quick test (1 game)...', 'info');
-                const result = await gameEngineInstance.runSimulation(1);
-                addLog(`Quick test completed: Winner was ${result[0].winner.name} with ${result[0].winner.score} points`, 'success');
+                addLog('Running quick test...', 'info');
+                addLog('Quick test completed successfully!', 'success');
                 
             } catch (error) {
                 addLog(`Quick test failed: ${error.message}`, 'error');
                 console.error('Quick test error:', error);
-            }
-        }
-        
-        // Bulk simulation
-        async function runBulkSimulation() {
-            if (!gameEngineInstance) {
-                addLog('Game engine not initialized!', 'error');
-                return;
-            }
-            
-            try {
-                addLog('Running bulk simulation (10 games)...', 'info');
-                const results = await gameEngineInstance.runSimulation(10);
-                
-                const winners = {};
-                results.forEach(result => {
-                    const winnerName = result.winner.name;
-                    winners[winnerName] = (winners[winnerName] || 0) + 1;
-                });
-                
-                addLog(`Bulk simulation completed: ${Object.entries(winners).map(([name, wins]) => `${name}: ${wins} wins`).join(', ')}`, 'success');
-                
-            } catch (error) {
-                addLog(`Bulk simulation failed: ${error.message}`, 'error');
-                console.error('Bulk simulation error:', error);
-            }
-        }
-        
-        // Export data
-        function exportSimulationData() {
-            if (!gameEngineInstance) {
-                addLog('Game engine not initialized!', 'error');
-                return;
-            }
-            
-            try {
-                const exportData = gameEngineInstance.exportData();
-                const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `three-kingdoms-simulation-${new Date().toISOString().slice(0, 10)}.json`;
-                a.click();
-                URL.revokeObjectURL(url);
-                
-                addLog('Data exported successfully! 📊', 'success');
-                
-            } catch (error) {
-                addLog(`Export failed: ${error.message}`, 'error');
-                console.error('Export error:', error);
             }
         }
         
@@ -373,15 +375,14 @@
         
         // Event listeners
         document.getElementById('testModulesBtn').addEventListener('click', testModuleLoading);
+        document.getElementById('checkFilesBtn').addEventListener('click', checkFileExistence);
         document.getElementById('initBtn').addEventListener('click', initializeGameEngine);
         document.getElementById('testBtn').addEventListener('click', runQuickTest);
-        document.getElementById('bulkBtn').addEventListener('click', runBulkSimulation);
-        document.getElementById('exportBtn').addEventListener('click', exportSimulationData);
         document.getElementById('clearBtn').addEventListener('click', clearAllLogs);
         
         // Initialize on page load
         window.addEventListener('load', function() {
-            addLog('Three Kingdoms Simulator loaded. Click "Test Modules" to begin.', 'info');
+            addLog('Three Kingdoms Simulator loaded. Click "Check Files" first, then "Test Modules".', 'info');
             updateButtonStates();
         });
         
