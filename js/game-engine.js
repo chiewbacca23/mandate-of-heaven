@@ -80,9 +80,19 @@ export class GameEngine {
         this.gameState.phase = 'deployment';
         this.gameState.purchasedHeroes = [];
         
-        // Shuffle events from loaded data
-        this.gameState.events = dataLoader.shuffle(this.gameData.events);
-        this.gameState.currentEvent = this.gameState.events[0];
+        // FIX: Ensure first event is always "Power of the Han Wanes"
+        const powerOfHanEvent = this.events.find(e => e.name === "Power of the Han Wanes");
+        const otherEvents = this.events.filter(e => e.name !== "Power of the Han Wanes");
+        
+        if (powerOfHanEvent) {
+            // Shuffle other events and put "Power of the Han Wanes" first
+            this.gameState.events = [powerOfHanEvent, ...this.shuffle(otherEvents)];
+            this.gameState.currentEvent = powerOfHanEvent;
+        } else {
+            // Fallback if event not found
+            console.error("Could not find 'Power of the Han Wanes' event!");
+            this.gameState.events = this.shuffle(this.events);
+            this.gameState.currentEvent = this.gameState.events[0];
         
         // Setup markets from loaded data
         const heroMarketSize = playerCount === 2 ? GAME_CONFIG.HERO_MARKET_2P : GAME_CONFIG.HERO_MARKET_3P_PLUS;
