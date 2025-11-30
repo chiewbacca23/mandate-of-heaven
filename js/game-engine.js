@@ -149,6 +149,8 @@ export class GameEngine {
     // Calculate turn order based on current event
     calculateTurnOrder() {
         const lead = this.gameState.currentEvent.leadingResource;
+
+        const leadIcon = this.RESOURCE_ICONS[lead] || '❓';
         
         const playerData = this.gameState.players.map((player, index) => {
             const resources = player.calculateBattlefieldResources();
