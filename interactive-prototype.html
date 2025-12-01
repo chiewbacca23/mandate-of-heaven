@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Three Kingdoms - Interactive Prototype</title>
+    <link rel="stylesheet" href="css/prototype.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1 class="title">🏛️ Three Kingdoms: Interactive Prototype</h1>
+            <div class="subtitle">Human-Controlled Strategy Learning Mode</div>
+            
+            <div class="game-info">
+                <div class="info-box">
+                    <strong>Turn:</strong> <span id="turnDisplay">0</span> / 8
+                </div>
+                <div class="info-box">
+                    <strong>Phase:</strong> <span id="phaseDisplay">Setup</span>
+                </div>
+                <div class="info-box">
+                    <strong>Event:</strong> <span id="eventDisplay">-</span>
+                </div>
+                <div class="info-box">
+                    <strong>Leading Resource:</strong> <span id="leadingDisplay">-</span>
+                </div>
+                <div class="info-box">
+                    <strong>Your Score:</strong> <span id="scoreDisplay">0</span>
+                </div>
+                <div class="info-box">
+                    <strong>Emergency Used:</strong> <span id="emergencyDisplay">0</span>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="btn" id="newGameBtn" onclick="game.startNewGame()">🎯 New Game</button>
+                <button class="btn" id="exportLogBtn" onclick="game.exportLog()" disabled>📥 Export Log</button>
+            </div>
+        </div>
+
+        <!-- Main Game Area -->
+        <div class="game-grid">
+            <!-- Left: Your State -->
+            <div class="panel">
+                <h2>Your Collection</h2>
+                <div id="playerState">
+                    <div class="section">
+                        <h3>Hand (<span id="handCount">0</span>)</h3>
+                        <div id="handArea" class="card-area"></div>
+                    </div>
+                    
+                    <div class="section">
+                        <h3>Battlefield Resources</h3>
+                        <div id="resourcesDisplay" class="resources"></div>
+                    </div>
+
+                    <div class="section">
+                        <h3>Owned Titles (<span id="titleCount">0</span>)</h3>
+                        <div id="ownedTitles" class="owned-list"></div>
+                    </div>
+
+                    <div class="section">
+                        <h3>All Heroes (<span id="heroCount">4</span>)</h3>
+                        <div id="allHeroes" class="hero-summary"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Center: Actions -->
+            <div class="panel">
+                <h2 id="actionTitle">Waiting...</h2>
+                <div id="actionArea">
+                    <!-- Deployment Phase -->
+                    <div id="deploymentPhase" class="phase-area" style="display:none;">
+                        <p class="instruction">Select up to 3 cards from your hand to deploy:</p>
+                        <div id="deploymentCards" class="card-grid"></div>
+                        
+                        <div class="deployment-grid">
+                            <div class="kingdom-column">
+                                <h4>Wei (📜 +1 Influence)</h4>
+                                <div id="weiDeployment" class="drop-zone"></div>
+                            </div>
+                            <div class="kingdom-column">
+                                <h4>Wu (📦 +1 Supplies)</h4>
+                                <div id="wuDeployment" class="drop-zone"></div>
+                            </div>
+                            <div class="kingdom-column">
+                                <h4>Shu (🏛️ +1 Piety)</h4>
+                                <div id="shuDeployment" class="drop-zone"></div>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary" onclick="game.confirmDeployment()">✅ Confirm Deployment</button>
+                    </div>
+
+                    <!-- Purchase Phase -->
+                    <div id="purchasePhase" class="phase-area" style="display:none;">
+                        <p class="instruction">Choose one purchase (or pass):</p>
+                        
+                        <div class="purchase-section">
+                            <h3>Available Heroes</h3>
+                            <div id="heroMarket" class="card-grid"></div>
+                        </div>
+
+                        <div class="purchase-section">
+                            <h3>Available Titles</h3>
+                            <div id="titleMarket" class="card-grid"></div>
+                        </div>
+
+                        <div class="emergency-section">
+                            <label>
+                                <input type="checkbox" id="useEmergency" onchange="game.toggleEmergency()">
+                                Use Emergency Resources (-1 point)
+                            </label>
+                            <div id="emergencySelector" style="display:none;">
+                                <p>Select 2 resources to gain +1:</p>
+                                <label><input type="checkbox" name="emergency" value="military"> ⚔️ Military</label>
+                                <label><input type="checkbox" name="emergency" value="influence"> 📜 Influence</label>
+                                <label><input type="checkbox" name="emergency" value="supplies"> 📦 Supplies</label>
+                                <label><input type="checkbox" name="emergency" value="piety"> 🏛️ Piety</label>
+                            </div>
+                        </div>
+
+                        <div class="purchase-buttons">
+                            <button class="btn btn-primary" id="confirmPurchaseBtn" onclick="game.confirmPurchase()" disabled>✅ Confirm Purchase</button>
+                            <button class="btn btn-secondary" onclick="game.passTurn()">⏭️ Pass Turn</button>
+                        </div>
+                    </div>
+
+                    <!-- Turn Review Phase -->
+                    <div id="reviewPhase" class="phase-area" style="display:none;">
+                        <h3>Turn Complete</h3>
+                        <div id="turnSummary"></div>
+                        <button class="btn btn-primary" onclick="game.nextTurn()">▶️ Next Turn</button>
+                    </div>
+
+                    <!-- Game Over Phase -->
+                    <div id="gameOverPhase" class="phase-area" style="display:none;">
+                        <h3>Game Complete!</h3>
+                        <div id="finalScore"></div>
+                        <button class="btn btn-primary" onclick="game.startNewGame()">🔄 New Game</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Markets & Log -->
+            <div class="panel">
+                <h2>Game Log</h2>
+                <div id="logArea" class="log-panel"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="js/prototype-config.js"></script>
+    <script type="module" src="js/prototype-game.js"></script>
+    <script type="module">
+        import { PrototypeGame } from './js/prototype-game.js';
+        window.game = new PrototypeGame();
+    </script>
+</body>
+</html>
