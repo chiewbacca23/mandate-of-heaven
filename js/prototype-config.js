@@ -31,9 +31,9 @@ export class DataLoader {
     async loadAllData() {
         try {
             const [heroesData, titlesData, eventsData] = await Promise.all([
-                this.loadJSON('../data/heroes.json'),
-                this.loadJSON('../data/titles.json'),
-                this.loadJSON('../data/events.json')
+                this.loadJSON('./data/heroes.json'),
+                this.loadJSON('./data/titles.json'),
+                this.loadJSON('./data/events.json')
             ]);
 
             this.heroes = heroesData;
