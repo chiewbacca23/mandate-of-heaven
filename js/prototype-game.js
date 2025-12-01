@@ -35,14 +35,47 @@ export class PrototypeGame {
     async startNewGame() {
         this.log('=== NEW GAME STARTED ===', 'phase');
         
+        console.log('DEBUG: All events:', dataLoader.events);
+        console.log('DEBUG: Event names:', dataLoader.events.map(e => e.Name || e.name));
+        
         // Setup events - ensure "Power of the Han Wanes" is first
-        const powerEvent = dataLoader.events.find(e => e.Name === "The power of the Han wanes");
-        const otherEvents = dataLoader.events.filter(e => e.Name !== "The power of the Han wanes");
-        this.gameState.events = [powerEvent, ...dataLoader.shuffle(otherEvents)].slice(0, 8);
+        // Try multiple possible field names
+        const powerEvent = dataLoader.events.find(e => 
+            (e.Name && e.Name.toLowerCase().includes("power of the han")) ||
+            (e.name && e.name.toLowerCase().includes("power of the han"))
+        );
+        
+        console.log('DEBUG: Found power event:', powerEvent);
+        
+        if (!powerEvent) {
+            this.log('⚠️ Could not find Power of Han Wanes event, using first event', 'error');
+            console.error('Available events:', dataLoader.events.map(e => ({
+                Name: e.Name,
+                name: e.name,
+                fullObject: e
+            })));
+        }
+        
+        const otherEvents = dataLoader.events.filter(e => e !== powerEvent);
+        const firstEvent = powerEvent || dataLoader.events[0];
+        
+        if (!firstEvent) {
+            this.log('ERROR: No events available at all!', 'error');
+            console.error('Events data:', dataLoader.events);
+            return;
+        }
+        
+        this.gameState.events = [firstEvent, ...dataLoader.shuffle(otherEvents)].slice(0, 8);
+        
+        console.log('DEBUG: Events array after setup:', this.gameState.events);
+        console.log('DEBUG: First event:', this.gameState.events[0]);
         
         // Setup markets
         this.gameState.heroMarket = dataLoader.shuffle([...dataLoader.heroes]).slice(0, 6); // 4 + 2 bonus T1
         this.gameState.titleMarket = dataLoader.shuffle([...dataLoader.titles]).slice(0, 4); // 2 players
+        
+        console.log('DEBUG: Hero market size:', this.gameState.heroMarket.length);
+        console.log('DEBUG: Title market size:', this.gameState.titleMarket.length);
         
         // Setup player
         this.gameState.player = {
@@ -54,9 +87,20 @@ export class PrototypeGame {
             emergencyUsed: 0
         };
         
+        console.log('DEBUG: Player hand:', this.gameState.player.hand);
+        
         // Start turn 1
         this.gameState.turn = 1;
         this.gameState.currentEvent = this.gameState.events[0];
+        
+        console.log('DEBUG: Current event set to:', this.gameState.currentEvent);
+        
+        if (!this.gameState.currentEvent) {
+            this.log('ERROR: No current event! Events array is empty or invalid', 'error');
+            console.error('Events array:', this.gameState.events);
+            return;
+        }
+        
         this.startDeploymentPhase();
         
         document.getElementById('exportLogBtn').disabled = false;
@@ -87,12 +131,25 @@ export class PrototypeGame {
         this.selectedCards = [];
         this.deployment = { wei: [], wu: [], shu: [] };
         
-        const icon = GAME_CONFIG.RESOURCE_ICONS[this.gameState.currentEvent.Leading_resource];
+        console.log('DEBUG: Starting deployment phase');
+        console.log('DEBUG: Current event:', this.gameState.currentEvent);
+        console.log('DEBUG: Player hand:', this.gameState.player.hand);
+        
+        // Safe access to event properties
+        const eventName = this.gameState.currentEvent?.Name || this.gameState.currentEvent?.name || 'Unknown Event';
+        const leadingResource = this.gameState.currentEvent?.Leading_resource || 
+                               this.gameState.currentEvent?.leading_resource || 
+                               this.gameState.currentEvent?.leadingResource || 'military';
+        
+        const icon = GAME_CONFIG.RESOURCE_ICONS[leadingResource] || '❓';
+        
         this.log(`--- Turn ${this.gameState.turn}: Deployment Phase ---`, 'phase');
-        this.log(`Event: ${this.gameState.currentEvent.Name} (${icon} ${this.gameState.currentEvent.Leading_resource})`, 'state');
+        this.log(`Event: ${eventName} (${icon} ${leadingResource})`, 'state');
         this.logMarketState();
         
+        console.log('DEBUG: About to update display');
         this.updateDisplay();
+        console.log('DEBUG: Display updated');
     }
 
     toggleCardSelection(cardId) {
@@ -399,8 +456,14 @@ export class PrototypeGame {
     }
 
     logMarketState() {
-        this.log(`Hero Market: ${this.gameState.heroMarket.map(h => h.name).join(', ')}`, 'state');
-        this.log(`Title Market: ${this.gameState.titleMarket.map(t => t.Name).join(', ')}`, 'state');
+        console.log('DEBUG: Hero market:', this.gameState.heroMarket);
+        console.log('DEBUG: Title market:', this.gameState.titleMarket);
+        
+        const heroNames = this.gameState.heroMarket.map(h => h.name || h.Name || 'Unknown').join(', ');
+        const titleNames = this.gameState.titleMarket.map(t => t.name || t.Name || 'Unknown').join(', ');
+        
+        this.log(`Hero Market: ${heroNames}`, 'state');
+        this.log(`Title Market: ${titleNames}`, 'state');
     }
 
     exportLog() {
