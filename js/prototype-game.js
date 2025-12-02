@@ -122,27 +122,44 @@ export class PrototypeGame {
     }
 
     deployToKingdom(cardId, kingdom) {
+        console.log('DEBUG: deployToKingdom called', cardId, kingdom);
+        
         if (this.deployment[kingdom].length >= GAME_CONFIG.MAX_CARDS_PER_KINGDOM) {
             this.log(`Cannot deploy to ${kingdom.toUpperCase()} - max 3 cards`, 'error');
             return;
         }
         
-        // Remove from other kingdoms
+        // Find the card in hand
+        const card = this.gameState.player.hand.find(c => c.id === cardId);
+        if (!card) {
+            console.error('Card not found in hand:', cardId);
+            return;
+        }
+        
+        // Remove from other kingdoms if already deployed
         GAME_CONFIG.KINGDOMS.forEach(k => {
             this.deployment[k] = this.deployment[k].filter(c => c.id !== cardId);
         });
         
         // Add to new kingdom
-        const card = this.gameState.player.hand.find(c => c.id === cardId);
-        if (card) {
-            this.deployment[kingdom].push(card);
-            this.ui.updateAll();
-        }
+        this.deployment[kingdom].push(card);
+        this.log(`Deployed ${card.name || card.Name} to ${kingdom.toUpperCase()}`, 'decision');
+        
+        this.ui.updateAll();
     }
 
     removeFromDeployment(cardId, kingdom) {
         this.deployment[kingdom] = this.deployment[kingdom].filter(c => c.id !== cardId);
         this.ui.updateAll();
+    }
+
+    // Helper for zone clicks (called from inline onclick)
+    handleZoneClick(kingdom) {
+        if (this.selectedCards.length > 0) {
+            const cardId = this.selectedCards[0];
+            this.deployToKingdom(cardId, kingdom);
+            this.selectedCards.splice(0, 1);
+        }
     }
 
     confirmDeployment() {
