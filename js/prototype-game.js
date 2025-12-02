@@ -145,11 +145,53 @@ export class PrototypeGame {
         
         this.log(`--- Turn ${this.gameState.turn}: Deployment Phase ---`, 'phase');
         this.log(`Event: ${eventName} (${icon} ${leadingResource})`, 'state');
-        this.logMarketState();
+        
+        // LOG FULL MARKET INFO - This is critical for decision making
+        this.log('=== MARKET STATE (Review before deploying) ===', 'phase');
+        
+        this.log('--- Available Heroes ---', 'state');
+        this.gameState.heroMarket.forEach(hero => {
+            const name = hero.name || hero.Name || 'Unknown';
+            const allegiance = hero.allegiance || hero.Allegiance || '?';
+            const role = (hero.roles && hero.roles[0]) || hero.Role || '?';
+            const cost = this.formatCost(hero.cost);
+            const stats = this.formatStats(hero);
+            this.log(`${name} (${allegiance} ${role}) - Cost: ${cost} | Stats: ${stats}`, 'state');
+        });
+        
+        this.log('--- Available Titles ---', 'state');
+        this.gameState.titleMarket.forEach(title => {
+            const name = title.name || title.Name || 'Unknown';
+            const req = title.Required_Hero || title.requirement || 'Any hero';
+            const cost = this.formatCost(title.cost);
+            const points = (title.points || title.Set_Scoring || [0]).join('/');
+            this.log(`"${name}" - Req: ${req} | Cost: ${cost} | Points: [${points}]`, 'state');
+        });
+        
+        this.log('=== Now deploy your cards ===', 'phase');
         
         console.log('DEBUG: About to update display');
         this.updateDisplay();
         console.log('DEBUG: Display updated');
+    }
+
+    formatCost(cost) {
+        if (!cost) return 'Free';
+        return GAME_CONFIG.RESOURCES.map(r => {
+            const val = cost[r];
+            if (val && val > 0) return `${GAME_CONFIG.RESOURCE_ICONS[r]}${val}`;
+            return '';
+        }).filter(s => s).join(' ') || 'Free';
+    }
+
+    formatStats(hero) {
+        return GAME_CONFIG.RESOURCES.map(r => {
+            const val = hero[r];
+            if (val !== 0 && val !== undefined && val !== null) {
+                return `${GAME_CONFIG.RESOURCE_ICONS[r]}${val}`;
+            }
+            return '';
+        }).filter(s => s).join(' ') || 'None';
     }
 
     toggleCardSelection(cardId) {
@@ -555,35 +597,67 @@ export class PrototypeGame {
 
     renderDeploymentUI() {
         const cardsArea = document.getElementById('deploymentCards');
-        cardsArea.innerHTML = this.gameState.player.hand.map(card => `
-            <div class="card ${this.selectedCards.includes(card.id) ? 'selected' : ''}" 
-                 onclick="game.toggleCardSelection('${card.id}')">
-                <div class="card-name">${card.name}</div>
-                <div class="card-resources">
-                    ${GAME_CONFIG.RESOURCES.map(r => card[r] ? 
-                        `${GAME_CONFIG.RESOURCE_ICONS[r]}${card[r]}` : ''
-                    ).filter(s => s).join(' ')}
+        
+        // Show ALL cards in hand, not just non-deployed ones
+        const availableCards = this.gameState.player.hand.filter(card => {
+            // Check if card is already deployed
+            return !GAME_CONFIG.KINGDOMS.some(k => 
+                this.deployment[k].some(deployed => deployed.id === card.id)
+            );
+        });
+        
+        console.log('DEBUG: Available cards for deployment:', availableCards.length);
+        console.log('DEBUG: Cards in hand:', this.gameState.player.hand.length);
+        
+        cardsArea.innerHTML = availableCards.map(card => {
+            const name = card.name || card.Name || 'Unknown';
+            const allegiance = card.allegiance || card.Allegiance || '';
+            const isSelected = this.selectedCards.includes(card.id);
+            
+            return `
+                <div class="card ${isSelected ? 'selected' : ''}" 
+                     onclick="game.toggleCardSelection('${card.id}')">
+                    <div class="card-name">${name}</div>
+                    ${allegiance ? `<div class="card-allegiance">${allegiance}</div>` : ''}
+                    <div class="card-resources">
+                        ${this.formatStats(card)}
+                    </div>
                 </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
         
         // Render drop zones
         GAME_CONFIG.KINGDOMS.forEach(kingdom => {
             const zone = document.getElementById(`${kingdom}Deployment`);
-            zone.innerHTML = this.deployment[kingdom].map(card => `
-                <div class="card" onclick="game.deployToKingdom('${card.id}', null)">
-                    <div class="card-name">${card.name}</div>
-                </div>
-            `).join('');
+            zone.innerHTML = this.deployment[kingdom].map(card => {
+                const name = card.name || card.Name || 'Unknown';
+                return `
+                    <div class="card" onclick="game.removeFromDeployment('${card.id}', '${kingdom}')">
+                        <div class="card-name">${name}</div>
+                        <small style="color:#888;">Click to remove</small>
+                    </div>
+                `;
+            }).join('');
             
             // Make clickable for selected cards
-            zone.onclick = () => {
-                if (this.selectedCards.length > 0) {
-                    this.deployToKingdom(this.selectedCards[0], kingdom);
-                    this.selectedCards.splice(0, 1);
+            zone.onclick = (e) => {
+                // Only trigger if clicking the zone itself, not a card
+                if (e.target.id.includes('Deployment')) {
+                    if (this.selectedCards.length > 0) {
+                        this.deployToKingdom(this.selectedCards[0], kingdom);
+                        this.selectedCards.splice(0, 1);
+                    }
                 }
             };
         });
+    }
+
+    removeFromDeployment(cardId, kingdom) {
+        const idx = this.deployment[kingdom].findIndex(c => c.id === cardId);
+        if (idx > -1) {
+            this.deployment[kingdom].splice(idx, 1);
+            this.updateDisplay();
+        }
     }
 
     renderPurchaseUI() {
@@ -614,16 +688,22 @@ export class PrototypeGame {
         document.getElementById('titleMarket').innerHTML = this.gameState.titleMarket.map(title => {
             const affordable = this.canAfford(title.cost, emergency);
             const hasHero = this.findEligibleHero(title) !== null;
+            
+            // Handle multiple possible field names
+            const name = title.name || title.Name || 'Unknown Title';
+            const requirement = title.Required_Hero || title.requirement || 'Any hero';
+            const points = title.points || title.Set_Scoring || [0];
+            const setDesc = title.Set_Description || title.setDescription || '';
+            
             return `
                 <div class="card ${affordable && hasHero ? 'affordable' : 'unaffordable'}
                             ${this.selectedPurchase?.item === title ? 'selected' : ''}"
-                     onclick="game.selectPurchase('title', ${JSON.stringify(title).replace(/"/g, '&quot;')})">
-                    <div class="card-name">${title.Name}</div>
-                    <div class="card-requirement">${title.Required_Hero || 'Any hero'}</div>
-                    <div class="card-cost">Cost: ${GAME_CONFIG.RESOURCES.map(r => title.cost[r] ? 
-                        `${GAME_CONFIG.RESOURCE_ICONS[r]}${title.cost[r]}` : ''
-                    ).filter(s => s).join(' ')}</div>
-                    <div class="card-points">Points: ${(title.points || title.Set_Scoring || [0]).join(', ')}</div>
+                     onclick='game.selectPurchase("title", ${JSON.stringify(title).replace(/'/g, "&apos;").replace(/"/g, "&quot;")})'>
+                    <div class="card-name">${name}</div>
+                    <div class="card-requirement">Requires: ${requirement}</div>
+                    ${setDesc ? `<div class="card-allegiance">${setDesc}</div>` : ''}
+                    <div class="card-cost">Cost: ${this.formatCost(title.cost)}</div>
+                    <div class="card-points">Points: ${points.join(' → ')}</div>
                 </div>
             `;
         }).join('');
