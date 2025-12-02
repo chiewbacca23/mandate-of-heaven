@@ -1,4 +1,97 @@
-// Three Kingdoms Prototype - Main Game Logic
+confirmPurchase() {
+        if (!this.selectedPurchase) return;
+        
+        const emergency = this.getEmergencyBonus();
+        const usingEmergency = Object.values(emergency).some(v => v > 0);
+        
+        if (this.selectedPurchase.type === 'hero') {
+            const hero = this.selectedPurchase.item;
+            
+            // Add purchased hero to hand (available IMMEDIATELY)
+            this.gameState.player.hand.push({...hero});
+            this.gameState.heroMarket = this.gameState.heroMarket.filter(h => h.id !== hero.id);
+            
+            if (usingEmergency) {
+                this.gameState.player.emergencyUsed++;
+                this.gameState.player.score -= 1;
+                const resources = Object.entries(emergency).filter(([_, v]) => v > 0).map(([r, _]) => 
+                    GAME_CONFIG.RESOURCE_ICONS[r]
+                ).join(' +1');
+                this.log(`Used emergency: +1${resources} (-1 point)`, 'decision');
+            }
+            
+            const name = hero.name || hero.Name || 'Unknown';
+            this.log(`Purchased: ${name} (added to hand)`, 'decision');
+            
+            // Return ONLY battlefield cards used for purchase to hand
+            GAME_CONFIG.KINGDOMS.forEach(kingdom => {
+                this.gameState.player.hand.push(...this.gameState.player.battlefield[kingdom]);
+                this.gameState.player.battlefield[kingdom] = [];
+            });
+            this.log('Cards used for purchase returned to hand', 'state');
+            
+        } else if (this.selectedPurchase.type === 'title') {
+            const title = this.selectedPurchase.item;
+            const heroToRetire = this.findEligibleHero(title);
+            
+            if (!heroToRetire) {
+                this.log('ERROR: No eligible hero to retire!', 'error');
+                return;
+            }
+            
+            // Remove hero and add to retired
+            this.removeHeroFromCollection(heroToRetire);
+            this.gameState.player.retiredHeroes.push(heroToRetire);
+            this.gameState.player.titles.push({ title, retiredWith: heroToRetire });
+            this.gameState.titleMarket = this.gameState.titleMarket.filter(t => t.id !== title.id);
+            
+            if (usingEmergency) {
+                this.gameState.player.emergencyUsed++;
+                this.gameState.player.score -= 1;
+                const resources = Object.entries(emergency).filter(([_, v]) => v > 0).map(([r, _]) => 
+                    GAME_CONFIG.RESOURCE_ICONS[r]
+                ).join(' +1');
+                this.log(`Used emergency: +1${resources} (-1 point)`, 'decision');
+            }
+            
+            const titleName = title.name || title.Name || 'Unknown';
+            const heroName = heroToRetire.name || heroToRetire.Name || 'Unknown';
+            const score = this.calculateTitleScore(title);
+            this.log(`Purchased: "${titleName}" (retired ${heroName}) - ${score} points`, 'decision');
+            
+            // Return ONLY battlefield cards used for purchase (minus retired hero)
+            GAME_CONFIG.KINGDOMS.forEach(kingdom => {
+                this.gameState.player.battlefield[kingdom].forEach(card => {
+                    if (card.id !== heroToRetire.id) {
+                        this.gameState.player.hand.push(card);
+                    }
+                });
+                this.gameState.player.battlefield[kingdom] = [];
+            });
+            this.log('Cards used for purchase returned to hand (except retired hero)', 'state');
+        }
+        
+        // Move to turn cleanup - NO automatic card returns
+        this.completeTurn();
+    }
+
+    passTurn() {
+        this.log('Passed turn - no purchase made', 'decision');
+        this.log('All battlefield cards remain deployed for next turn', 'state');
+        // Cards STAY on battlefield - no movement
+        this.completeTurn();
+    }
+
+    completeTurn() {
+        // NO AUTOMATIC CARD RETURNS - cards stay where they are
+        this.log(`Hand: ${this.gameState.player.hand.length} cards | Battlefield: ${Object.values(this.gameState.player.battlefield).flat().length} cards`, 'state');
+        
+        // Market cleanup
+        if (this.gameState.heroMarket.length >= 2) {
+            const discarded = this.gameState.heroMarket.splice(-2, 2);
+            const names = discarded.map(h => h.name || h.Name || 'Unknown').join(', ');
+            this.log(`Market cleanup: Discarded ${names}`, 'state');
+        }// Three Kingdoms Prototype - Main Game Logic
 import { GAME_CONFIG, dataLoader } from './prototype-config.js';
 
 export class PrototypeGame {
@@ -304,6 +397,8 @@ export class PrototypeGame {
         
         if (this.selectedPurchase.type === 'hero') {
             const hero = this.selectedPurchase.item;
+            
+            // Add purchased hero to hand (will be available NEXT turn)
             this.gameState.player.hand.push({...hero});
             this.gameState.heroMarket = this.gameState.heroMarket.filter(h => h.id !== hero.id);
             
@@ -316,7 +411,14 @@ export class PrototypeGame {
                 this.log(`Used emergency: +1${resources} (-1 point)`, 'decision');
             }
             
-            this.log(`Purchased: ${hero.name}`, 'decision');
+            const name = hero.name || hero.Name || 'Unknown';
+            this.log(`Purchased: ${name} (will be in hand next turn)`, 'decision');
+            
+            // Return ONLY the cards used for this purchase (battlefield cards)
+            GAME_CONFIG.KINGDOMS.forEach(kingdom => {
+                this.gameState.player.hand.push(...this.gameState.player.battlefield[kingdom]);
+                this.gameState.player.battlefield[kingdom] = [];
+            });
             
         } else if (this.selectedPurchase.type === 'title') {
             const title = this.selectedPurchase.item;
@@ -342,29 +444,43 @@ export class PrototypeGame {
                 this.log(`Used emergency: +1${resources} (-1 point)`, 'decision');
             }
             
+            const titleName = title.name || title.Name || 'Unknown';
+            const heroName = heroToRetire.name || heroToRetire.Name || 'Unknown';
             const score = this.calculateTitleScore(title);
-            this.log(`Purchased: "${title.Name}" (retired ${heroToRetire.name}) - ${score} points`, 'decision');
+            this.log(`Purchased: "${titleName}" (retired ${heroName}) - ${score} points`, 'decision');
+            
+            // Return ONLY the cards used for this purchase (battlefield cards)
+            GAME_CONFIG.KINGDOMS.forEach(kingdom => {
+                this.gameState.player.hand.push(...this.gameState.player.battlefield[kingdom]);
+                this.gameState.player.battlefield[kingdom] = [];
+            });
         }
         
+        // Continue to cleanup/next turn
         this.completeTurn();
     }
 
     passTurn() {
         this.log('Passed turn - no purchase', 'decision');
-        this.completeTurn();
-    }
-
-    completeTurn() {
-        // Return battlefield cards to hand
+        
+        // Return battlefield cards to hand since we didn't buy anything
         GAME_CONFIG.KINGDOMS.forEach(kingdom => {
             this.gameState.player.hand.push(...this.gameState.player.battlefield[kingdom]);
             this.gameState.player.battlefield[kingdom] = [];
         });
         
+        this.completeTurn();
+    }
+
+    completeTurn() {
+        // NOTE: Cards already returned to hand in confirmPurchase/passTurn
+        // DON'T return them again here
+        
         // Market cleanup
         if (this.gameState.heroMarket.length >= 2) {
             const discarded = this.gameState.heroMarket.splice(-2, 2);
-            this.log(`Market cleanup: Discarded ${discarded.map(h => h.name).join(', ')}`, 'state');
+            const names = discarded.map(h => h.name || h.Name || 'Unknown').join(', ');
+            this.log(`Market cleanup: Discarded ${names}`, 'state');
         }
         
         // Refill hero market to 4
@@ -550,8 +666,31 @@ export class PrototypeGame {
     updatePlayerState() {
         if (!this.gameState.player) return;
         
-        // Hand count
-        document.getElementById('handCount').textContent = this.gameState.player.hand.length;
+        // Hand count and display
+        const handCount = this.gameState.player.hand.length;
+        document.getElementById('handCount').textContent = handCount;
+        
+        // Show cards in hand
+        const handArea = document.getElementById('handArea');
+        if (handArea) {
+            if (handCount === 0) {
+                handArea.innerHTML = '<div style="padding:10px;color:#888;">No cards in hand</div>';
+            } else {
+                handArea.innerHTML = this.gameState.player.hand.map(card => {
+                    const name = card.name || card.Name || 'Unknown';
+                    const allegiance = card.allegiance || card.Allegiance || '';
+                    return `
+                        <div class="card" style="margin:5px 0;">
+                            <div class="card-name">${name}</div>
+                            ${allegiance ? `<div class="card-allegiance" style="font-size:0.8em;">${allegiance}</div>` : ''}
+                            <div class="card-resources" style="font-size:0.85em;">
+                                ${this.formatStats(card)}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
         
         // Battlefield resources
         const resources = this.calculateBattlefieldResources();
@@ -572,9 +711,39 @@ export class PrototypeGame {
         // All heroes count
         const allHeroes = [
             ...this.gameState.player.hand,
+            ...this.gameState.player.battlefield.wei,
+            ...this.gameState.player.battlefield.wu,
+            ...this.gameState.player.battlefield.shu,
             ...this.gameState.player.retiredHeroes
         ].filter(h => !h.name.includes('Peasant'));
+        
         document.getElementById('heroCount').textContent = allHeroes.length;
+        
+        // Show hero breakdown by location
+        const allHeroesArea = document.getElementById('allHeroes');
+        if (allHeroesArea) {
+            const inHand = this.gameState.player.hand.filter(h => !h.name.includes('Peasant'));
+            const onField = [
+                ...this.gameState.player.battlefield.wei,
+                ...this.gameState.player.battlefield.wu,
+                ...this.gameState.player.battlefield.shu
+            ].filter(h => !h.name.includes('Peasant'));
+            const retired = this.gameState.player.retiredHeroes;
+            
+            allHeroesArea.innerHTML = `
+                <div class="hero-group">
+                    <strong>In Hand:</strong> ${inHand.length ? inHand.map(h => h.name || h.Name).join(', ') : 'None'}
+                </div>
+                <div class="hero-group">
+                    <strong>On Battlefield:</strong> ${onField.length ? onField.map(h => h.name || h.Name).join(', ') : 'None'}
+                </div>
+                ${retired.length > 0 ? `
+                    <div class="hero-group">
+                        <strong>Retired:</strong> ${retired.map(h => h.name || h.Name).join(', ')}
+                    </div>
+                ` : ''}
+            `;
+        }
     }
 
     updateActionArea() {
@@ -598,16 +767,27 @@ export class PrototypeGame {
     renderDeploymentUI() {
         const cardsArea = document.getElementById('deploymentCards');
         
+        console.log('DEBUG renderDeployment: Player hand =', this.gameState.player.hand);
+        console.log('DEBUG renderDeployment: Current deployment =', this.deployment);
+        
         // Show ALL cards in hand, not just non-deployed ones
         const availableCards = this.gameState.player.hand.filter(card => {
             // Check if card is already deployed
-            return !GAME_CONFIG.KINGDOMS.some(k => 
-                this.deployment[k].some(deployed => deployed.id === card.id)
+            const isDeployed = GAME_CONFIG.KINGDOMS.some(k => 
+                this.deployment[k].some(deployed => {
+                    // Compare by id if available, otherwise by reference
+                    return (deployed.id && card.id && deployed.id === card.id) || deployed === card;
+                })
             );
+            return !isDeployed;
         });
         
-        console.log('DEBUG: Available cards for deployment:', availableCards.length);
-        console.log('DEBUG: Cards in hand:', this.gameState.player.hand.length);
+        console.log('DEBUG renderDeployment: Available cards =', availableCards.length);
+        
+        if (availableCards.length === 0) {
+            cardsArea.innerHTML = '<div style="padding:20px;color:#888;">All cards deployed or no cards in hand</div>';
+            return;
+        }
         
         cardsArea.innerHTML = availableCards.map(card => {
             const name = card.name || card.Name || 'Unknown';
