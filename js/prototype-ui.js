@@ -178,16 +178,6 @@ export class UIManager {
             zone.setAttribute('onclick', `game.handleZoneClick('${kingdom}')`);
         });
     }
-}
-
-// Add this helper to the game object
-window.handleZoneClick = function(kingdom) {
-    if (window.game && window.game.selectedCards.length > 0) {
-        const cardId = window.game.selectedCards[0];
-        window.game.deployToKingdom(cardId, kingdom);
-        window.game.selectedCards.splice(0, 1);
-    }
-};
 
     renderPurchaseUI() {
         const player = this.game.gameState.player;
