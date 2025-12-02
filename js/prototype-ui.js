@@ -153,20 +153,41 @@ export class UIManager {
             }).join('');
         }
         
-        // Render drop zones
+        // Render drop zones with direct onclick
         GAME_CONFIG.KINGDOMS.forEach(kingdom => {
             const zone = document.getElementById(`${kingdom}Deployment`);
-            zone.innerHTML = this.game.deployment[kingdom].map(card => {
+            
+            const deployedCards = this.game.deployment[kingdom].map(card => {
                 const name = card.name || card.Name || 'Unknown';
                 return `
-                    <div class="card" onclick="game.removeFromDeployment('${card.id}', '${kingdom}')">
+                    <div class="card" onclick="game.removeFromDeployment('${card.id}', '${kingdom}'); event.stopPropagation();">
                         <div class="card-name">${name}</div>
                         <small style="color:#888;">Click to remove</small>
                     </div>
                 `;
             }).join('');
+            
+            // Set zone content and add click handler
+            if (this.game.deployment[kingdom].length === 0) {
+                zone.innerHTML = `<div style="padding:40px 20px;color:#666;text-align:center;font-size:0.9em;">Click to deploy selected card here</div>`;
+            } else {
+                zone.innerHTML = deployedCards;
+            }
+            
+            // Use setAttribute for onclick to make it work
+            zone.setAttribute('onclick', `game.handleZoneClick('${kingdom}')`);
         });
     }
+}
+
+// Add this helper to the game object
+window.handleZoneClick = function(kingdom) {
+    if (window.game && window.game.selectedCards.length > 0) {
+        const cardId = window.game.selectedCards[0];
+        window.game.deployToKingdom(cardId, kingdom);
+        window.game.selectedCards.splice(0, 1);
+    }
+};
 
     renderPurchaseUI() {
         const player = this.game.gameState.player;
