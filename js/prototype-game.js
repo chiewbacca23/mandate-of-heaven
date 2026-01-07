@@ -214,18 +214,31 @@ export class PrototypeGame {
     }
 
     selectPurchase(type, itemId) {
-        console.log('DEBUG: selectPurchase called', type, itemId);
+        console.log('DEBUG: selectPurchase called', type, itemId, 'type:', typeof itemId);
+        
+        // Convert itemId to match comparison (could be string or number)
+        const searchId = itemId;
         
         // Find the item in the appropriate market
         let item;
         if (type === 'hero') {
-            item = this.gameState.heroMarket.find(h => h.id === itemId || h.name === itemId);
+            item = this.gameState.heroMarket.find(h => {
+                const heroId = h.id || h.name || h.Name;
+                // Compare with type coercion
+                return heroId == searchId || String(heroId) === String(searchId);
+            });
         } else {
-            item = this.gameState.titleMarket.find(t => t.id === itemId || t.name === itemId);
+            item = this.gameState.titleMarket.find(t => {
+                const titleId = t.id || t.name || t.Name;
+                // Compare with type coercion
+                return titleId == searchId || String(titleId) === String(searchId);
+            });
         }
         
+        console.log('DEBUG: Found item?', item ? item.name || item.Name : 'NOT FOUND');
+        
         if (!item) {
-            console.error('Item not found:', type, itemId);
+            console.error('Item not found in market:', type, searchId);
             return;
         }
         
@@ -236,7 +249,7 @@ export class PrototypeGame {
             this.selectedPurchase = { type, item };
         }
         
-        console.log('DEBUG: Selected purchase', this.selectedPurchase);
+        console.log('DEBUG: Selected purchase:', this.selectedPurchase ? 'SET' : 'CLEARED');
         this.ui.updateAll();
     }
 
