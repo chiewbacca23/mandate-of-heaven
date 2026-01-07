@@ -58,8 +58,17 @@ export class PrototypeGame {
         this.gameState.heroMarket = dataLoader.shuffle([...dataLoader.heroes]).slice(0, 6);
         this.gameState.titleMarket = dataLoader.shuffle([...dataLoader.titles]).slice(0, 4);
         
-        // Setup player
+        // Setup player with random home province
         this.gameState.player = new Player();
+        
+        // Randomly assign home province
+        const shuffledProvinces = dataLoader.shuffle([...GAME_CONFIG.HOME_PROVINCES]);
+        const homeProvince = shuffledProvinces[0];
+        this.gameState.player.setHomeProvince(homeProvince);
+        
+        const bonusIcon = GAME_CONFIG.RESOURCE_ICONS[homeProvince.bonus.resource];
+        this.log(`Home Province: ${homeProvince.name} (+${homeProvince.bonus.amount}${bonusIcon} ${homeProvince.bonus.resource})`, 'state');
+        
         this.gameState.player.createStartingHand();
         
         // Start turn 1
