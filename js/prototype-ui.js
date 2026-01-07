@@ -125,14 +125,21 @@ export class UIManager {
         const cardsArea = document.getElementById('deploymentCards');
         const player = this.game.gameState.player;
         
+        console.log('DEBUG: Player hand =', player.hand);
+        console.log('DEBUG: Deployment state =', this.game.deployment);
+        
         // Show cards that aren't already deployed
         const availableCards = player.hand.filter(card => {
+            const cardId = card.id || card.name;  // Use name as fallback ID
             return !GAME_CONFIG.KINGDOMS.some(k => 
-                this.game.deployment[k].some(deployed => 
-                    (deployed.id && card.id && deployed.id === card.id) || deployed === card
-                )
+                this.game.deployment[k].some(deployed => {
+                    const deployedId = deployed.id || deployed.name;
+                    return deployedId === cardId;
+                })
             );
         });
+        
+        console.log('DEBUG: Available cards for deployment =', availableCards.length);
         
         if (availableCards.length === 0) {
             cardsArea.innerHTML = '<div style="padding:20px;color:#888;">All cards deployed</div>';
@@ -140,11 +147,13 @@ export class UIManager {
             cardsArea.innerHTML = availableCards.map(card => {
                 const name = card.name || card.Name || 'Unknown';
                 const allegiance = card.allegiance || card.Allegiance || '';
-                const isSelected = this.game.selectedCards.includes(card.id);
+                const cardId = card.id || name; // Use name as fallback
+                const isSelected = this.game.selectedCards.includes(cardId);
                 
                 return `
                     <div class="card ${isSelected ? 'selected' : ''}" 
-                         onclick="game.toggleCardSelection('${card.id}')">
+                         onclick="game.toggleCardSelection('${cardId}')"
+                         style="cursor: pointer;">
                         <div class="card-name">${name}</div>
                         ${allegiance ? `<div class="card-allegiance">${allegiance}</div>` : ''}
                         <div class="card-resources">${this.formatStats(card)}</div>
@@ -207,18 +216,26 @@ export class UIManager {
     }
 
     renderMarketCard(item, type, affordable, isSelected) {
+        const selectedClass = isSelected ? 'selected' : '';
+        const affordableClass = affordable ? 'affordable' : 'unaffordable';
+        
+        // Use id or name as identifier
+        const itemId = item.id || item.name || item.Name;
+        
         if (type === 'hero') {
             const name = item.name || item.Name || 'Unknown';
             const allegiance = item.allegiance || item.Allegiance || '?';
             const role = (item.roles && item.roles[0]) || item.Role || '?';
             
             return `
-                <div class="card ${affordable ? 'affordable' : 'unaffordable'} ${isSelected ? 'selected' : ''}"
-                     onclick='game.selectPurchase("hero", ${JSON.stringify(item).replace(/'/g, "&apos;")})'>
+                <div class="card ${affordableClass} ${selectedClass}"
+                     onclick='game.selectPurchase("hero", "${itemId}")'
+                     style="${isSelected ? 'border: 3px solid #4CAF50; background: rgba(76, 175, 80, 0.2);' : ''} cursor: pointer;">
                     <div class="card-name">${name}</div>
                     <div class="card-allegiance">${allegiance} - ${role}</div>
                     <div class="card-resources">${this.formatStats(item)}</div>
                     <div class="card-cost">Cost: ${this.formatCost(item.cost)}</div>
+                    ${isSelected ? '<div style="color:#4CAF50;margin-top:5px;font-weight:bold;">✓ SELECTED</div>' : ''}
                 </div>
             `;
         } else {
@@ -228,13 +245,15 @@ export class UIManager {
             const setDesc = item.Set_Description || item.setDescription || '';
             
             return `
-                <div class="card ${affordable ? 'affordable' : 'unaffordable'} ${isSelected ? 'selected' : ''}"
-                     onclick='game.selectPurchase("title", ${JSON.stringify(item).replace(/'/g, "&apos;")})'>
+                <div class="card ${affordableClass} ${selectedClass}"
+                     onclick='game.selectPurchase("title", "${itemId}")'
+                     style="${isSelected ? 'border: 3px solid #4CAF50; background: rgba(76, 175, 80, 0.2);' : ''} cursor: pointer;">
                     <div class="card-name">${name}</div>
                     <div class="card-requirement">Requires: ${requirement}</div>
                     ${setDesc ? `<div class="card-allegiance">${setDesc}</div>` : ''}
                     <div class="card-cost">Cost: ${this.formatCost(item.cost)}</div>
                     <div class="card-points">Points: ${points.join(' → ')}</div>
+                    ${isSelected ? '<div style="color:#4CAF50;margin-top:5px;font-weight:bold;">✓ SELECTED</div>' : ''}
                 </div>
             `;
         }
@@ -280,20 +299,29 @@ export class UIManager {
 
     formatCost(cost) {
         if (!cost) return 'Free';
-        return GAME_CONFIG.RESOURCES.map(r => {
+        
+        const costParts = [];
+        GAME_CONFIG.RESOURCES.forEach(r => {
             const val = cost[r];
-            if (val && val > 0) return `${GAME_CONFIG.RESOURCE_ICONS[r]}${val}`;
-            return '';
-        }).filter(s => s).join(' ') || 'Free';
+            // Include zero values to show complete cost
+            if (val !== undefined && val !== null) {
+                if (val > 0) {
+                    costParts.push(`${GAME_CONFIG.RESOURCE_ICONS[r]}${val}`);
+                }
+            }
+        });
+        
+        return costParts.length > 0 ? costParts.join(' ') : 'Free';
     }
 
     formatStats(item) {
-        return GAME_CONFIG.RESOURCES.map(r => {
+        const statParts = [];
+        GAME_CONFIG.RESOURCES.forEach(r => {
             const val = item[r];
             if (val !== 0 && val !== undefined && val !== null) {
-                return `${GAME_CONFIG.RESOURCE_ICONS[r]}${val}`;
+                statParts.push(`${GAME_CONFIG.RESOURCE_ICONS[r]}${val}`);
             }
-            return '';
-        }).filter(s => s).join(' ') || 'None';
+        });
+        return statParts.length > 0 ? statParts.join(' ') : 'None';
     }
 }
