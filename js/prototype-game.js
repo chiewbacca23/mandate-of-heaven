@@ -1,432 +1,327 @@
-// Three Kingdoms Prototype - Main Game Controller (Modular)
-import { GAME_CONFIG, dataLoader } from './prototype-config.js';
-import { Player } from './prototype-player.js';
-import { UIManager } from './prototype-ui.js';
+// Three Kingdoms Prototype - UI Module
+import { GAME_CONFIG } from './prototype-config.js';
 
-export class PrototypeGame {
-    constructor() {
-        this.gameState = {
-            turn: 0,
-            phase: 'setup',
-            currentEvent: null,
-            events: [],
-            heroMarket: [],
-            titleMarket: [],
-            player: null,
-            log: []
-        };
-        
-        this.selectedCards = [];
-        this.deployment = { wei: [], wu: [], shu: [] };
-        this.selectedPurchase = null;
-        
-        this.ui = new UIManager(this);
-        this.init();
+export class UIManager {
+    constructor(game) {
+        this.game = game;
     }
 
-    async init() {
-        try {
-            await dataLoader.loadAllData();
-            this.log('✅ Game data loaded successfully', 'state');
-            this.ui.updateAll();
-            document.getElementById('newGameBtn').disabled = false;
-        } catch (error) {
-            this.log('❌ Failed to load game data: ' + error.message, 'error');
+    updateAll() {
+        this.updateGameInfo();
+        this.updatePlayerState();
+        this.updateActionArea();
+        this.updateLog();
+    }
+
+    updateGameInfo() {
+        document.getElementById('turnDisplay').textContent = this.game.gameState.turn;
+        document.getElementById('phaseDisplay').textContent = this.game.gameState.phase;
+        
+        const event = this.game.gameState.currentEvent;
+        if (event) {
+            const eventName = event.Name || event.name || 'Unknown Event';
+            const leadingResource = event.Leading_resource || event.leading_resource || event.leadingResource || 'military';
+            const icon = GAME_CONFIG.RESOURCE_ICONS[leadingResource] || '❓';
+            
+            document.getElementById('eventDisplay').textContent = eventName;
+            document.getElementById('leadingDisplay').textContent = `${icon} ${leadingResource}`;
+        }
+        
+        const player = this.game.gameState.player;
+        if (player) {
+            document.getElementById('scoreDisplay').textContent = player.score;
+            document.getElementById('emergencyDisplay').textContent = player.emergencyUsed;
         }
     }
 
-    // ===== GAME SETUP =====
-    async startNewGame() {
-        this.log('=== NEW GAME STARTED ===', 'phase');
+    updatePlayerState() {
+        const player = this.game.gameState.player;
+        if (!player) return;
         
-        // Setup events
-        const powerEvent = dataLoader.events.find(e => 
-            (e.Name && e.Name.toLowerCase().includes("power of the han")) ||
-            (e.name && e.name.toLowerCase().includes("power of the han"))
-        );
-        
-        const firstEvent = powerEvent || dataLoader.events[0];
-        if (!firstEvent) {
-            this.log('ERROR: No events available!', 'error');
-            return;
-        }
-        
-        const otherEvents = dataLoader.events.filter(e => e !== powerEvent);
-        this.gameState.events = [firstEvent, ...dataLoader.shuffle(otherEvents)].slice(0, 8);
-        
-        // Setup markets
-        this.gameState.heroMarket = dataLoader.shuffle([...dataLoader.heroes]).slice(0, 6);
-        this.gameState.titleMarket = dataLoader.shuffle([...dataLoader.titles]).slice(0, 4);
-        
-        // Setup player
-        this.gameState.player = new Player();
-        this.gameState.player.createStartingHand();
-        
-        // Start turn 1
-        this.gameState.turn = 1;
-        this.gameState.currentEvent = this.gameState.events[0];
-        
-        this.startDeploymentPhase();
-        document.getElementById('exportLogBtn').disabled = false;
-    }
-
-    // ===== DEPLOYMENT PHASE =====
-    startDeploymentPhase() {
-        this.gameState.phase = 'deployment';
-        this.selectedCards = [];
-        this.deployment = { wei: [], wu: [], shu: [] };
-        
-        const eventName = this.gameState.currentEvent?.Name || this.gameState.currentEvent?.name || 'Unknown';
-        const leadingResource = this.gameState.currentEvent?.Leading_resource || 
-                               this.gameState.currentEvent?.leading_resource || 'military';
-        const icon = GAME_CONFIG.RESOURCE_ICONS[leadingResource] || '❓';
-        
-        this.log(`--- Turn ${this.gameState.turn}: Deployment Phase ---`, 'phase');
-        this.log(`Event: ${eventName} (${icon} ${leadingResource})`, 'state');
-        
-        // Log full market info
-        this.log('=== MARKET STATE (Review before deploying) ===', 'phase');
-        this.log('--- Available Heroes ---', 'state');
-        this.gameState.heroMarket.forEach(hero => {
-            const name = hero.name || hero.Name || 'Unknown';
-            const allegiance = hero.allegiance || hero.Allegiance || '?';
-            const role = (hero.roles && hero.roles[0]) || hero.Role || '?';
-            const cost = this.ui.formatCost(hero.cost);
-            const stats = this.ui.formatStats(hero);
-            this.log(`${name} (${allegiance} ${role}) - Cost: ${cost} | Stats: ${stats}`, 'state');
-        });
-        
-        this.log('--- Available Titles ---', 'state');
-        this.gameState.titleMarket.forEach(title => {
-            const name = title.name || title.Name || 'Unknown';
-            const req = title.Required_Hero || title.requirement || 'Any hero';
-            const cost = this.ui.formatCost(title.cost);
-            const points = (title.points || title.Set_Scoring || [0]).join('/');
-            this.log(`"${name}" - Req: ${req} | Cost: ${cost} | Points: [${points}]`, 'state');
-        });
-        
-        this.log('=== Now deploy your cards ===', 'phase');
-        this.ui.updateAll();
-    }
-
-    toggleCardSelection(cardId) {
-        console.log('DEBUG: toggleCardSelection called with', cardId);
-        console.log('DEBUG: Currently selected cards', this.selectedCards);
-        
-        const idx = this.selectedCards.indexOf(cardId);
-        if (idx > -1) {
-            this.selectedCards.splice(idx, 1);
-        } else {
-            if (this.selectedCards.length < GAME_CONFIG.MAX_DEPLOYMENT) {
-                this.selectedCards.push(cardId);
+        // Hand count and display
+        document.getElementById('handCount').textContent = player.hand.length;
+        const handArea = document.getElementById('handArea');
+        if (handArea) {
+            if (player.hand.length === 0) {
+                handArea.innerHTML = '<div style="padding:10px;color:#888;">No cards in hand</div>';
             } else {
-                this.log('Maximum 3 cards can be selected for deployment', 'error');
+                handArea.innerHTML = player.hand.map(card => this.renderCard(card, 'compact')).join('');
             }
         }
         
-        console.log('DEBUG: Selected cards after toggle', this.selectedCards);
-        this.ui.updateAll();
+        // Battlefield resources
+        const resources = player.calculateBattlefieldResources();
+        document.getElementById('resourcesDisplay').innerHTML = GAME_CONFIG.RESOURCES.map(r =>
+            `<span>${GAME_CONFIG.RESOURCE_ICONS[r]} ${resources[r]}</span>`
+        ).join('');
+        
+        // Titles
+        document.getElementById('titleCount').textContent = player.titles.length;
+        const ownedTitles = document.getElementById('ownedTitles');
+        if (ownedTitles) {
+            ownedTitles.innerHTML = player.titles.map(({ title, retiredWith }) => {
+                const titleName = title.name || title.Name || 'Unknown';
+                const heroName = retiredWith.name || retiredWith.Name || 'Unknown';
+                const score = this.game.calculateTitleScore(title);
+                return `
+                    <div class="title-item">
+                        <div class="title-item-name">${titleName}</div>
+                        <div class="title-item-score">${score} points</div>
+                        <div style="font-size:0.8em;color:#aaa;">Retired: ${heroName}</div>
+                    </div>
+                `;
+            }).join('') || '<div style="padding:10px;color:#888;">No titles yet</div>';
+        }
+        
+        // All heroes breakdown
+        const allHeroesArea = document.getElementById('allHeroes');
+        if (allHeroesArea) {
+            const inHand = player.getHandHeroes();
+            const onField = player.getBattlefieldHeroes();
+            const retired = player.retiredHeroes;
+            
+            allHeroesArea.innerHTML = `
+                <div class="hero-group">
+                    <strong>In Hand (${inHand.length}):</strong><br>
+                    ${inHand.length ? inHand.map(h => h.name || h.Name).join(', ') : 'None'}
+                </div>
+                <div class="hero-group">
+                    <strong>On Battlefield (${onField.length}):</strong><br>
+                    ${onField.length ? onField.map(h => h.name || h.Name).join(', ') : 'None'}
+                </div>
+                ${retired.length > 0 ? `
+                    <div class="hero-group">
+                        <strong>Retired (${retired.length}):</strong><br>
+                        ${retired.map(h => h.name || h.Name).join(', ')}
+                    </div>
+                ` : ''}
+            `;
+        }
+        
+        document.getElementById('heroCount').textContent = player.getAllHeroes().length;
     }
 
-    deployToKingdom(cardId, kingdom) {
-        console.log('DEBUG: deployToKingdom called', cardId, kingdom);
+    updateActionArea() {
+        // Hide all phase areas
+        document.querySelectorAll('.phase-area').forEach(el => el.style.display = 'none');
         
-        if (this.deployment[kingdom].length >= GAME_CONFIG.MAX_CARDS_PER_KINGDOM) {
-            this.log(`Cannot deploy to ${kingdom.toUpperCase()} - max 3 cards`, 'error');
-            return;
+        const phase = this.game.gameState.phase;
+        if (phase === 'deployment') {
+            document.getElementById('actionTitle').textContent = 'Deployment Phase';
+            document.getElementById('deploymentPhase').style.display = 'block';
+            this.renderDeploymentUI();
+        } else if (phase === 'purchase') {
+            document.getElementById('actionTitle').textContent = 'Purchase Phase';
+            document.getElementById('purchasePhase').style.display = 'block';
+            this.renderPurchaseUI();
+        } else if (phase === 'gameover') {
+            document.getElementById('actionTitle').textContent = 'Game Over';
+            document.getElementById('gameOverPhase').style.display = 'block';
+            this.renderGameOver();
         }
+    }
+
+    renderDeploymentUI() {
+        const cardsArea = document.getElementById('deploymentCards');
+        const player = this.game.gameState.player;
         
-        // Find the card in hand (use name as fallback for ID)
-        const card = this.gameState.player.hand.find(c => 
-            c.id === cardId || c.name === cardId || (c.Name && c.Name === cardId)
-        );
+        console.log('DEBUG: Player hand =', player.hand);
+        console.log('DEBUG: Deployment state =', this.game.deployment);
         
-        if (!card) {
-            console.error('Card not found in hand:', cardId);
-            this.log('Error: Card not found in hand', 'error');
-            return;
-        }
-        
-        // Remove from other kingdoms if already deployed
-        GAME_CONFIG.KINGDOMS.forEach(k => {
-            this.deployment[k] = this.deployment[k].filter(c => {
-                const cId = c.id || c.name || c.Name;
-                return cId !== cardId;
-            });
+        // Show cards that aren't already deployed
+        const availableCards = player.hand.filter(card => {
+            const cardId = card.id || card.name;  // Use name as fallback ID
+            return !GAME_CONFIG.KINGDOMS.some(k => 
+                this.game.deployment[k].some(deployed => {
+                    const deployedId = deployed.id || deployed.name;
+                    return deployedId === cardId;
+                })
+            );
         });
         
-        // Add to new kingdom
-        this.deployment[kingdom].push(card);
-        this.log(`Deployed ${card.name || card.Name} to ${kingdom.toUpperCase()}`, 'decision');
+        console.log('DEBUG: Available cards for deployment =', availableCards.length);
         
-        this.ui.updateAll();
-    }
-
-    removeFromDeployment(cardId, kingdom) {
-        this.deployment[kingdom] = this.deployment[kingdom].filter(c => c.id !== cardId);
-        this.ui.updateAll();
-    }
-
-    // Helper for zone clicks (called from inline onclick)
-    handleZoneClick(kingdom) {
-        if (this.selectedCards.length > 0) {
-            const cardId = this.selectedCards[0];
-            this.deployToKingdom(cardId, kingdom);
-            this.selectedCards.splice(0, 1);
+        if (availableCards.length === 0) {
+            cardsArea.innerHTML = '<div style="padding:20px;color:#888;">All cards deployed</div>';
+        } else {
+            cardsArea.innerHTML = availableCards.map(card => {
+                const name = card.name || card.Name || 'Unknown';
+                const allegiance = card.allegiance || card.Allegiance || '';
+                const cardId = card.id || name; // Use name as fallback
+                const isSelected = this.game.selectedCards.includes(cardId);
+                
+                return `
+                    <div class="card ${isSelected ? 'selected' : ''}" 
+                         onclick="game.toggleCardSelection('${cardId}')"
+                         style="cursor: pointer;">
+                        <div class="card-name">${name}</div>
+                        ${allegiance ? `<div class="card-allegiance">${allegiance}</div>` : ''}
+                        <div class="card-resources">${this.formatStats(card)}</div>
+                    </div>
+                `;
+            }).join('');
         }
-    }
-
-    confirmDeployment() {
-        // Move deployed cards to battlefield
+        
+        // Render drop zones with direct onclick
         GAME_CONFIG.KINGDOMS.forEach(kingdom => {
-            this.deployment[kingdom].forEach(card => {
-                const handIdx = this.gameState.player.hand.findIndex(c => c.id === card.id);
-                if (handIdx > -1) {
-                    this.gameState.player.hand.splice(handIdx, 1);
-                    this.gameState.player.battlefield[kingdom].push(card);
-                }
-            });
-        });
-        
-        // Log deployment
-        const deployed = [];
-        GAME_CONFIG.KINGDOMS.forEach(k => {
-            if (this.gameState.player.battlefield[k].length > 0) {
-                deployed.push(`${k.toUpperCase()}: ${this.gameState.player.battlefield[k].map(c => c.name || c.Name).join(', ')}`);
+            const zone = document.getElementById(`${kingdom}Deployment`);
+            
+            const deployedCards = this.game.deployment[kingdom].map(card => {
+                const name = card.name || card.Name || 'Unknown';
+                return `
+                    <div class="card" onclick="game.removeFromDeployment('${card.id}', '${kingdom}'); event.stopPropagation();">
+                        <div class="card-name">${name}</div>
+                        <small style="color:#888;">Click to remove</small>
+                    </div>
+                `;
+            }).join('');
+            
+            // Set zone content and add click handler
+            if (this.game.deployment[kingdom].length === 0) {
+                zone.innerHTML = `<div style="padding:40px 20px;color:#666;text-align:center;font-size:0.9em;">Click to deploy selected card here</div>`;
+            } else {
+                zone.innerHTML = deployedCards;
             }
+            
+            // Use setAttribute for onclick to make it work
+            zone.setAttribute('onclick', `game.handleZoneClick('${kingdom}')`);
         });
-        this.log(`Deployed: ${deployed.join(' | ')}`, 'decision');
-        
-        const resources = this.gameState.player.calculateBattlefieldResources();
-        this.log(`Resources: ${GAME_CONFIG.RESOURCES.map(r => 
-            `${GAME_CONFIG.RESOURCE_ICONS[r]}${resources[r]}`
-        ).join(' ')}`, 'state');
-        
-        this.startPurchasePhase();
     }
 
-    // ===== PURCHASE PHASE =====
-    startPurchasePhase() {
-        this.gameState.phase = 'purchase';
-        this.selectedPurchase = null;
-        this.log('--- Purchase Phase ---', 'phase');
-        this.ui.updateAll();
+    renderPurchaseUI() {
+        const player = this.game.gameState.player;
+        const emergency = this.game.getEmergencyBonus();
+        
+        // Hero market
+        const heroMarket = document.getElementById('heroMarket');
+        heroMarket.innerHTML = this.game.gameState.heroMarket.map(hero => {
+            const affordable = player.canAfford(hero.cost, emergency);
+            const isSelected = this.game.selectedPurchase?.item === hero;
+            
+            return this.renderMarketCard(hero, 'hero', affordable, isSelected);
+        }).join('');
+        
+        // Title market
+        const titleMarket = document.getElementById('titleMarket');
+        titleMarket.innerHTML = this.game.gameState.titleMarket.map(title => {
+            const affordable = player.canAfford(title.cost, emergency);
+            const hasHero = player.findEligibleHero(title) !== null;
+            const isSelected = this.game.selectedPurchase?.item === title;
+            
+            return this.renderMarketCard(title, 'title', affordable && hasHero, isSelected);
+        }).join('');
+        
+        // Update confirm button
+        document.getElementById('confirmPurchaseBtn').disabled = !this.game.selectedPurchase;
     }
 
-    selectPurchase(type, itemId) {
-        console.log('DEBUG: selectPurchase called', type, itemId, 'type:', typeof itemId);
+    renderMarketCard(item, type, affordable, isSelected) {
+        const selectedClass = isSelected ? 'selected' : '';
+        const affordableClass = affordable ? 'affordable' : 'unaffordable';
         
-        // Convert itemId to match comparison (could be string or number)
-        const searchId = itemId;
+        // Use id or name as identifier
+        const itemId = item.id || item.name || item.Name;
         
-        // Find the item in the appropriate market
-        let item;
         if (type === 'hero') {
-            item = this.gameState.heroMarket.find(h => {
-                const heroId = h.id || h.name || h.Name;
-                // Compare with type coercion
-                return heroId == searchId || String(heroId) === String(searchId);
-            });
+            const name = item.name || item.Name || 'Unknown';
+            const allegiance = item.allegiance || item.Allegiance || '?';
+            const role = (item.roles && item.roles[0]) || item.Role || '?';
+            
+            return `
+                <div class="card ${affordableClass} ${selectedClass}"
+                     onclick='game.selectPurchase("hero", "${itemId}")'
+                     style="${isSelected ? 'border: 3px solid #4CAF50; background: rgba(76, 175, 80, 0.2);' : ''} cursor: pointer;">
+                    <div class="card-name">${name}</div>
+                    <div class="card-allegiance">${allegiance} - ${role}</div>
+                    <div class="card-resources">${this.formatStats(item)}</div>
+                    <div class="card-cost">Cost: ${this.formatCost(item.cost)}</div>
+                    ${isSelected ? '<div style="color:#4CAF50;margin-top:5px;font-weight:bold;">✓ SELECTED</div>' : ''}
+                </div>
+            `;
         } else {
-            item = this.gameState.titleMarket.find(t => {
-                const titleId = t.id || t.name || t.Name;
-                // Compare with type coercion
-                return titleId == searchId || String(titleId) === String(searchId);
-            });
-        }
-        
-        console.log('DEBUG: Found item?', item ? item.name || item.Name : 'NOT FOUND');
-        
-        if (!item) {
-            console.error('Item not found in market:', type, searchId);
-            return;
-        }
-        
-        // Toggle selection
-        if (this.selectedPurchase && this.selectedPurchase.item === item) {
-            this.selectedPurchase = null;
-        } else {
-            this.selectedPurchase = { type, item };
-        }
-        
-        console.log('DEBUG: Selected purchase:', this.selectedPurchase ? 'SET' : 'CLEARED');
-        this.ui.updateAll();
-    }
-
-    toggleEmergency() {
-        const checkbox = document.getElementById('useEmergency');
-        const selector = document.getElementById('emergencySelector');
-        selector.style.display = checkbox.checked ? 'block' : 'none';
-        this.ui.updateAll();
-    }
-
-    getEmergencyBonus() {
-        const checkbox = document.getElementById('useEmergency');
-        if (!checkbox || !checkbox.checked) {
-            return { military: 0, influence: 0, supplies: 0, piety: 0 };
-        }
-        
-        const checkboxes = document.querySelectorAll('input[name="emergency"]:checked');
-        if (checkboxes.length !== 2) {
-            return { military: 0, influence: 0, supplies: 0, piety: 0 };
-        }
-        
-        const bonus = { military: 0, influence: 0, supplies: 0, piety: 0 };
-        checkboxes.forEach(cb => bonus[cb.value] = 1);
-        return bonus;
-    }
-
-    confirmPurchase() {
-        if (!this.selectedPurchase) return;
-        
-        const player = this.gameState.player;
-        const emergency = this.getEmergencyBonus();
-        const usingEmergency = Object.values(emergency).some(v => v > 0);
-        
-        if (this.selectedPurchase.type === 'hero') {
-            const hero = this.selectedPurchase.item;
-            player.addToHand({...hero});
-            this.gameState.heroMarket = this.gameState.heroMarket.filter(h => h.id !== hero.id);
+            const name = item.name || item.Name || 'Unknown';
+            const requirement = item.Required_Hero || item.requirement || 'Any hero';
+            const points = item.points || item.Set_Scoring || [0];
+            const setDesc = item.Set_Description || item.setDescription || '';
             
-            if (usingEmergency) {
-                player.emergencyUsed++;
-                player.score -= 1;
-                const resources = Object.entries(emergency).filter(([_, v]) => v > 0)
-                    .map(([r, _]) => GAME_CONFIG.RESOURCE_ICONS[r]).join(' +1');
-                this.log(`Used emergency: +1${resources} (-1 point)`, 'decision');
+            return `
+                <div class="card ${affordableClass} ${selectedClass}"
+                     onclick='game.selectPurchase("title", "${itemId}")'
+                     style="${isSelected ? 'border: 3px solid #4CAF50; background: rgba(76, 175, 80, 0.2);' : ''} cursor: pointer;">
+                    <div class="card-name">${name}</div>
+                    <div class="card-requirement">Requires: ${requirement}</div>
+                    ${setDesc ? `<div class="card-allegiance">${setDesc}</div>` : ''}
+                    <div class="card-cost">Cost: ${this.formatCost(item.cost)}</div>
+                    <div class="card-points">Points: ${points.join(' → ')}</div>
+                    ${isSelected ? '<div style="color:#4CAF50;margin-top:5px;font-weight:bold;">✓ SELECTED</div>' : ''}
+                </div>
+            `;
+        }
+    }
+
+    renderCard(card, style = 'full') {
+        const name = card.name || card.Name || 'Unknown';
+        const allegiance = card.allegiance || card.Allegiance || '';
+        
+        if (style === 'compact') {
+            return `
+                <div class="card" style="margin:5px 0;">
+                    <div class="card-name">${name}</div>
+                    ${allegiance ? `<div class="card-allegiance" style="font-size:0.8em;">${allegiance}</div>` : ''}
+                    <div class="card-resources" style="font-size:0.85em;">${this.formatStats(card)}</div>
+                </div>
+            `;
+        }
+        return `<div class="card"><div class="card-name">${name}</div></div>`;
+    }
+
+    renderGameOver() {
+        const finalScore = document.getElementById('finalScore');
+        const player = this.game.gameState.player;
+        
+        let html = `<h3>Final Score: ${player.score} points</h3>`;
+        html += `<div style="margin:20px 0;">`;
+        html += `<p>Titles Earned: ${player.titles.length}</p>`;
+        html += `<p>Emergency Uses: ${player.emergencyUsed} (-${player.emergencyUsed} points)</p>`;
+        html += `</div>`;
+        
+        finalScore.innerHTML = html;
+    }
+
+    updateLog() {
+        const logArea = document.getElementById('logArea');
+        logArea.innerHTML = this.game.gameState.log.slice(0, 100).map(entry => `
+            <div class="log-entry ${entry.type}">
+                <span style="color:#888;">[${entry.timestamp}]</span> ${entry.message}
+            </div>
+        `).join('');
+    }
+
+    formatCost(cost) {
+        if (!cost) return 'Free';
+        
+        const costParts = [];
+        GAME_CONFIG.RESOURCES.forEach(r => {
+            const val = cost[r];
+            // Include zero values to show complete cost
+            if (val !== undefined && val !== null) {
+                if (val > 0) {
+                    costParts.push(`${GAME_CONFIG.RESOURCE_ICONS[r]}${val}`);
+                }
             }
-            
-            const name = hero.name || hero.Name || 'Unknown';
-            this.log(`Purchased: ${name} (added to hand)`, 'decision');
-            
-            // Return battlefield cards to hand
-            player.returnBattlefieldToHand();
-            this.log('Battlefield cards returned to hand', 'state');
-            
-        } else if (this.selectedPurchase.type === 'title') {
-            const title = this.selectedPurchase.item;
-            const heroToRetire = player.findEligibleHero(title);
-            
-            if (!heroToRetire) {
-                this.log('ERROR: No eligible hero to retire!', 'error');
-                return;
-            }
-            
-            player.removeHeroFromCollection(heroToRetire);
-            player.retiredHeroes.push(heroToRetire);
-            player.titles.push({ title, retiredWith: heroToRetire });
-            this.gameState.titleMarket = this.gameState.titleMarket.filter(t => t.id !== title.id);
-            
-            if (usingEmergency) {
-                player.emergencyUsed++;
-                player.score -= 1;
-                const resources = Object.entries(emergency).filter(([_, v]) => v > 0)
-                    .map(([r, _]) => GAME_CONFIG.RESOURCE_ICONS[r]).join(' +1');
-                this.log(`Used emergency: +1${resources} (-1 point)`, 'decision');
-            }
-            
-            const titleName = title.name || title.Name || 'Unknown';
-            const heroName = heroToRetire.name || heroToRetire.Name || 'Unknown';
-            const score = this.calculateTitleScore(title);
-            this.log(`Purchased: "${titleName}" (retired ${heroName}) - ${score} points`, 'decision');
-            
-            // Return battlefield cards (except retired hero already removed)
-            player.returnBattlefieldToHand();
-            this.log('Battlefield cards returned to hand', 'state');
-        }
-        
-        this.completeTurn();
-    }
-
-    passTurn() {
-        this.log('Passed turn - no purchase made', 'decision');
-        this.log('Battlefield cards remain deployed for next turn', 'state');
-        this.completeTurn();
-    }
-
-    completeTurn() {
-        const player = this.gameState.player;
-        this.log(`Hand: ${player.hand.length} | Battlefield: ${player.getBattlefieldCardCount()}`, 'state');
-        
-        // Market cleanup
-        if (this.gameState.heroMarket.length >= 2) {
-            const discarded = this.gameState.heroMarket.splice(-2, 2);
-            const names = discarded.map(h => h.name || h.Name || 'Unknown').join(', ');
-            this.log(`Market cleanup: Discarded ${names}`, 'state');
-        }
-        
-        // Refill hero market
-        const availableHeroes = dataLoader.heroes.filter(h => 
-            !this.gameState.heroMarket.some(mh => mh.id === h.id) &&
-            !player.hand.some(ph => ph.id === h.id) &&
-            !player.retiredHeroes.some(rh => rh.id === h.id) &&
-            !player.getBattlefieldHeroes().some(bh => bh.id === h.id)
-        );
-        
-        while (this.gameState.heroMarket.length < 4 && availableHeroes.length > 0) {
-            const idx = Math.floor(Math.random() * availableHeroes.length);
-            this.gameState.heroMarket.push(availableHeroes.splice(idx, 1)[0]);
-        }
-        
-        // Next turn
-        this.gameState.turn++;
-        if (this.gameState.turn > GAME_CONFIG.TOTAL_TURNS) {
-            this.endGame();
-        } else {
-            this.gameState.currentEvent = this.gameState.events[this.gameState.turn - 1];
-            this.startDeploymentPhase();
-        }
-    }
-
-    // ===== GAME END =====
-    endGame() {
-        this.gameState.phase = 'gameover';
-        this.log('=== GAME OVER ===', 'phase');
-        
-        const player = this.gameState.player;
-        let titlePoints = 0;
-        
-        player.titles.forEach(({ title }) => {
-            const score = this.calculateTitleScore(title);
-            titlePoints += score;
-            const name = title.name || title.Name || 'Unknown';
-            this.log(`"${name}": ${score} points`, 'state');
         });
         
-        player.score = titlePoints - player.emergencyUsed;
-        this.log(`Final Score: ${player.score} points`, 'phase');
-        this.log(`(${titlePoints} from titles - ${player.emergencyUsed} emergency)`, 'state');
-        
-        this.ui.updateAll();
+        return costParts.length > 0 ? costParts.join(' ') : 'Free';
     }
 
-    calculateTitleScore(title) {
-        const player = this.gameState.player;
-        const allHeroes = player.getAllHeroes();
-        const points = title.points || title.Set_Scoring || [0];
-        const collectionSize = Math.min(allHeroes.length, points.length - 1);
-        return points[collectionSize] || 0;
-    }
-
-    // ===== LOGGING =====
-    log(message, type = 'info') {
-        const timestamp = new Date().toLocaleTimeString();
-        this.gameState.log.unshift({ timestamp, message, type });
-        console.log(`[${timestamp}] ${message}`);
-        if (this.ui) this.ui.updateLog();
-    }
-
-    exportLog() {
-        const logText = this.gameState.log.map(entry => 
-            `[${entry.timestamp}] ${entry.message}`
-        ).reverse().join('\n');
-        
-        const blob = new Blob([logText], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `three-kingdoms-log-${Date.now()}.txt`;
-        a.click();
-        URL.revokeObjectURL(url);
+    formatStats(item) {
+        const statParts = [];
+        GAME_CONFIG.RESOURCES.forEach(r => {
+            const val = item[r];
+            if (val !== 0 && val !== undefined && val !== null) {
+                statParts.push(`${GAME_CONFIG.RESOURCE_ICONS[r]}${val}`);
+            }
+        });
+        return statParts.length > 0 ? statParts.join(' ') : 'None';
     }
 }
