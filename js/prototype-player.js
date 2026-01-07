@@ -9,6 +9,11 @@ export class Player {
         this.retiredHeroes = [];
         this.score = 0;
         this.emergencyUsed = 0;
+        this.homeProvince = null; // Will be set during game setup
+    }
+
+    setHomeProvince(province) {
+        this.homeProvince = province;
     }
 
     createStartingHand() {
@@ -59,10 +64,24 @@ export class Player {
     }
 
     canAfford(cost, emergencyBonus = {}) {
+        if (!cost) return true;
+        
         const resources = this.calculateBattlefieldResources(emergencyBonus);
-        return GAME_CONFIG.RESOURCES.every(res => 
-            resources[res] >= (cost[res] || 0)
-        );
+        
+        // Check each resource type
+        const canAffordAll = GAME_CONFIG.RESOURCES.every(res => {
+            const costAmount = cost[res] || 0;
+            const available = resources[res] || 0;
+            
+            // Debug logging
+            if (costAmount > available) {
+                console.log(`Cannot afford ${res}: need ${costAmount}, have ${available}`);
+            }
+            
+            return available >= costAmount;
+        });
+        
+        return canAffordAll;
     }
 
     findEligibleHero(title) {
