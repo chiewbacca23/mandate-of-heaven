@@ -1,6 +1,93 @@
 // Three Kingdoms: Mandate of Heaven - Prototype Configuration
 // This file contains game constants and configuration for the interactive prototype
 
+// DataLoader class for loading JSON game data
+export class DataLoader {
+    constructor() {
+        this.cache = {
+            heroes: null,
+            titles: null,
+            events: null
+        };
+    }
+
+    async loadJSON(path) {
+        try {
+            const response = await fetch(path);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return await response.json();
+        } catch (error) {
+            console.error(`Failed to load ${path}:`, error);
+            throw error;
+        }
+    }
+
+    async loadHeroes() {
+        if (this.cache.heroes) return this.cache.heroes;
+        
+        try {
+            const data = await this.loadJSON('data/heroes.json');
+            this.cache.heroes = data;
+            console.log(`✅ Loaded ${data.length} heroes`);
+            return data;
+        } catch (error) {
+            console.error('Failed to load heroes:', error);
+            return [];
+        }
+    }
+
+    async loadTitles() {
+        if (this.cache.titles) return this.cache.titles;
+        
+        try {
+            const data = await this.loadJSON('data/titles.json');
+            this.cache.titles = data;
+            console.log(`✅ Loaded ${data.length} titles`);
+            return data;
+        } catch (error) {
+            console.error('Failed to load titles:', error);
+            return [];
+        }
+    }
+
+    async loadEvents() {
+        if (this.cache.events) return this.cache.events;
+        
+        try {
+            const data = await this.loadJSON('data/events.json');
+            this.cache.events = data;
+            console.log(`✅ Loaded ${data.length} events`);
+            return data;
+        } catch (error) {
+            console.error('Failed to load events:', error);
+            return [];
+        }
+    }
+
+    async loadAllData() {
+        const [heroes, titles, events] = await Promise.all([
+            this.loadHeroes(),
+            this.loadTitles(),
+            this.loadEvents()
+        ]);
+        
+        return { heroes, titles, events };
+    }
+
+    clearCache() {
+        this.cache = {
+            heroes: null,
+            titles: null,
+            events: null
+        };
+    }
+}
+
+// Create singleton instance
+export const dataLoader = new DataLoader();
+
 export const GAME_CONFIG = {
     // Resource types
     RESOURCES: ['military', 'influence', 'supplies', 'piety'],
