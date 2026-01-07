@@ -110,14 +110,21 @@ export class PrototypeGame {
     }
 
     toggleCardSelection(cardId) {
+        console.log('DEBUG: toggleCardSelection called with', cardId);
+        console.log('DEBUG: Currently selected cards', this.selectedCards);
+        
         const idx = this.selectedCards.indexOf(cardId);
         if (idx > -1) {
             this.selectedCards.splice(idx, 1);
         } else {
             if (this.selectedCards.length < GAME_CONFIG.MAX_DEPLOYMENT) {
                 this.selectedCards.push(cardId);
+            } else {
+                this.log('Maximum 3 cards can be selected for deployment', 'error');
             }
         }
+        
+        console.log('DEBUG: Selected cards after toggle', this.selectedCards);
         this.ui.updateAll();
     }
 
@@ -129,16 +136,23 @@ export class PrototypeGame {
             return;
         }
         
-        // Find the card in hand
-        const card = this.gameState.player.hand.find(c => c.id === cardId);
+        // Find the card in hand (use name as fallback for ID)
+        const card = this.gameState.player.hand.find(c => 
+            c.id === cardId || c.name === cardId || (c.Name && c.Name === cardId)
+        );
+        
         if (!card) {
             console.error('Card not found in hand:', cardId);
+            this.log('Error: Card not found in hand', 'error');
             return;
         }
         
         // Remove from other kingdoms if already deployed
         GAME_CONFIG.KINGDOMS.forEach(k => {
-            this.deployment[k] = this.deployment[k].filter(c => c.id !== cardId);
+            this.deployment[k] = this.deployment[k].filter(c => {
+                const cId = c.id || c.name || c.Name;
+                return cId !== cardId;
+            });
         });
         
         // Add to new kingdom
@@ -199,12 +213,30 @@ export class PrototypeGame {
         this.ui.updateAll();
     }
 
-    selectPurchase(type, item) {
+    selectPurchase(type, itemId) {
+        console.log('DEBUG: selectPurchase called', type, itemId);
+        
+        // Find the item in the appropriate market
+        let item;
+        if (type === 'hero') {
+            item = this.gameState.heroMarket.find(h => h.id === itemId || h.name === itemId);
+        } else {
+            item = this.gameState.titleMarket.find(t => t.id === itemId || t.name === itemId);
+        }
+        
+        if (!item) {
+            console.error('Item not found:', type, itemId);
+            return;
+        }
+        
+        // Toggle selection
         if (this.selectedPurchase && this.selectedPurchase.item === item) {
             this.selectedPurchase = null;
         } else {
             this.selectedPurchase = { type, item };
         }
+        
+        console.log('DEBUG: Selected purchase', this.selectedPurchase);
         this.ui.updateAll();
     }
 
