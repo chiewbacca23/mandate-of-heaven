@@ -94,6 +94,7 @@ export class CollectionScorer {
             case 'unique_allegiances':
                 return this.matchByUniqueAllegiances(heroes, setDesc);
             case 'role_pairs':
+            case 'pair':
                 return this.matchByRolePairs(heroes, setDesc);
             case 'specific_allegiance_spread':
                 return this.matchByAllegianceSpread(heroes, setDesc);
