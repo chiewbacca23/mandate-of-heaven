@@ -128,7 +128,7 @@ export class CollectionScorer {
         
         for (const role of roles) {
             if (descLower.includes(role.toLowerCase())) {
-                return heroes.filter(h => h.roles.includes(role));
+                return heroes.filter(h => h.roles && Array.isArray(h.roles) && h.roles.includes(role));
             }
         }
         return [];
@@ -147,7 +147,8 @@ export class CollectionScorer {
         const allegiance = allegianceMatch[1];
         
         return heroes.filter(h => 
-            h.roles.includes(role) && h.allegiance === allegiance
+            h.roles && Array.isArray(h.roles) && h.roles.includes(role) && 
+            h.allegiance && h.allegiance === allegiance
         );
     }
 
@@ -165,7 +166,8 @@ export class CollectionScorer {
         const resourceType = resourceMatch[2].toLowerCase();
         
         return heroes.filter(h => 
-            h.roles.includes(role) && h[resourceType] >= threshold
+            h.roles && Array.isArray(h.roles) && h.roles.includes(role) && 
+            h[resourceType] !== undefined && h[resourceType] >= threshold
         );
     }
 
@@ -189,7 +191,7 @@ export class CollectionScorer {
         const matchingRoles = roles.filter(r => descLower.includes(r.toLowerCase()));
         
         return heroes.filter(h => 
-            h.roles.some(role => matchingRoles.includes(role))
+            h.roles && Array.isArray(h.roles) && h.roles.some(role => matchingRoles.includes(role))
         );
     }
 
@@ -220,7 +222,7 @@ export class CollectionScorer {
      * Match dual-role heroes (has 2+ roles)
      */
     matchByDualRole(heroes, setDesc) {
-        return heroes.filter(h => h.roles.length >= 2);
+        return heroes.filter(h => h.roles && Array.isArray(h.roles) && h.roles.length >= 2);
     }
 
     /**
@@ -256,12 +258,12 @@ export class CollectionScorer {
         // Count pairs - need at least one of each role mentioned
         const roleCounts = {};
         matchingRoles.forEach(role => {
-            roleCounts[role] = heroes.filter(h => h.roles.includes(role)).length;
+            roleCounts[role] = heroes.filter(h => h.roles && Array.isArray(h.roles) && h.roles.includes(role)).length;
         });
         
         // Return all matching heroes for now
         return heroes.filter(h => 
-            h.roles.some(role => matchingRoles.includes(role))
+            h.roles && Array.isArray(h.roles) && h.roles.some(role => matchingRoles.includes(role))
         );
     }
 
