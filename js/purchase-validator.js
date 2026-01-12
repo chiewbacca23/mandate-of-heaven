@@ -131,7 +131,7 @@ export class PurchaseValidator {
         
         for (const role of roles) {
             if (reqLower.includes(role.toLowerCase())) {
-                const matching = heroes.find(h => h.roles.includes(role));
+                const matching = heroes.find(h => h.roles && Array.isArray(h.roles) && h.roles.includes(role));
                 if (matching) return matching;
             }
         }
@@ -153,7 +153,8 @@ export class PurchaseValidator {
         const resourceType = resourceMatch[2].toLowerCase();
         
         return heroes.find(h => 
-            h.roles.includes(role) && h[resourceType] >= threshold
+            h.roles && Array.isArray(h.roles) && h.roles.includes(role) && 
+            h[resourceType] !== undefined && h[resourceType] >= threshold
         );
     }
 
@@ -186,7 +187,8 @@ export class PurchaseValidator {
         const allegiance = allegianceMatch[1];
         
         return heroes.find(h => 
-            h.roles.includes(role) && h.allegiance === allegiance
+            h.roles && Array.isArray(h.roles) && h.roles.includes(role) && 
+            h.allegiance && h.allegiance === allegiance
         );
     }
 
@@ -222,7 +224,7 @@ export class PurchaseValidator {
         const matchingRoles = roles.filter(r => reqLower.includes(r.toLowerCase()));
         
         return heroes.find(h => 
-            h.roles.some(role => matchingRoles.includes(role))
+            h.roles && Array.isArray(h.roles) && h.roles.some(role => matchingRoles.includes(role))
         );
     }
 
@@ -230,7 +232,7 @@ export class PurchaseValidator {
      * Find a dual-role hero (has 2+ roles)
      */
     findDualRoleHero(heroes, requirement) {
-        return heroes.find(h => h.roles.length >= 2);
+        return heroes.find(h => h.roles && Array.isArray(h.roles) && h.roles.length >= 2);
     }
 
     /**
