@@ -2,494 +2,1037 @@
   {
     "id": 1,
     "name": "Heavenly Commander",
-    "requirementType": "allegiance",
     "requirement": "Han",
-    "cost": {"military": 5, "influence": 0, "supplies": 5, "piety": 0},
-    "points": [1, 2, 3, 5, 6],
-    "setType": "allegiance",
-    "setDescription": "Han heroes"
+    "requirement_type": "allegiance",
+    "cost": {
+      "military": 5,
+      "influence": 0,
+      "supplies": 5,
+      "piety": 0
+    },
+    "total_cost": 10,
+    "points_array": [
+      1,
+      2,
+      3,
+      5,
+      6
+    ],
+    "set_type": "allegiance",
+    "set_description": "Han heroes",
+    "is_legendary": false,
+    "named_legends": [],
+    "legend_bonus": 0
   },
   {
     "id": 2,
     "name": "General of the Earth",
-    "requirementType": "role_resource",
     "requirement": "General with at least 3 military",
-    "requiredRole": "General",
-    "resourceThreshold": {"type": "military", "value": 3},
-    "cost": {"military": 6, "influence": 2, "supplies": 0, "piety": 0},
-    "points": [1, 2, 3, 4],
-    "setType": "role",
-    "setDescription": "Generals"
+    "requirement_type": "role_resource",
+    "cost": {
+      "military": 6,
+      "influence": 2,
+      "supplies": 0,
+      "piety": 0
+    },
+    "total_cost": 8,
+    "points_array": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "set_type": "role",
+    "set_description": "Generals",
+    "is_legendary": false,
+    "named_legends": [],
+    "legend_bonus": 0
   },
   {
     "id": 3,
     "name": "General of Chariots and Cavalry",
-    "requirementType": "role_allegiance",
     "requirement": "General from Wei, Wu or Shu",
-    "requiredRole": "General",
-    "requiredAllegiances": ["Wei", "Wu", "Shu"],
-    "cost": {"military": 4, "influence": 0, "supplies": 4, "piety": 0},
-    "points": [1, 2, 3, 5, 6],
-    "setType": "role_allegiance",
-    "setDescription": "Generals from Wei, Wu or Shu"
+    "requirement_type": "role_allegiance",
+    "cost": {
+      "military": 4,
+      "influence": 0,
+      "supplies": 4,
+      "piety": 0
+    },
+    "total_cost": 8,
+    "points_array": [
+      1,
+      2,
+      3,
+      5,
+      6
+    ],
+    "set_type": "role_allegiance",
+    "set_description": "Generals from Wei, Wu or Shu",
+    "is_legendary": false,
+    "named_legends": [],
+    "legend_bonus": 0
   },
   {
     "id": 4,
     "name": "Commander of the Capital Districts",
-    "requirementType": "role",
     "requirement": "Any administrator",
-    "requiredRole": "Administrator",
-    "cost": {"military": 0, "influence": 4, "supplies": 0, "piety": 4},
-    "points": [1, 2, 3, 5, 6],
-    "setType": "role",
-    "setDescription": "Administrators"
+    "requirement_type": "role",
+    "cost": {
+      "military": 0,
+      "influence": 4,
+      "supplies": 0,
+      "piety": 4
+    },
+    "total_cost": 8,
+    "points_array": [
+      1,
+      2,
+      3,
+      5,
+      6
+    ],
+    "set_type": "role",
+    "set_description": "Administrators",
+    "is_legendary": false,
+    "named_legends": [],
+    "legend_bonus": 0
   },
   {
     "id": 5,
     "name": "General of the Flying Cavalry",
-    "requirementType": "role_resource",
     "requirement": "General with at least 3 military",
-    "requiredRole": "General",
-    "resourceThreshold": {"type": "military", "value": 3},
-    "cost": {"military": 6, "influence": 2, "supplies": 0, "piety": 1},
-    "points": [1, 2, 3, 5],
-    "setType": "allegiance_multi",
-    "setDescription": "Han or Dong Zhuo heroes",
-    "setAllegiances": ["Han", "Dong Zhuo"]
+    "requirement_type": "role_resource",
+    "cost": {
+      "military": 6,
+      "influence": 2,
+      "supplies": 0,
+      "piety": 1
+    },
+    "total_cost": 9,
+    "points_array": [
+      1,
+      2,
+      3,
+      5
+    ],
+    "set_type": "allegiance_multi",
+    "set_description": "Han or Dong Zhuo heroes",
+    "is_legendary": false,
+    "named_legends": [],
+    "legend_bonus": 0
   },
   {
     "id": 6,
     "name": "General of the Forward Army",
-    "requirementType": "allegiance",
     "requirement": "Any Dong Zhuo hero",
-    "requiredAllegiance": "Dong Zhuo",
-    "cost": {"military": 4, "influence": 5, "supplies": 0, "piety": 0},
-    "points": [1, 2, 5, 6, 8],
-    "setType": "allegiance",
-    "setDescription": "Dong Zhuo heroes"
+    "requirement_type": "allegiance",
+    "cost": {
+      "military": 4,
+      "influence": 5,
+      "supplies": 0,
+      "piety": 0
+    },
+    "total_cost": 9,
+    "points_array": [
+      1,
+      2,
+      5,
+      6,
+      8
+    ],
+    "set_type": "allegiance",
+    "set_description": "Dong Zhuo heroes",
+    "is_legendary": false,
+    "named_legends": [],
+    "legend_bonus": 0
   },
   {
     "id": 7,
     "name": "Commandant of the Exemplary Cavalry",
-    "requirementType": "role",
     "requirement": "Any tactician",
-    "requiredRole": "Tactician",
-    "cost": {"military": 3, "influence": 3, "supplies": 2, "piety": 0},
-    "points": [1, 2, 3, 5, 7],
-    "setType": "role",
-    "setDescription": "Tacticians"
+    "requirement_type": "role",
+    "cost": {
+      "military": 3,
+      "influence": 3,
+      "supplies": 2,
+      "piety": 0
+    },
+    "total_cost": 8,
+    "points_array": [
+      1,
+      2,
+      3,
+      5,
+      7
+    ],
+    "set_type": "role",
+    "set_description": "Tacticians",
+    "is_legendary": false,
+    "named_legends": [],
+    "legend_bonus": 0
   },
   {
     "id": 8,
     "name": "General Known for Vigor-in-Arms",
-    "requirementType": "allegiance",
     "requirement": "Any Rebels hero",
-    "requiredAllegiance": "Rebels",
-    "cost": {"military": 4, "influence": 3, "supplies": 3, "piety": 0},
-    "points": [1, 2, 4, 6, 7],
-    "setType": "allegiance",
-    "setDescription": "Rebels heroes"
+    "requirement_type": "allegiance",
+    "cost": {
+      "military": 4,
+      "influence": 3,
+      "supplies": 3,
+      "piety": 0
+    },
+    "total_cost": 10,
+    "points_array": [
+      1,
+      2,
+      4,
+      6,
+      7
+    ],
+    "set_type": "allegiance",
+    "set_description": "Rebels heroes",
+    "is_legendary": false,
+    "named_legends": [],
+    "legend_bonus": 0
   },
   {
     "id": 9,
     "name": "General in Chief who Conquers the West",
-    "requirementType": "allegiance",
     "requirement": "Any Coalition hero",
-    "requiredAllegiance": "Coalition",
-    "cost": {"military": 3, "influence": 0, "supplies": 3, "piety": 3},
-    "points": [1, 2, 4, 6, 7],
-    "setType": "allegiance",
-    "setDescription": "Coalition heroes"
+    "requirement_type": "allegiance",
+    "cost": {
+      "military": 3,
+      "influence": 0,
+      "supplies": 3,
+      "piety": 3
+    },
+    "total_cost": 9,
+    "points_array": [
+      1,
+      2,
+      4,
+      6,
+      7
+    ],
+    "set_type": "allegiance",
+    "set_description": "Coalition heroes",
+    "is_legendary": false,
+    "named_legends": [],
+    "legend_bonus": 0
   },
   {
     "id": 10,
     "name": "Master Scholar",
-    "requirementType": "role_resource",
     "requirement": "Advisor with at least 3 influence",
-    "requiredRole": "Advisor",
-    "resourceThreshold": {"type": "influence", "value": 3},
-    "cost": {"military": 0, "influence": 5, "supplies": 4, "piety": 0},
-    "points": [1, 2, 3, 5],
-    "setType": "role",
-    "setDescription": "Advisors"
+    "requirement_type": "role_resource",
+    "cost": {
+      "military": 0,
+      "influence": 5,
+      "supplies": 4,
+      "piety": 0
+    },
+    "total_cost": 9,
+    "points_array": [
+      1,
+      2,
+      3,
+      5
+    ],
+    "set_type": "role",
+    "set_description": "Advisors",
+    "is_legendary": false,
+    "named_legends": [],
+    "legend_bonus": 0
   },
   {
     "id": 11,
     "name": "Worth a Thousand Men",
-    "requirementType": "legend_role_resource",
     "requirement": "General with 4+ Military",
-    "requiredRole": "General",
-    "resourceThreshold": {"type": "military", "value": 4},
-    "cost": {"military": 6, "influence": 2, "supplies": 2, "piety": 0},
-    "points": [1, 2, 4, 6, 8],
-    "setType": "role_resource",
-    "setDescription": "Generals with 4+ Military",
-    "isLegendary": true,
-    "namedLegends": ["Lu Bu", "Gongsun Zan", "Taishi Ci", "Zhang Liao", "Meng Huo"],
-    "legendBonus": 1
+    "requirement_type": "legend_role_resource",
+    "cost": {
+      "military": 6,
+      "influence": 2,
+      "supplies": 2,
+      "piety": 0
+    },
+    "total_cost": 10,
+    "points_array": [
+      1,
+      2,
+      4,
+      6,
+      8
+    ],
+    "set_type": "role_resource",
+    "set_description": "Generals with 4+ Military",
+    "is_legendary": true,
+    "named_legends": [
+      "Lu Bu",
+      "Gongsun Zan",
+      "Taishi Ci",
+      "Zhang Liao",
+      "Meng Huo"
+    ],
+    "legend_bonus": 1
   },
   {
     "id": 12,
     "name": "Bringers of a New Age",
-    "requirementType": "legend_role_allegiance",
     "requirement": "Any Administrator from Wei/Wu/Shu",
-    "requiredRole": "Administrator",
-    "requiredAllegiances": ["Wei", "Wu", "Shu"],
-    "cost": {"military": 0, "influence": 5, "supplies": 0, "piety": 5},
-    "points": [1, 2, 4, 6, 8],
-    "setType": "role_allegiance",
-    "setDescription": "Administrators from Wei/Wu/Shu",
-    "isLegendary": true,
-    "namedLegends": ["Liu Bei", "Cao Cao", "Cao Pi", "Sun Jian", "Sun Ce", "Sun Quan"],
-    "legendBonus": 1
+    "requirement_type": "legend_role_allegiance",
+    "cost": {
+      "military": 0,
+      "influence": 5,
+      "supplies": 0,
+      "piety": 5
+    },
+    "total_cost": 10,
+    "points_array": [
+      1,
+      2,
+      4,
+      6,
+      8
+    ],
+    "set_type": "role_allegiance",
+    "set_description": "Administrators from Wei/Wu/Shu",
+    "is_legendary": true,
+    "named_legends": [
+      "Liu Bei",
+      "Cao Cao",
+      "Cao Pi",
+      "Sun Jian",
+      "Sun Ce",
+      "Sun Quan"
+    ],
+    "legend_bonus": 1
   },
   {
     "id": 13,
     "name": "Unlikely Allies",
-    "requirementType": "allegiance_multi",
     "requirement": "Any Coalition or Rebels hero",
-    "requiredAllegiances": ["Coalition", "Rebels"],
-    "cost": {"military": 2, "influence": 4, "supplies": 0, "piety": 4},
-    "points": [1, 2, 3, 6, 7],
-    "setType": "allegiance_multi",
-    "setDescription": "Coalition or Rebels heroes"
+    "requirement_type": "allegiance_multi",
+    "cost": {
+      "military": 2,
+      "influence": 4,
+      "supplies": 0,
+      "piety": 4
+    },
+    "total_cost": 10,
+    "points_array": [
+      1,
+      2,
+      3,
+      6,
+      7
+    ],
+    "set_type": "allegiance_multi",
+    "set_description": "Coalition or Rebels heroes",
+    "is_legendary": false,
+    "named_legends": [],
+    "legend_bonus": 0
   },
   {
     "id": 14,
     "name": "Council of Men",
-    "requirementType": "any_resource_threshold",
     "requirement": "Any hero with a resource stat at least 4",
-    "resourceThreshold": {"type": "any", "value": 4},
-    "cost": {"military": 4, "influence": 0, "supplies": 4, "piety": 2},
-    "points": [1, 1, 3, 5],
-    "setType": "unique_roles",
-    "setDescription": "Unique roles"
+    "requirement_type": "any_resource_threshold",
+    "cost": {
+      "military": 4,
+      "influence": 0,
+      "supplies": 4,
+      "piety": 2
+    },
+    "total_cost": 10,
+    "points_array": [
+      1,
+      1,
+      3,
+      5
+    ],
+    "set_type": "unique_roles",
+    "set_description": "Unique roles",
+    "is_legendary": false,
+    "named_legends": [],
+    "legend_bonus": 0
   },
   {
     "id": 15,
     "name": "Military Strategist",
-    "requirementType": "role_multi_resource",
     "requirement": "General or Advisor with resource stat of at least 3",
-    "requiredRoles": ["General", "Advisor"],
-    "resourceThreshold": {"type": "any", "value": 3},
-    "cost": {"military": 5, "influence": 5, "supplies": 0, "piety": 0},
-    "points": [2, 4, 6],
-    "setType": "pair",
-    "setDescription": "Pairs of Generals and Advisors",
-    "pairRoles": ["General", "Advisor"]
+    "requirement_type": "role_multi_resource",
+    "cost": {
+      "military": 5,
+      "influence": 5,
+      "supplies": 0,
+      "piety": 0
+    },
+    "total_cost": 10,
+    "points_array": [
+      2,
+      4,
+      6
+    ],
+    "set_type": "pair",
+    "set_description": "Pairs of Generals and Advisors",
+    "is_legendary": false,
+    "named_legends": [],
+    "legend_bonus": 0
   },
   {
     "id": 16,
     "name": "Civil Planners",
-    "requirementType": "role_multi_resource",
     "requirement": "Tactician or Administrator with resource stat of at least 3",
-    "requiredRoles": ["Tactician", "Administrator"],
-    "resourceThreshold": {"type": "any", "value": 3},
-    "cost": {"military": 0, "influence": 0, "supplies": 5, "piety": 5},
-    "points": [3, 5, 7],
-    "setType": "pair",
-    "setDescription": "Pairs of Tacticians and Administrators",
-    "pairRoles": ["Tactician", "Administrator"]
+    "requirement_type": "role_multi_resource",
+    "cost": {
+      "military": 0,
+      "influence": 0,
+      "supplies": 5,
+      "piety": 5
+    },
+    "total_cost": 10,
+    "points_array": [
+      3,
+      5,
+      7
+    ],
+    "set_type": "pair",
+    "set_description": "Pairs of Tacticians and Administrators",
+    "is_legendary": false,
+    "named_legends": [],
+    "legend_bonus": 0
   },
   {
     "id": 17,
     "name": "General of the Left",
-    "requirementType": "allegiance",
     "requirement": "A Shu hero",
-    "requiredAllegiance": "Shu",
-    "cost": {"military": 4, "influence": 3, "supplies": 3, "piety": 0},
-    "points": [1, 2, 3, 5, 6],
-    "setType": "allegiance",
-    "setDescription": "Shu heroes"
+    "requirement_type": "allegiance",
+    "cost": {
+      "military": 4,
+      "influence": 3,
+      "supplies": 3,
+      "piety": 0
+    },
+    "total_cost": 10,
+    "points_array": [
+      1,
+      2,
+      3,
+      5,
+      6
+    ],
+    "set_type": "allegiance",
+    "set_description": "Shu heroes",
+    "is_legendary": false,
+    "named_legends": [],
+    "legend_bonus": 0
   },
   {
     "id": 18,
     "name": "General of the Rear",
-    "requirementType": "allegiance",
     "requirement": "A Wu hero",
-    "requiredAllegiance": "Wu",
-    "cost": {"military": 4, "influence": 3, "supplies": 0, "piety": 3},
-    "points": [1, 2, 3, 5, 6],
-    "setType": "allegiance",
-    "setDescription": "Wu heroes"
+    "requirement_type": "allegiance",
+    "cost": {
+      "military": 4,
+      "influence": 3,
+      "supplies": 0,
+      "piety": 3
+    },
+    "total_cost": 10,
+    "points_array": [
+      1,
+      2,
+      3,
+      5,
+      6
+    ],
+    "set_type": "allegiance",
+    "set_description": "Wu heroes",
+    "is_legendary": false,
+    "named_legends": [],
+    "legend_bonus": 0
   },
   {
     "id": 19,
     "name": "General of the Right",
-    "requirementType": "allegiance",
     "requirement": "A Wei hero",
-    "requiredAllegiance": "Wei",
-    "cost": {"military": 4, "influence": 0, "supplies": 3, "piety": 3},
-    "points": [1, 2, 3, 5, 6],
-    "setType": "allegiance",
-    "setDescription": "Wei heroes"
+    "requirement_type": "allegiance",
+    "cost": {
+      "military": 4,
+      "influence": 0,
+      "supplies": 3,
+      "piety": 3
+    },
+    "total_cost": 10,
+    "points_array": [
+      1,
+      2,
+      3,
+      5,
+      6
+    ],
+    "set_type": "allegiance",
+    "set_description": "Wei heroes",
+    "is_legendary": false,
+    "named_legends": [],
+    "legend_bonus": 0
   },
   {
     "id": 20,
     "name": "General of the Front",
-    "requirementType": "role",
     "requirement": "Any general",
-    "requiredRole": "General",
-    "cost": {"military": 0, "influence": 3, "supplies": 3, "piety": 3},
-    "points": [1, 3, 5],
-    "setType": "multi_allegiance_specific",
-    "setDescription": "One General from each of Wei, Wu and Shu"
+    "requirement_type": "role",
+    "cost": {
+      "military": 0,
+      "influence": 3,
+      "supplies": 3,
+      "piety": 3
+    },
+    "total_cost": 9,
+    "points_array": [
+      1,
+      3,
+      5
+    ],
+    "set_type": "multi_allegiance_specific",
+    "set_description": "One General from each of Wei, Wu and Shu",
+    "is_legendary": false,
+    "named_legends": [],
+    "legend_bonus": 0
   },
   {
     "id": 21,
     "name": "Siege Engineers",
-    "requirementType": "role_resource",
     "requirement": "Tactician with resource stat of at least 3",
-    "requiredRole": "Tactician",
-    "resourceThreshold": {"type": "any", "value": 3},
-    "cost": {"military": 5, "influence": 0, "supplies": 3, "piety": 3},
-    "points": [3, 5, 7],
-    "setType": "pair",
-    "setDescription": "Pairs of Tacticians and Generals",
-    "pairRoles": ["Tactician", "General"]
+    "requirement_type": "role_resource",
+    "cost": {
+      "military": 5,
+      "influence": 0,
+      "supplies": 3,
+      "piety": 3
+    },
+    "total_cost": 11,
+    "points_array": [
+      3,
+      5,
+      7
+    ],
+    "set_type": "pair",
+    "set_description": "Pairs of Tacticians and Generals",
+    "is_legendary": false,
+    "named_legends": [],
+    "legend_bonus": 0
   },
   {
     "id": 22,
     "name": "Coalition Leader",
-    "requirementType": "any_resource_threshold",
     "requirement": "Any hero with resource stat of at least 3",
-    "resourceThreshold": {"type": "any", "value": 3},
-    "cost": {"military": 4, "influence": 4, "supplies": 0, "piety": 2},
-    "points": [1, 1, 3, 5],
-    "setType": "unique_allegiances",
-    "setDescription": "Unique allegiances"
+    "requirement_type": "any_resource_threshold",
+    "cost": {
+      "military": 4,
+      "influence": 4,
+      "supplies": 0,
+      "piety": 2
+    },
+    "total_cost": 10,
+    "points_array": [
+      1,
+      1,
+      3,
+      5
+    ],
+    "set_type": "unique_allegiances",
+    "set_description": "Unique allegiances",
+    "is_legendary": false,
+    "named_legends": [],
+    "legend_bonus": 0
   },
   {
     "id": 23,
     "name": "Mercenary Chief",
-    "requirementType": "allegiance_exclude",
     "requirement": "Any hero not from Wei, Wu or Shu",
-    "excludedAllegiances": ["Wei", "Wu", "Shu"],
-    "cost": {"military": 4, "influence": 0, "supplies": 4, "piety": 2},
-    "points": [1, 2, 3, 4, 5, 6],
-    "setType": "allegiance_exclude",
-    "setDescription": "Heroes not from Wei, Wu or Shu"
+    "requirement_type": "allegiance_exclude",
+    "cost": {
+      "military": 4,
+      "influence": 0,
+      "supplies": 4,
+      "piety": 2
+    },
+    "total_cost": 10,
+    "points_array": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "set_type": "allegiance_exclude",
+    "set_description": "Heroes not from Wei, Wu or Shu",
+    "is_legendary": false,
+    "named_legends": [],
+    "legend_bonus": 0
   },
   {
     "id": 24,
     "name": "General of the Guards",
-    "requirementType": "role_allegiance_multi",
     "requirement": "Any Rebels or Dong Zhuo general",
-    "requiredRole": "General",
-    "requiredAllegiances": ["Rebels", "Dong Zhuo"],
-    "cost": {"military": 4, "influence": 0, "supplies": 0, "piety": 4},
-    "points": [1, 2, 3, 6, 7, 8],
-    "setType": "role_allegiance_multi",
-    "setDescription": "Rebels or Dong Zhuo generals"
+    "requirement_type": "role_allegiance_multi",
+    "cost": {
+      "military": 4,
+      "influence": 0,
+      "supplies": 0,
+      "piety": 4
+    },
+    "total_cost": 8,
+    "points_array": [
+      1,
+      2,
+      3,
+      6,
+      7,
+      8
+    ],
+    "set_type": "role_allegiance_multi",
+    "set_description": "Rebels or Dong Zhuo generals",
+    "is_legendary": false,
+    "named_legends": [],
+    "legend_bonus": 0
   },
   {
     "id": 25,
     "name": "The Five Tiger Generals",
-    "requirementType": "legend_role_allegiance",
     "requirement": "Any General from Shu",
-    "requiredRole": "General",
-    "requiredAllegiance": "Shu",
-    "cost": {"military": 6, "influence": 0, "supplies": 0, "piety": 4},
-    "points": [1, 2, 4, 6, 8],
-    "setType": "role_allegiance",
-    "setDescription": "Generals from Shu",
-    "isLegendary": true,
-    "namedLegends": ["Guan Yu", "Zhang Fei", "Ma Chao", "Zhao Yun", "Huang Zhong"],
-    "legendBonus": 1
+    "requirement_type": "legend_role_allegiance",
+    "cost": {
+      "military": 6,
+      "influence": 0,
+      "supplies": 0,
+      "piety": 4
+    },
+    "total_cost": 10,
+    "points_array": [
+      1,
+      2,
+      4,
+      6,
+      8
+    ],
+    "set_type": "role_allegiance",
+    "set_description": "Generals from Shu",
+    "is_legendary": true,
+    "named_legends": [
+      "Guan Yu",
+      "Zhang Fei",
+      "Ma Chao",
+      "Zhao Yun",
+      "Huang Zhong"
+    ],
+    "legend_bonus": 1
   },
   {
     "id": 26,
     "name": "General in Chief who Supports the Empire",
-    "requirementType": "allegiance_multi",
     "requirement": "Any Han or Coalition hero",
-    "requiredAllegiances": ["Han", "Coalition"],
-    "cost": {"military": 3, "influence": 0, "supplies": 3, "piety": 3},
-    "points": [1, 2, 3, 6, 7],
-    "setType": "allegiance_multi",
-    "setDescription": "Han or Coalition heroes"
+    "requirement_type": "allegiance_multi",
+    "cost": {
+      "military": 3,
+      "influence": 0,
+      "supplies": 3,
+      "piety": 3
+    },
+    "total_cost": 9,
+    "points_array": [
+      1,
+      2,
+      3,
+      6,
+      7
+    ],
+    "set_type": "allegiance_multi",
+    "set_description": "Han or Coalition heroes",
+    "is_legendary": false,
+    "named_legends": [],
+    "legend_bonus": 0
   },
   {
     "id": 27,
     "name": "Changing of the Guard",
-    "requirementType": "legend_roles_allegiance",
     "requirement": "Any Han Advisor or Administrator",
-    "requiredRoles": ["Advisor", "Administrator"],
-    "requiredAllegiance": "Han",
-    "cost": {"military": 3, "influence": 3, "supplies": 2, "piety": 2},
-    "points": [1, 2, 4, 6, 8],
-    "setType": "roles_allegiance",
-    "setDescription": "Han Advisors and Administrators",
-    "isLegendary": true,
-    "namedLegends": ["Wang Yun", "He Jin", "Lu Zhi", "Empress Dong", "Empress He"],
-    "legendBonus": 1
+    "requirement_type": "legend_roles_allegiance",
+    "cost": {
+      "military": 3,
+      "influence": 3,
+      "supplies": 2,
+      "piety": 2
+    },
+    "total_cost": 10,
+    "points_array": [
+      1,
+      2,
+      4,
+      6,
+      8
+    ],
+    "set_type": "roles_allegiance",
+    "set_description": "Han Advisors and Administrators",
+    "is_legendary": true,
+    "named_legends": [
+      "Wang Yun",
+      "He Jin",
+      "Lu Zhi",
+      "Empress Dong",
+      "Empress He"
+    ],
+    "legend_bonus": 1
   },
   {
     "id": 28,
     "name": "The Greatest Minds",
-    "requirementType": "legend_resource",
     "requirement": "Any hero with at least 4 Influence",
-    "resourceThreshold": {"type": "influence", "value": 4},
-    "cost": {"military": 0, "influence": 4, "supplies": 4, "piety": 2},
-    "points": [1, 2, 4, 6, 8],
-    "setType": "resource_threshold",
-    "setDescription": "Heroes with 4+ Influence",
-    "isLegendary": true,
-    "namedLegends": ["Zhuge Liang", "Sima Yi", "Guo Jia", "Zhou Yu"],
-    "legendBonus": 1
+    "requirement_type": "legend_resource",
+    "cost": {
+      "military": 0,
+      "influence": 4,
+      "supplies": 4,
+      "piety": 2
+    },
+    "total_cost": 10,
+    "points_array": [
+      1,
+      2,
+      4,
+      6,
+      8
+    ],
+    "set_type": "resource_threshold",
+    "set_description": "Heroes with 4+ Influence",
+    "is_legendary": true,
+    "named_legends": [
+      "Zhuge Liang",
+      "Sima Yi",
+      "Guo Jia",
+      "Zhou Yu"
+    ],
+    "legend_bonus": 1
   },
   {
     "id": 29,
     "name": "General in Chief",
-    "requirementType": "role_multi_resource",
     "requirement": "General or Administrator with resource stat of at least 3",
-    "requiredRoles": ["General", "Administrator"],
-    "resourceThreshold": {"type": "any", "value": 3},
-    "cost": {"military": 4, "influence": 2, "supplies": 0, "piety": 4},
-    "points": [3, 5, 7],
-    "setType": "pair",
-    "setDescription": "Pairs of Generals and Administrators",
-    "pairRoles": ["General", "Administrator"]
+    "requirement_type": "role_multi_resource",
+    "cost": {
+      "military": 4,
+      "influence": 2,
+      "supplies": 0,
+      "piety": 4
+    },
+    "total_cost": 10,
+    "points_array": [
+      3,
+      5,
+      7
+    ],
+    "set_type": "pair",
+    "set_description": "Pairs of Generals and Administrators",
+    "is_legendary": false,
+    "named_legends": [],
+    "legend_bonus": 0
   },
   {
     "id": 30,
     "name": "Masters in their Craft",
-    "requirementType": "any_resource_threshold",
     "requirement": "Any hero with resource stat of at least 4",
-    "resourceThreshold": {"type": "any", "value": 4},
-    "cost": {"military": 4, "influence": 4, "supplies": 0, "piety": 2},
-    "points": [1, 3, 5, 7],
-    "setType": "any_resource_threshold",
-    "setDescription": "Heroes with a resource stat of at least 4"
+    "requirement_type": "any_resource_threshold",
+    "cost": {
+      "military": 4,
+      "influence": 4,
+      "supplies": 0,
+      "piety": 2
+    },
+    "total_cost": 10,
+    "points_array": [
+      1,
+      3,
+      5,
+      7
+    ],
+    "set_type": "any_resource_threshold",
+    "set_description": "Heroes with a resource stat of at least 4",
+    "is_legendary": false,
+    "named_legends": [],
+    "legend_bonus": 0
   },
   {
     "id": 31,
     "name": "Political Architects",
-    "requirementType": "role",
     "requirement": "Any administrator",
-    "requiredRole": "Administrator",
-    "cost": {"military": 0, "influence": 4, "supplies": 2, "piety": 4},
-    "points": [3, 5, 7],
-    "setType": "pair",
-    "setDescription": "Pairs of Administrators and Advisors",
-    "pairRoles": ["Administrator", "Advisor"]
+    "requirement_type": "role",
+    "cost": {
+      "military": 0,
+      "influence": 4,
+      "supplies": 2,
+      "piety": 4
+    },
+    "total_cost": 10,
+    "points_array": [
+      3,
+      5,
+      7
+    ],
+    "set_type": "pair",
+    "set_description": "Pairs of Administrators and Advisors",
+    "is_legendary": false,
+    "named_legends": [],
+    "legend_bonus": 0
   },
   {
     "id": 32,
     "name": "Master Schemes",
-    "requirementType": "role",
     "requirement": "Any tactician",
-    "requiredRole": "Tactician",
-    "cost": {"military": 0, "influence": 4, "supplies": 4, "piety": 2},
-    "points": [3, 5, 7],
-    "setType": "pair",
-    "setDescription": "Pairs of Tacticians and Advisors",
-    "pairRoles": ["Tactician", "Advisor"]
+    "requirement_type": "role",
+    "cost": {
+      "military": 0,
+      "influence": 4,
+      "supplies": 4,
+      "piety": 2
+    },
+    "total_cost": 10,
+    "points_array": [
+      3,
+      5,
+      7
+    ],
+    "set_type": "pair",
+    "set_description": "Pairs of Tacticians and Advisors",
+    "is_legendary": false,
+    "named_legends": [],
+    "legend_bonus": 0
   },
   {
     "id": 33,
     "name": "General in Chief who Conquers the South",
-    "requirementType": "legend_role_allegiance",
     "requirement": "Any General from Wu",
-    "requiredRole": "General",
-    "requiredAllegiance": "Wu",
-    "cost": {"military": 4, "influence": 2, "supplies": 4, "piety": 0},
-    "points": [1, 2, 4, 6, 8],
-    "setType": "role_allegiance",
-    "setDescription": "Generals from Wu",
-    "isLegendary": true,
-    "namedLegends": ["Huang Gai", "Cheng Pu", "Han Dang", "Zhou Tai", "Lu Xun"],
-    "legendBonus": 1
+    "requirement_type": "legend_role_allegiance",
+    "cost": {
+      "military": 4,
+      "influence": 2,
+      "supplies": 4,
+      "piety": 0
+    },
+    "total_cost": 10,
+    "points_array": [
+      1,
+      2,
+      4,
+      6,
+      8
+    ],
+    "set_type": "role_allegiance",
+    "set_description": "Generals from Wu",
+    "is_legendary": true,
+    "named_legends": [
+      "Huang Gai",
+      "Cheng Pu",
+      "Han Dang",
+      "Zhou Tai",
+      "Lu Xun"
+    ],
+    "legend_bonus": 1
   },
   {
     "id": 34,
     "name": "General of the Agile Cavalry",
-    "requirementType": "any_resource_threshold",
     "requirement": "Any hero with resource stat of at least 3",
-    "resourceThreshold": {"type": "any", "value": 3},
-    "cost": {"military": 3, "influence": 3, "supplies": 3, "piety": 3},
-    "points": [0],
-    "setType": "copy_opponent",
-    "setDescription": "Copies set bonus of another player's title",
-    "isSpecial": true
+    "requirement_type": "any_resource_threshold",
+    "cost": {
+      "military": 3,
+      "influence": 3,
+      "supplies": 3,
+      "piety": 3
+    },
+    "total_cost": 12,
+    "points_array": [
+      0
+    ],
+    "set_type": "copy_opponent",
+    "set_description": "Copies set bonus of another player's title",
+    "is_legendary": false,
+    "named_legends": [],
+    "legend_bonus": 0
   },
   {
     "id": 35,
     "name": "Misfit Commander",
-    "requirementType": "any_resource_threshold",
     "requirement": "Any hero with resource stat of at least 3",
-    "resourceThreshold": {"type": "any", "value": 3},
-    "cost": {"military": 3, "influence": 2, "supplies": 2, "piety": 1},
-    "points": [1, 2, 4, 6],
-    "setType": "mismatch",
-    "setDescription": "Heroes without any matching roles or allegiance"
+    "requirement_type": "any_resource_threshold",
+    "cost": {
+      "military": 3,
+      "influence": 2,
+      "supplies": 2,
+      "piety": 1
+    },
+    "total_cost": 8,
+    "points_array": [
+      1,
+      2,
+      4,
+      6
+    ],
+    "set_type": "mismatch",
+    "set_description": "Heroes without any matching roles or allegiance",
+    "is_legendary": false,
+    "named_legends": [],
+    "legend_bonus": 0
   },
   {
     "id": 36,
     "name": "General in Chief who Guards the North",
-    "requirementType": "legend_role_allegiance",
     "requirement": "Any General from Wei",
-    "requiredRole": "General",
-    "requiredAllegiance": "Wei",
-    "cost": {"military": 6, "influence": 0, "supplies": 2, "piety": 2},
-    "points": [1, 2, 4, 6, 8],
-    "setType": "role_allegiance",
-    "setDescription": "Generals from Wei",
-    "isLegendary": true,
-    "namedLegends": ["Xiahou Dun", "Xiahou Yuan", "Yu Jin", "Dian Wei", "Yue Jin"],
-    "legendBonus": 1
+    "requirement_type": "legend_role_allegiance",
+    "cost": {
+      "military": 6,
+      "influence": 0,
+      "supplies": 2,
+      "piety": 2
+    },
+    "total_cost": 10,
+    "points_array": [
+      1,
+      2,
+      4,
+      6,
+      8
+    ],
+    "set_type": "role_allegiance",
+    "set_description": "Generals from Wei",
+    "is_legendary": true,
+    "named_legends": [
+      "Xiahou Dun",
+      "Xiahou Yuan",
+      "Yu Jin",
+      "Dian Wei",
+      "Yue Jin"
+    ],
+    "legend_bonus": 1
   },
   {
     "id": 37,
     "name": "Seeds of Rebellion",
-    "requirementType": "legend_roles_allegiance",
     "requirement": "Any Rebels Advisor, Tactician, or Administrator",
-    "requiredRoles": ["Advisor", "Tactician", "Administrator"],
-    "requiredAllegiance": "Rebels",
-    "cost": {"military": 4, "influence": 2, "supplies": 0, "piety": 4},
-    "points": [1, 3, 5, 7, 9],
-    "setType": "roles_allegiance",
-    "setDescription": "Rebels Advisors, Tacticians, or Administrators",
-    "isLegendary": true,
-    "namedLegends": ["Zhang Jue", "Huang Shao", "He Yi", "Zhang Yan", "Yuan Shu"],
-    "legendBonus": 1
+    "requirement_type": "legend_roles_allegiance",
+    "cost": {
+      "military": 4,
+      "influence": 2,
+      "supplies": 0,
+      "piety": 4
+    },
+    "total_cost": 10,
+    "points_array": [
+      1,
+      3,
+      5,
+      7,
+      9
+    ],
+    "set_type": "roles_allegiance",
+    "set_description": "Rebels Advisors, Tacticians, or Administrators",
+    "is_legendary": true,
+    "named_legends": [
+      "Zhang Jue",
+      "Huang Shao",
+      "He Yi",
+      "Zhang Yan",
+      "Yuan Shu"
+    ],
+    "legend_bonus": 1
   },
   {
     "id": 38,
     "name": "Campaign against the Tyrant",
-    "requirementType": "legend_allegiance",
     "requirement": "Any Coalition hero",
-    "requiredAllegiance": "Coalition",
-    "cost": {"military": 3, "influence": 3, "supplies": 2, "piety": 2},
-    "points": [1, 2, 4, 6, 8],
-    "setType": "allegiance",
-    "setDescription": "Coalition heroes",
-    "isLegendary": true,
-    "namedLegends": ["Yuan Shao", "Gongsun Zan", "Liu Biao", "Yan Liang", "Wen Chou"],
-    "legendBonus": 1
+    "requirement_type": "legend_allegiance",
+    "cost": {
+      "military": 3,
+      "influence": 3,
+      "supplies": 2,
+      "piety": 2
+    },
+    "total_cost": 10,
+    "points_array": [
+      1,
+      2,
+      4,
+      6,
+      8
+    ],
+    "set_type": "allegiance",
+    "set_description": "Coalition heroes",
+    "is_legendary": true,
+    "named_legends": [
+      "Yuan Shao",
+      "Gongsun Zan",
+      "Liu Biao",
+      "Yan Liang",
+      "Wen Chou"
+    ],
+    "legend_bonus": 1
   },
   {
     "id": 39,
     "name": "Talented Individuals",
-    "requirementType": "dual_role",
     "requirement": "Any dual-role hero",
-    "isDualRole": true,
-    "cost": {"military": 4, "influence": 4, "supplies": 0, "piety": 2},
-    "points": [1, 2, 3, 4],
-    "setType": "dual_role",
-    "setDescription": "Dual-role heroes"
+    "requirement_type": "dual_role",
+    "cost": {
+      "military": 4,
+      "influence": 4,
+      "supplies": 0,
+      "piety": 2
+    },
+    "total_cost": 10,
+    "points_array": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "set_type": "dual_role",
+    "set_description": "Dual-role heroes",
+    "is_legendary": false,
+    "named_legends": [],
+    "legend_bonus": 0
   },
   {
     "id": 40,
     "name": "Beauties of China",
-    "requirementType": "legend_named",
     "requirement": "Any female hero",
-    "femaleHeroes": ["Diaochan", "Sun Ren", "Lady Wu", "Da Qiao", "Xiao Qiao", "Lady Bian", "Lady Cai", "Empress Dong", "Empress He", "Lady Zhurong"],
-    "cost": {"military": 2, "influence": 4, "supplies": 0, "piety": 4},
-    "points": [1, 2, 4, 6, 8],
-    "setType": "named_heroes",
-    "setDescription": "Female heroes",
-    "isLegendary": true,
-    "namedLegends": ["Diaochan", "Sun Ren", "Lady Wu", "Da Qiao", "Xiao Qiao"],
-    "legendBonus": 1
+    "requirement_type": "legend_named",
+    "cost": {
+      "military": 2,
+      "influence": 4,
+      "supplies": 0,
+      "piety": 4
+    },
+    "total_cost": 10,
+    "points_array": [
+      1,
+      2,
+      4,
+      6,
+      8
+    ],
+    "set_type": "named_heroes",
+    "set_description": "Female heroes",
+    "is_legendary": true,
+    "named_legends": [
+      "Diaochan",
+      "Sun Ren",
+      "Lady Wu",
+      "Da Qiao",
+      "Xiao Qiao"
+    ],
+    "legend_bonus": 1
   }
 ]
