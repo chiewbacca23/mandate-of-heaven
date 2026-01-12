@@ -1,319 +1,328 @@
-// js/purchase-manager.js - Purchase Decision Module
+// purchase-manager.js
+// Main purchase manager that integrates validation, scoring, and AI strategy
 
-import { GAME_CONFIG, RESOURCE_ICONS } from './config.js';
+import { PurchaseValidator } from './purchase-validator.js';
+import { CollectionScorer } from './collection-scorer.js';
+import { AIStrategy } from './ai-strategy.js';
 
 export class PurchaseManager {
-    constructor(gameEngine) {
-        this.game = gameEngine;
+    constructor(heroesData, titlesData, eventsData) {
+        this.heroesData = heroesData;
+        this.titlesData = titlesData;
+        this.eventsData = eventsData;
+        
+        this.validator = new PurchaseValidator(heroesData);
+        this.scorer = new CollectionScorer(heroesData, titlesData);
+        this.aiStrategy = new AIStrategy(heroesData, titlesData);
+        
+        console.log('✅ PurchaseManager initialized with full game data');
     }
 
-    // Evaluate all available purchases for a player
-    evaluatePurchaseOptions(player, turnNumber) {
-        const options = [];
-        
-        // Evaluate heroes
-        this.game.gameState.heroMarket.forEach(hero => {
-            const evaluation = this.evaluateHeroPurchase(player, hero, turnNumber);
-            if (evaluation.canAfford || evaluation.emergencyFeasible) {
-                options.push({
-                    type: 'hero',
-                    item: hero,
-                    evaluation: evaluation
-                });
-            }
-        });
-        
-        // Evaluate titles
-        this.game.gameState.titleMarket.forEach(title => {
-            const evaluation = this.evaluateTitlePurchase(player, title, turnNumber);
-            if (evaluation.canAfford || evaluation.emergencyFeasible) {
-                options.push({
-                    type: 'title',
-                    item: title,
-                    evaluation: evaluation
-                });
-            }
-        });
-        
-        // Sort by priority score
-        options.sort((a, b) => b.evaluation.priority - a.evaluation.priority);
-        
-        return options;
-    }
-
-    // Evaluate hero purchase
-    evaluateHeroPurchase(player, hero, turnNumber) {
-        const resources = player.calculateBattlefieldResources();
-        const cost = hero.cost;
-        
-        // Check affordability
-        const canAfford = GAME_CONFIG.RESOURCES.every(res => 
-            resources[res] >= (cost[res] || 0)
+    /**
+     * Execute AI's purchase decision for a player
+     * @param {Object} player - Player object
+     * @param {Array} availableHeroes - Heroes in market
+     * @param {Array} availableTitles - Titles in market
+     * @param {Object} gameState - Current game state
+     * @returns {Object} { success: boolean, action: string, details: Object }
+     */
+    executePurchase(player, availableHeroes, availableTitles, gameState) {
+        // 1. Get AI decision
+        const decision = this.aiStrategy.decidePurchase(
+            player,
+            availableHeroes,
+            availableTitles,
+            gameState
         );
         
-        // Calculate emergency resource needs
-        let emergencyNeeded = 0;
-        let deficitResources = [];
+        // 2. Execute the decision
+        switch (decision.action) {
+            case 'title':
+                return this.purchaseTitle(player, decision);
+            case 'hero':
+                return this.purchaseHero(player, decision);
+            case 'pass':
+                return this.pass(player);
+            default:
+                return { success: false, action: 'error', details: 'Unknown action' };
+        }
+    }
+
+    /**
+     * Purchase a title
+     */
+    purchaseTitle(player, decision) {
+        const { target: title, heroes, retirementHero, useEmergency } = decision;
         
-        if (!canAfford) {
-            GAME_CONFIG.RESOURCES.forEach(res => {
-                const deficit = Math.max(0, (cost[res] || 0) - resources[res]);
-                if (deficit > 0) {
-                    emergencyNeeded += deficit;
-                    deficitResources.push({ resource: res, amount: deficit });
+        // Validate purchase is still valid
+        const validation = this.validator.canPurchaseTitle(player, title, heroes);
+        if (!validation.canPurchase) {
+            return {
+                success: false,
+                action: 'title',
+                details: {
+                    title: title.name,
+                    reason: validation.reason
                 }
-            });
+            };
         }
+
+        // Calculate points
+        const pointsCalc = this.scorer.calculateTitlePoints(player, title);
         
-        const emergencyFeasible = emergencyNeeded <= 4 && player.emergencyUsed < GAME_CONFIG.MAX_EMERGENCY_USES;
-        
-        // Calculate priority score
-        let priority = this.calculateHeroPriority(player, hero, turnNumber);
-        
-        // Penalty for emergency use
-        if (emergencyNeeded > 0) {
-            priority -= emergencyNeeded * 10; // Heavy penalty for emergency
+        // Apply emergency resources if needed
+        let emergencyPenalty = 0;
+        if (useEmergency) {
+            player.emergencyUsed = (player.emergencyUsed || 0) + 1;
+            emergencyPenalty = -1;
         }
+
+        // Retire the required hero
+        this.retireHero(player, retirementHero);
+        
+        // Remove heroes from battlefield (they return to hand after purchase)
+        this.returnHeroesToHand(player, heroes);
+        
+        // Add title to player's collection
+        player.titles.push(title);
+        player.score += pointsCalc.totalPoints + emergencyPenalty;
         
         return {
-            canAfford,
-            emergencyFeasible,
-            emergencyNeeded,
-            deficitResources,
-            priority,
-            reasoning: `Hero ${hero.name}: Priority ${priority.toFixed(1)}`
+            success: true,
+            action: 'title',
+            details: {
+                title: title.name,
+                points: pointsCalc.totalPoints,
+                basePoints: pointsCalc.basePoints,
+                legendBonus: pointsCalc.legendBonus,
+                emergencyPenalty,
+                retiredHero: retirementHero.name,
+                heroesUsed: heroes.map(h => h.name)
+            }
         };
     }
 
-    // Evaluate title purchase
-    evaluateTitlePurchase(player, title, turnNumber) {
-        const resources = player.calculateBattlefieldResources();
-        const cost = title.cost;
-        const eligibleHero = player.findEligibleHero(title);
+    /**
+     * Purchase a hero
+     */
+    purchaseHero(player, decision) {
+        const { target: hero, heroes } = decision;
         
-        if (!eligibleHero) {
+        // Calculate cost and available resources
+        const resources = this.aiStrategy.calculateTotalResources(heroes);
+        const columnBonuses = this.validator.calculateColumnBonuses(heroes);
+        const totalResources = this.aiStrategy.addResources(resources, columnBonuses);
+        
+        // Verify affordability
+        if (!this.aiStrategy.canAffordHero(hero, totalResources)) {
             return {
-                canAfford: false,
-                emergencyFeasible: false,
-                emergencyNeeded: 999,
-                deficitResources: [],
-                priority: -1000,
-                reasoning: `Title ${title.name}: No eligible hero`
+                success: false,
+                action: 'hero',
+                details: {
+                    hero: hero.name,
+                    reason: 'Insufficient resources'
+                }
+            };
+        }
+
+        // Remove heroes from battlefield (they return to hand after purchase)
+        this.returnHeroesToHand(player, heroes);
+        
+        // Add hero to hand
+        player.hand.push(hero);
+        
+        // Check hand limit
+        this.enforceHandLimit(player);
+        
+        return {
+            success: true,
+            action: 'hero',
+            details: {
+                hero: hero.name,
+                cost: this.aiStrategy.calculateHeroCost(hero),
+                heroesUsed: heroes.map(h => h.name),
+                columnBonuses
+            }
+        };
+    }
+
+    /**
+     * Pass on purchasing
+     */
+    pass(player) {
+        return {
+            success: true,
+            action: 'pass',
+            details: {
+                reason: 'No good opportunities available'
+            }
+        };
+    }
+
+    /**
+     * Retire a hero (permanently remove from play)
+     */
+    retireHero(player, hero) {
+        // Remove from hand
+        player.hand = player.hand.filter(h => h.id !== hero.id);
+        
+        // Remove from battlefield
+        player.battlefield.wei = player.battlefield.wei.filter(h => h.id !== hero.id);
+        player.battlefield.wu = player.battlefield.wu.filter(h => h.id !== hero.id);
+        player.battlefield.shu = player.battlefield.shu.filter(h => h.id !== hero.id);
+        
+        // Add to retired list
+        player.retired.push(hero);
+    }
+
+    /**
+     * Return heroes from battlefield to hand after purchase
+     */
+    returnHeroesToHand(player, heroes) {
+        for (const hero of heroes) {
+            // Remove from battlefield
+            player.battlefield.wei = player.battlefield.wei.filter(h => h.id !== hero.id);
+            player.battlefield.wu = player.battlefield.wu.filter(h => h.id !== hero.id);
+            player.battlefield.shu = player.battlefield.shu.filter(h => h.id !== hero.id);
+            
+            // Add back to hand if not already there
+            if (!player.hand.some(h => h.id === hero.id)) {
+                player.hand.push(hero);
+            }
+        }
+    }
+
+    /**
+     * Enforce 5-card hand limit
+     */
+    enforceHandLimit(player) {
+        const HAND_LIMIT = 5;
+        
+        while (player.hand.length > HAND_LIMIT) {
+            // AI strategy: retire least valuable card
+            const leastValuable = this.findLeastValuableHero(player.hand);
+            this.retireHero(player, leastValuable);
+        }
+    }
+
+    /**
+     * Find least valuable hero in hand
+     */
+    findLeastValuableHero(hand) {
+        let minValue = Infinity;
+        let minHero = hand[0];
+        
+        for (const hero of hand) {
+            const value = this.aiStrategy.calculateSingleHeroValue(hero);
+            if (value < minValue) {
+                minValue = value;
+                minHero = hero;
+            }
+        }
+        
+        return minHero;
+    }
+
+    /**
+     * Calculate final score with resource majority bonuses
+     * @param {Array} players - All players
+     * @param {Array} events - Events that occurred in the game
+     * @returns {Object} Final scores with breakdown
+     */
+    calculateFinalScores(players, events) {
+        const scores = {};
+        
+        // Count resource frequency in events
+        const resourceFrequency = {
+            military: 0,
+            influence: 0,
+            supplies: 0,
+            piety: 0
+        };
+        
+        for (const event of events) {
+            const leadingResource = event.leading_resource?.toLowerCase();
+            if (leadingResource && resourceFrequency.hasOwnProperty(leadingResource)) {
+                resourceFrequency[leadingResource]++;
+            }
+        }
+        
+        // Calculate each player's resource totals
+        const playerResources = players.map(player => {
+            const allHeroes = this.scorer.getAllPlayerHeroes(player);
+            
+            return {
+                player,
+                military: allHeroes.reduce((sum, h) => sum + h.military, 0),
+                influence: allHeroes.reduce((sum, h) => sum + h.influence, 0),
+                supplies: allHeroes.reduce((sum, h) => sum + h.supplies, 0),
+                piety: allHeroes.reduce((sum, h) => sum + h.piety, 0)
+            };
+        });
+        
+        // Award majority bonuses for each resource
+        const resourceTypes = ['military', 'influence', 'supplies', 'piety'];
+        const majorityBonuses = {};
+        
+        for (const resource of resourceTypes) {
+            const frequency = resourceFrequency[resource];
+            if (frequency === 0) continue;
+            
+            // Find player with most of this resource
+            let maxAmount = -Infinity;
+            let winner = null;
+            let tie = false;
+            
+            for (const pr of playerResources) {
+                if (pr[resource] > maxAmount) {
+                    maxAmount = pr[resource];
+                    winner = pr.player;
+                    tie = false;
+                } else if (pr[resource] === maxAmount && maxAmount > 0) {
+                    tie = true;
+                }
+            }
+            
+            // Award bonus if no tie
+            if (winner && !tie) {
+                if (!majorityBonuses[winner.id]) {
+                    majorityBonuses[winner.id] = 0;
+                }
+                majorityBonuses[winner.id] += frequency;
+            }
+        }
+        
+        // Calculate final scores
+        for (const player of players) {
+            const titlePoints = player.score || 0;
+            const majorityBonus = majorityBonuses[player.id] || 0;
+            const emergencyPenalty = -(player.emergencyUsed || 0);
+            
+            scores[player.id] = {
+                titlePoints,
+                majorityBonus,
+                emergencyPenalty,
+                finalScore: titlePoints + majorityBonus + emergencyPenalty,
+                titles: player.titles.length,
+                titlesAcquired: player.titles.map(t => t.name)
             };
         }
         
-        // Check affordability
-        const canAfford = GAME_CONFIG.RESOURCES.every(res => 
-            resources[res] >= (cost[res] || 0)
-        );
-        
-        // Calculate emergency resource needs
-        let emergencyNeeded = 0;
-        let deficitResources = [];
-        
-        if (!canAfford) {
-            GAME_CONFIG.RESOURCES.forEach(res => {
-                const deficit = Math.max(0, (cost[res] || 0) - resources[res]);
-                if (deficit > 0) {
-                    emergencyNeeded += deficit;
-                    deficitResources.push({ resource: res, amount: deficit });
-                }
-            });
-        }
-        
-        const emergencyFeasible = emergencyNeeded <= 4 && player.emergencyUsed < GAME_CONFIG.MAX_EMERGENCY_USES;
-        
-        // Calculate priority score
-        let priority = this.calculateTitlePriority(player, title, turnNumber);
-        
-        // Penalty for emergency use
-        if (emergencyNeeded > 0) {
-            priority -= emergencyNeeded * 15; // Even heavier penalty for titles
-        }
-        
+        return scores;
+    }
+
+    /**
+     * Get purchase statistics for analysis
+     */
+    getPurchaseStats(player) {
         return {
-            canAfford,
-            emergencyFeasible,
-            emergencyNeeded,
-            deficitResources,
-            priority,
-            reasoning: `Title ${title.name}: Priority ${priority.toFixed(1)}`
+            titlesAcquired: player.titles.length,
+            titleNames: player.titles.map(t => t.name),
+            legendaryTitles: player.titles.filter(t => t.is_legendary).length,
+            heroesOwned: this.scorer.getAllPlayerHeroes(player).length,
+            heroesRetired: player.retired.length,
+            emergencyUsed: player.emergencyUsed || 0,
+            currentScore: player.score || 0
         };
-    }
-
-    // Calculate hero priority score
-    calculateHeroPriority(player, hero, turnNumber) {
-        let priority = 0;
-        
-        // Base value from total positive resources
-        const totalResources = Math.max(0, hero.military || 0) + 
-                              Math.max(0, hero.influence || 0) + 
-                              Math.max(0, hero.supplies || 0) + 
-                              Math.max(0, hero.piety || 0);
-        priority += totalResources * 5;
-        
-        // Bonus for non-peasants
-        if (!hero.name.includes('Peasant')) {
-            priority += 20;
-        }
-        
-        // Faction synergy bonus
-        const sameAllegiance = player.getAllHeroes().filter(h => h.allegiance === hero.allegiance).length;
-        priority += sameAllegiance * 3;
-        
-        // Role diversity bonus
-        const sameRole = player.getAllHeroes().filter(h => h.role === hero.role).length;
-        if (sameRole === 0) {
-            priority += 10; // First of this role
-        }
-        
-        // Early game vs late game preferences
-        if (turnNumber <= 3) {
-            // Early game: prefer resource generators
-            priority += totalResources * 2;
-        } else {
-            // Late game: prefer specific needs
-            priority += 5;
-        }
-        
-        return priority;
-    }
-
-    // Calculate title priority score
-    calculateTitlePriority(player, title, turnNumber) {
-        let priority = 0;
-        
-        // Calculate immediate points from title
-        const { collectionSize, points } = player.calculateCollectionScore(title);
-        priority += points * 20; // High weight for immediate points
-        
-        // Bonus for first/second title
-        if (player.titles.length === 0) {
-            priority += 50; // First title bonus
-        } else if (player.titles.length === 1) {
-            priority += 30; // Second title bonus
-        }
-        
-        // Penalty for duplicate set types
-        const duplicateSetType = player.titles.some(t => t.title.setType === title.setType);
-        if (duplicateSetType) {
-            priority -= 20;
-        }
-        
-        // Late game urgency
-        if (turnNumber >= 6) {
-            priority += 25; // Late game bonus for any title
-        }
-        
-        // Collection growth potential
-        const maxPossiblePoints = title.points[title.points.length - 1];
-        const growthPotential = maxPossiblePoints - points;
-        priority += growthPotential * 5;
-        
-        return priority;
-    }
-
-    // Execute purchase with emergency resources if needed
-    executePurchaseWithEmergency(player, option) {
-        const evaluation = option.evaluation;
-        let emergencyUsed = 0;
-        let tempBonus = { military: 0, influence: 0, supplies: 0, piety: 0 };
-        
-        // Add emergency resources if needed
-        if (!evaluation.canAfford && evaluation.emergencyFeasible) {
-            evaluation.deficitResources.forEach(deficit => {
-                const needed = Math.min(deficit.amount, 2); // Max 2 per resource type
-                tempBonus[deficit.resource] += needed;
-                emergencyUsed += needed;
-            });
-            
-            // Update player state
-            player.emergencyUsed += emergencyUsed;
-            player.score -= emergencyUsed;
-            this.game.gameState.stats.totalEmergency += emergencyUsed;
-        }
-        
-        // Check if we can afford it now
-        const finalAffordable = player.canAfford(option.item.cost, tempBonus);
-        
-        if (finalAffordable) {
-            if (option.type === 'title') {
-                this.executeTitlePurchase(player, option.item, emergencyUsed);
-            } else {
-                this.executeHeroPurchase(player, option.item, emergencyUsed);
-            }
-            return true;
-        }
-        
-        return false;
-    }
-
-    // Execute title purchase
-    executeTitlePurchase(player, title, emergencyUsed) {
-        const heroToRetire = player.findEligibleHero(title);
-        
-        if (heroToRetire && player.removeHeroFromPlay(heroToRetire)) {
-            player.retiredHeroes.push(heroToRetire);
-            player.titles.push({ title: title, retiredWith: heroToRetire });
-            
-            // Remove title from market
-            this.game.gameState.titleMarket = this.game.gameState.titleMarket.filter(t => t !== title);
-            this.game.gameState.stats.totalTitles++;
-            
-            // Return cards to hand
-            player.returnCardsToHand();
-            
-            const emergencyText = emergencyUsed > 0 ? ` (${emergencyUsed} emergency used)` : '';
-            this.game.log(`${player.name} purchases "${title.name}" retiring ${heroToRetire.name}${emergencyText}`);
-            
-            return true;
-        }
-        
-        return false;
-    }
-
-    // Execute hero purchase
-    executeHeroPurchase(player, hero, emergencyUsed) {
-        player.hand.push({...hero});
-        
-        // Remove hero from market
-        this.game.gameState.heroMarket = this.game.gameState.heroMarket.filter(h => h !== hero);
-        this.game.gameState.purchasedHeroes.push(hero);
-        this.game.gameState.stats.totalHeroes++;
-        
-        // Return cards to hand
-        player.returnCardsToHand();
-        
-        const emergencyText = emergencyUsed > 0 ? ` (${emergencyUsed} emergency used)` : '';
-        this.game.log(`${player.name} purchases ${hero.name}${emergencyText}`);
-        
-        return true;
-    }
-
-    // Strategic purchase decision for AI
-    makeStrategicPurchase(player, turnNumber) {
-        const options = this.evaluatePurchaseOptions(player, turnNumber);
-        
-        if (options.length === 0) {
-            this.game.log(`${player.name} passes turn - no viable options`);
-            this.game.gameState.stats.totalPasses++;
-            player.returnCardsToHand();
-            return false;
-        }
-        
-        // Take the best option
-        const bestOption = options[0];
-        
-        this.game.log(`${player.name} evaluating: ${bestOption.evaluation.reasoning}`);
-        
-        const success = this.executePurchaseWithEmergency(player, bestOption);
-        
-        if (!success) {
-            this.game.log(`${player.name} passes turn - purchase failed`);
-            this.game.gameState.stats.totalPasses++;
-            player.returnCardsToHand();
-        }
-        
-        return success;
     }
 }
