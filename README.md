@@ -373,6 +373,379 @@ Implementing core simulator functionality to validate balance assumptions throug
 
 ---
 
+# Purchase System Integration Guide
+
+## 📦 Overview
+
+This purchase system provides complete Monte Carlo simulation capabilities for Three Kingdoms: Mandate of Heaven. It includes:
+
+1. **purchase-validator.js** - Validates title requirements and resource costs
+2. **collection-scorer.js** - Calculates set collection points including legendary bonuses
+3. **ai-strategy.js** - Intelligent AI decision-making for purchases
+4. **purchase-manager.js** - Main integration module that ties everything together
+5. **test-purchase-system.js** - Test suite to validate functionality
+
+## 🎯 Key Features
+
+### ✅ Complete Title Requirement Validation
+- **Named heroes** (e.g., "Lu Bu, Gongsun Zan, Taishi Ci")
+- **Role-based** (e.g., "Any General")
+- **Role + Resource** (e.g., "General with 3+ Military")
+- **Role + Allegiance** (e.g., "Shu General")
+- **Resource thresholds** (e.g., "Any hero with 4+ in any resource")
+- **Multi-role** (e.g., "Advisor or Tactician")
+- **Dual-role heroes** (heroes with 2+ roles)
+- **Multiple allegiances** (e.g., "Coalition or Rebels hero")
+
+### ✅ Set Collection Scoring
+- Counts ALL owned heroes (hand + battlefield + retired)
+- Applies point arrays dynamically based on collection size
+- **Legendary title bonuses**: +1 per named legend owned
+- Handles 10 different set types:
+  - Allegiance-based (e.g., "Shu heroes")
+  - Role-based (e.g., "Generals")
+  - Role + Allegiance (e.g., "Wei Advisors")
+  - Role + Resource (e.g., "Generals with 4+ Military")
+  - Resource thresholds
+  - Dual-role heroes
+  - Unique roles/allegiances
+  - Role pairs
+
+### ✅ Intelligent AI Strategy
+- **Early game (turns 1-3)**: Prioritize hero collection
+- **Mid game (turns 4-6)**: Balance heroes and titles
+- **Late game (turns 7-8)**: Maximize title points
+- Evaluates efficiency: points per resource cost
+- Considers column bonuses (2+ in same kingdom)
+- Strategic emergency resource usage (limited to 3 per game)
+- Avoids retiring valuable heroes unnecessarily
+
+### ✅ Resource Majority Bonuses
+- Tracks resource frequency across events
+- Awards bonus points for resource majorities at game end
+- Handles ties correctly (no bonus if tied)
+
+## 📁 File Structure
+
+Place these files in your `/js/` directory:
+
+```
+mandate-of-heaven/
+├── js/
+│   ├── purchase-validator.js    ← Title requirement validation
+│   ├── collection-scorer.js     ← Set collection point calculation
+│   ├── ai-strategy.js           ← AI purchase decisions
+│   ├── purchase-manager.js      ← Main integration module
+│   └── test-purchase-system.js  ← Test suite
+└── data/
+    ├── heroes.json
+    ├── titles.json
+    └── events.json
+```
+
+## 🚀 Integration Steps
+
+### Step 1: Import the Purchase Manager
+
+In your game-engine.js or main simulator file:
+
+```javascript
+import { PurchaseManager } from './purchase-manager.js';
+
+// Initialize with game data
+const purchaseManager = new PurchaseManager(heroesData, titlesData, eventsData);
+```
+
+### Step 2: Execute Purchases During Game Loop
+
+```javascript
+// During the purchase phase of each turn
+for (const player of players) {
+    const result = purchaseManager.executePurchase(
+        player,
+        heroMarket,      // Available heroes to purchase
+        titleMarket,     // Available titles to purchase
+        { turn, phase }  // Current game state
+    );
+    
+    // Log the purchase
+    if (result.success) {
+        console.log(`Player ${player.id} ${result.action}:`, result.details);
+    }
+}
+```
+
+### Step 3: Calculate Final Scores
+
+```javascript
+// At game end (after 8 turns)
+const finalScores = purchaseManager.calculateFinalScores(players, eventsUsed);
+
+// Determine winner
+const winner = Object.entries(finalScores)
+    .sort((a, b) => b[1].finalScore - a[1].finalScore)[0];
+
+console.log('Game Over! Winner:', winner);
+```
+
+## 🧪 Testing
+
+### Running the Test Suite
+
+1. Add test-purchase-system.js to your HTML:
+
+```html
+<script type="module">
+    import { testPurchaseSystem } from './js/test-purchase-system.js';
+    
+    // Run tests
+    testPurchaseSystem().then(result => {
+        if (result.success) {
+            console.log('✅ All tests passed!');
+        } else {
+            console.error('❌ Tests failed:', result.error);
+        }
+    });
+</script>
+```
+
+2. Or call from browser console after loading:
+
+```javascript
+await testPurchaseSystem();
+```
+
+### Expected Test Output
+
+```
+🧪 Testing Purchase System...
+
+✅ Loaded 100 heroes
+✅ Loaded 40 titles
+✅ Loaded 40 events
+
+🎮 Test Player Setup:
+   Hand: Lu Bu, Diaochan
+   Battlefield Wei: Yuan Shu, Zhang Jue
+   Battlefield Wu: Liu Biao
+   Battlefield Shu: Gongsun Zan
+
+🏪 Available Market:
+   Heroes: Lu Bu, Diaochan, Yuan Shu, Zhang Jue
+   Titles: Heavenly Commander, General of the Earth, ...
+
+🤖 AI Making Purchase Decision...
+
+📊 Purchase Result:
+   Action: title
+   Success: true
+   Details: { title: "Heavenly Commander", points: 5, ... }
+
+✅ All tests completed!
+```
+
+## 🎮 Usage Examples
+
+### Example 1: Manual Title Purchase
+
+```javascript
+// Validate a specific title purchase
+const validation = purchaseManager.validator.canPurchaseTitle(
+    player,
+    titleToCheck,
+    heroesPlayerWantsToUse
+);
+
+if (validation.canPurchase) {
+    // Calculate points
+    const points = purchaseManager.scorer.calculateTitlePoints(player, titleToCheck);
+    console.log(`This title would give ${points.totalPoints} points`);
+}
+```
+
+### Example 2: Check Legendary Bonus
+
+```javascript
+// For a legendary title
+const title = titlesData.find(t => t.name === "The Greatest Minds");
+const pointsCalc = purchaseManager.scorer.calculateTitlePoints(player, title);
+
+console.log(`Base Points: ${pointsCalc.basePoints}`);
+console.log(`Legend Bonus: ${pointsCalc.legendBonus}`);
+console.log(`Total Points: ${pointsCalc.totalPoints}`);
+console.log(`Named Legends Owned: ${pointsCalc.matchingHeroes.filter(h => 
+    title.named_legends.includes(h.name)
+).map(h => h.name)}`);
+```
+
+### Example 3: AI Decision Analysis
+
+```javascript
+// See what the AI is considering
+const titleOpps = purchaseManager.aiStrategy.evaluateTitleOpportunities(
+    player,
+    availableTitles
+);
+
+console.log('AI Title Opportunities:');
+titleOpps.forEach(opp => {
+    console.log(`${opp.title.name}: ${opp.points} pts, efficiency ${opp.efficiency.toFixed(2)}`);
+});
+```
+
+## 🔧 Customization
+
+### Adjusting AI Strategy
+
+Edit `ai-strategy.js` to modify decision-making:
+
+```javascript
+// Change turn thresholds for hero vs. title preference
+if (currentTurn <= 3) {  // Change from 3 to 4 for more hero collection
+    // Prioritize heroes
+}
+
+// Adjust scoring weights
+score += efficiency * 3;  // Change from 3 to adjust efficiency importance
+```
+
+### Adding New Requirement Types
+
+Edit `purchase-validator.js` to add new requirement patterns:
+
+```javascript
+case 'your_new_type':
+    matchingHero = this.findYourNewType(allHeroes, requirement);
+    break;
+```
+
+### Modifying Set Scoring
+
+Edit `collection-scorer.js` to add new set types:
+
+```javascript
+case 'your_new_set_type':
+    return this.matchByYourNewType(heroes, setDesc);
+```
+
+## 📊 Data Structures
+
+### Player Object
+
+```javascript
+{
+    id: number,
+    hand: Array<Hero>,
+    battlefield: {
+        wei: Array<Hero>,
+        wu: Array<Hero>,
+        shu: Array<Hero>
+    },
+    retired: Array<Hero>,
+    titles: Array<Title>,
+    score: number,
+    emergencyUsed: number
+}
+```
+
+### Purchase Result Object
+
+```javascript
+{
+    success: boolean,
+    action: 'hero' | 'title' | 'pass',
+    details: {
+        // For title purchase:
+        title: string,
+        points: number,
+        basePoints: number,
+        legendBonus: number,
+        retiredHero: string,
+        heroesUsed: Array<string>,
+        
+        // For hero purchase:
+        hero: string,
+        cost: number,
+        columnBonuses: Object
+    }
+}
+```
+
+## 🐛 Debugging
+
+### Enable Detailed Logging
+
+Add to your game loop:
+
+```javascript
+// Log purchase decisions
+const result = purchaseManager.executePurchase(...);
+console.log('Purchase Decision:', {
+    player: player.id,
+    action: result.action,
+    success: result.success,
+    details: result.details
+});
+
+// Log player state after purchase
+const stats = purchaseManager.getPurchaseStats(player);
+console.log('Player Stats:', stats);
+```
+
+### Common Issues
+
+**Issue**: Title requirements not matching
+- Check `requirement_type` field in titles.json
+- Verify hero names match exactly (case-insensitive but spelling matters)
+- Test with `validator.meetsHeroRequirement(player, title)`
+
+**Issue**: Points calculation seems wrong
+- Verify `points_array` in titles.json
+- Check if title is legendary (adds bonus)
+- Use `scorer.calculateTitlePoints(player, title)` to debug
+
+**Issue**: AI not purchasing anything
+- Check if player has heroes on battlefield
+- Verify market has titles/heroes available
+- Lower efficiency thresholds in `ai-strategy.js`
+
+## 🎯 Next Steps
+
+1. **Upload these files to your `/js/` directory**
+2. **Update your game-engine.js** to import PurchaseManager
+3. **Run the test suite** to verify everything works
+4. **Start Monte Carlo simulation** with 100+ games
+5. **Analyze results** for balance issues
+
+## 📈 Expected Performance
+
+- **Single purchase decision**: <10ms
+- **Full 8-turn game**: ~50-100ms
+- **100 game simulation**: ~5-10 seconds
+- **1000 game simulation**: ~50-100 seconds
+
+## 🤝 Contributing
+
+To improve the purchase system:
+
+1. Add new requirement types in `purchase-validator.js`
+2. Enhance AI strategy in `ai-strategy.js`
+3. Add new set scoring types in `collection-scorer.js`
+4. Expand test coverage in `test-purchase-system.js`
+
+## 📞 Support
+
+If you encounter issues:
+
+1. Check browser console for errors
+2. Run `testPurchaseSystem()` to diagnose
+3. Verify JSON data files are loading correctly
+4. Check that all imports use correct paths
+
+---
+
+**Ready to enable Monte Carlo simulation for Three Kingdoms: Mandate of Heaven!** 🎲⚔️
+
 *Last Updated: January 12, 2026*  
 *Version: 31 (Legendary Titles Expansion Complete)*  
 *Next Milestone: Simulator Core Implementation Complete*
