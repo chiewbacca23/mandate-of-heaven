@@ -544,7 +544,8 @@
     "lore": "Tiger of Jiangdong",
     "allegiance": "Wu",
     "roles": [
-      "General"
+      "General",
+      "Administrator"
     ],
     "military": 4,
     "influence": -1,
@@ -567,7 +568,7 @@
     "allegiance": "Wu",
     "roles": [
       "General",
-      "Tactician"
+      "Administrator"
     ],
     "military": 4,
     "influence": -1,
@@ -2231,4 +2232,5 @@
       "piety": 0
     }
   }
+
 ]
