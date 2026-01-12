@@ -7,19 +7,12 @@
     "roles": [
       "General"
     ],
-    "military": 6,
+    "military": 5,
     "influence": 0,
     "supplies": 2,
-    "piety": -2,
-    "effects": "Permanent: Cannot be played in a kingdom with any of your own Generals",
-    "set": "B",
-    "points": 1.5,
-    "cost": {
-      "military": 6,
-      "influence": 0,
-      "supplies": 2,
-      "piety": 0
-    }
+    "piety": -1,
+    "effects": "+1 to any resource if you have no other heroes in this kingdom",
+    "set": "B"
   },
   {
     "id": 2,
@@ -33,15 +26,8 @@
     "influence": 4,
     "supplies": 0,
     "piety": 3,
-    "effects": "+1 to any resource if you have at least 2 Generals on the field",
-    "set": "B",
-    "points": 1.5,
-    "cost": {
-      "military": 0,
-      "influence": 4,
-      "supplies": 0,
-      "piety": 3
-    }
+    "effects": "+1 to any resource if you have another General in this kingdom",
+    "set": "B"
   },
   {
     "id": 3,
@@ -56,15 +42,8 @@
     "influence": 4,
     "supplies": 1,
     "piety": 2,
-    "effects": "+1 Influence for every other Advisor from another Allegiance on your field",
-    "set": "B",
-    "points": 1.5,
-    "cost": {
-      "military": 0,
-      "influence": 4,
-      "supplies": 1,
-      "piety": 2
-    }
+    "effects": "+1 Influence if you have another Advisor on the field",
+    "set": "B"
   },
   {
     "id": 4,
@@ -79,15 +58,8 @@
     "influence": 2,
     "supplies": 2,
     "piety": 0,
-    "effects": "+1 Military. When used to buy, may look at the next two unrevealed events and reorder them",
-    "set": "B",
-    "points": 1.5,
-    "cost": {
-      "military": 2,
-      "influence": 0,
-      "supplies": 2,
-      "piety": 0
-    }
+    "effects": "When used to buy, may look at the next two unrevealed events",
+    "set": "B"
   },
   {
     "id": 5,
@@ -101,15 +73,8 @@
     "influence": 3,
     "supplies": 0,
     "piety": 3,
-    "effects": "Reduce the cost of a Title by 2 Piety or 2 Influence when this card is Retired with it",
-    "set": "B",
-    "points": 1.5,
-    "cost": {
-      "military": 0,
-      "influence": 3,
-      "supplies": 0,
-      "piety": 3
-    }
+    "effects": "Reduce the cost of a Title by any 2 resources when this card is Retired with it",
+    "set": "B"
   },
   {
     "id": 6,
@@ -123,15 +88,8 @@
     "influence": 1,
     "supplies": 0,
     "piety": 1,
-    "effects": "+1 Influence for each Rebels hero you have in this kingdom",
-    "set": "B",
-    "points": 1.5,
-    "cost": {
-      "military": 4,
-      "influence": 1,
-      "supplies": 0,
-      "piety": 1
-    }
+    "effects": "+1 Influence if you have a Rebel hero on the field",
+    "set": "B"
   },
   {
     "id": 7,
@@ -146,15 +104,8 @@
     "influence": 3,
     "supplies": 2,
     "piety": 0,
-    "effects": "+1 Piety for each of your Generals from a different Allegiance on the field",
-    "set": "B",
-    "points": 1.5,
-    "cost": {
-      "military": 1,
-      "influence": 3,
-      "supplies": 2,
-      "piety": 0
-    }
+    "effects": "+1 Piety if you have 3 different allegiances on the field",
+    "set": "B"
   },
   {
     "id": 8,
@@ -168,15 +119,8 @@
     "influence": 0,
     "supplies": 0,
     "piety": 4,
-    "effects": "+1 Military for each of your Generals in this kingdom",
-    "set": "A",
-    "points": 1.5,
-    "cost": {
-      "military": 2,
-      "influence": 0,
-      "supplies": 0,
-      "piety": 4
-    }
+    "effects": "+1 Military if you have another General in this kingdom",
+    "set": "A"
   },
   {
     "id": 9,
@@ -190,15 +134,8 @@
     "influence": 0,
     "supplies": 2,
     "piety": 0,
-    "effects": "+2 Military if no other friendly heroes in this kingdom, +1 to any resource when buying Titles",
-    "set": "A",
-    "points": 1.5,
-    "cost": {
-      "military": 4,
-      "influence": 0,
-      "supplies": 2,
-      "piety": 0
-    }
+    "effects": "+1 to any resource when buying Titles",
+    "set": "A"
   },
   {
     "id": 10,
@@ -213,15 +150,8 @@
     "influence": 4,
     "supplies": 0,
     "piety": 3,
-    "effects": "+1 Military for each Shu General on your field",
-    "set": "A",
-    "points": 1.5,
-    "cost": {
-      "military": 0,
-      "influence": 4,
-      "supplies": 0,
-      "piety": 3
-    }
+    "effects": "+1 Military if you have a Shu General on the field",
+    "set": "A"
   },
   {
     "id": 11,
@@ -235,15 +165,8 @@
     "influence": -1,
     "supplies": 0,
     "piety": 3,
-    "effects": "Permanent: Cannot be played in Wu",
-    "set": "A",
-    "points": 1.5,
-    "cost": {
-      "military": 4,
-      "influence": 0,
-      "supplies": 0,
-      "piety": 3
-    }
+    "effects": "+1 to any resource if not played in the kingdom of Wu",
+    "set": "A"
   },
   {
     "id": 12,
@@ -259,14 +182,7 @@
     "supplies": 0,
     "piety": 3,
     "effects": "+1 to any resource if you went last this turn. May perform any Role for scoring",
-    "set": "A",
-    "points": 1.75,
-    "cost": {
-      "military": 2,
-      "influence": 2,
-      "supplies": 0,
-      "piety": 3
-    }
+    "set": "A"
   },
   {
     "id": 13,
@@ -280,15 +196,8 @@
     "influence": -1,
     "supplies": 1,
     "piety": 2,
-    "effects": "+1 to any resource if you have a Rebels hero in this kingdom",
-    "set": "A",
-    "points": 1.5,
-    "cost": {
-      "military": 4,
-      "influence": 0,
-      "supplies": 1,
-      "piety": 2
-    }
+    "effects": "+1 to any resource if you have a Rebels hero on the field",
+    "set": "A"
   },
   {
     "id": 14,
@@ -303,15 +212,8 @@
     "influence": 0,
     "supplies": -1,
     "piety": 3,
-    "effects": "+2 any resources towards Titles when you have a General from another Allegiance in this kingdom",
-    "set": "A",
-    "points": 1.5,
-    "cost": {
-      "military": 4,
-      "influence": 0,
-      "supplies": 0,
-      "piety": 3
-    }
+    "effects": "+1 to any resource if you have another General in this kingdom",
+    "set": "A"
   },
   {
     "id": 15,
@@ -325,15 +227,8 @@
     "influence": 0,
     "supplies": 0,
     "piety": 2,
-    "effects": "+1 to any resource if you went last this turn",
-    "set": "A",
-    "points": 1.5,
-    "cost": {
-      "military": 4,
-      "influence": 0,
-      "supplies": 0,
-      "piety": 2
-    }
+    "effects": "Reduce the cost of a Title by any 2 resources when this card is Retired with it",
+    "set": "A"
   },
   {
     "id": 16,
@@ -346,17 +241,10 @@
     ],
     "military": 1,
     "influence": 5,
-    "supplies": -2,
+    "supplies": -1,
     "piety": 1,
     "effects": "May Draw the next 2 Titles and choose one to make available for purchase",
-    "set": "A",
-    "points": 1.25,
-    "cost": {
-      "military": 1,
-      "influence": 5,
-      "supplies": 0,
-      "piety": 1
-    }
+    "set": "A"
   },
   {
     "id": 17,
@@ -372,14 +260,7 @@
     "supplies": 3,
     "piety": -1,
     "effects": "Permanent: May reorder your cards in this kingdom",
-    "set": "A",
-    "points": 1.5,
-    "cost": {
-      "military": 0,
-      "influence": 4,
-      "supplies": 3,
-      "piety": 0
-    }
+    "set": "A"
   },
   {
     "id": 18,
@@ -393,15 +274,8 @@
     "influence": 0,
     "supplies": 2,
     "piety": 1,
-    "effects": "+1 to Military or Influence when buying a Title",
-    "set": "A",
-    "points": 1.5,
-    "cost": {
-      "military": 3,
-      "influence": 0,
-      "supplies": 2,
-      "piety": 1
-    }
+    "effects": "Reduce the cost of a Title by any 2 resources when this card is Retired with it",
+    "set": "A"
   },
   {
     "id": 19,
@@ -415,15 +289,8 @@
     "influence": 0,
     "supplies": 2,
     "piety": 0,
-    "effects": "+1 to Military or Supplies when buying a Title",
-    "set": "A",
-    "points": 1.5,
-    "cost": {
-      "military": 4,
-      "influence": 0,
-      "supplies": 2,
-      "piety": 0
-    }
+    "effects": "Reduce the cost of a Title by any 2 resources when this card is Retired with it",
+    "set": "A"
   },
   {
     "id": 20,
@@ -439,14 +306,7 @@
     "supplies": 2,
     "piety": 1,
     "effects": "+1 to any resource if you went first this turn. May perform any Role for scoring",
-    "set": "A",
-    "points": 1.75,
-    "cost": {
-      "military": 1,
-      "influence": 3,
-      "supplies": 2,
-      "piety": 1
-    }
+    "set": "A"
   },
   {
     "id": 21,
@@ -462,14 +322,7 @@
     "supplies": 4,
     "piety": 1,
     "effects": "May Draw the next 2 Titles and choose one to make available for purchase",
-    "set": "A",
-    "points": 1.5,
-    "cost": {
-      "military": 0,
-      "influence": 2,
-      "supplies": 4,
-      "piety": 1
-    }
+    "set": "A"
   },
   {
     "id": 22,
@@ -485,14 +338,7 @@
     "supplies": 1,
     "piety": 1,
     "effects": "Only in the final turn, may Draw 4 Titles and choose one for free. Cannot perform any other actions this turn",
-    "set": "A",
-    "points": 1.5,
-    "cost": {
-      "military": 0,
-      "influence": 4,
-      "supplies": 1,
-      "piety": 1
-    }
+    "set": "A"
   },
   {
     "id": 23,
@@ -506,15 +352,8 @@
     "influence": 0,
     "supplies": 2,
     "piety": 0,
-    "effects": "+1 Military when you have an Advisor in this kingdom",
-    "set": "A",
-    "points": 1.25,
-    "cost": {
-      "military": 3,
-      "influence": 0,
-      "supplies": 2,
-      "piety": 0
-    }
+    "effects": "+1 Military if you have an Advisor in this kingdom",
+    "set": "A"
   },
   {
     "id": 24,
@@ -528,15 +367,8 @@
     "influence": -1,
     "supplies": 0,
     "piety": 2,
-    "effects": "+1 Influence for each Wei Advisor on your field",
-    "set": "A",
-    "points": 1.25,
-    "cost": {
-      "military": 4,
-      "influence": 0,
-      "supplies": 0,
-      "piety": 2
-    }
+    "effects": "+1 to any resource if you have an Advisor in this kingdom",
+    "set": "A"
   },
   {
     "id": 25,
@@ -552,14 +384,7 @@
     "supplies": 2,
     "piety": 1,
     "effects": "+2 Influence if you have an Administrator in this kingdom",
-    "set": "A",
-    "points": 1.5,
-    "cost": {
-      "military": 4,
-      "influence": 0,
-      "supplies": 2,
-      "piety": 1
-    }
+    "set": "A"
   },
   {
     "id": 26,
@@ -575,14 +400,7 @@
     "supplies": 3,
     "piety": 0,
     "effects": "May Draw a new hero that anyone can buy. You receive a 2 resource bonus if you Recruit them this turn",
-    "set": "A",
-    "points": 1.5,
-    "cost": {
-      "military": 4,
-      "influence": 0,
-      "supplies": 3,
-      "piety": 0
-    }
+    "set": "A"
   },
   {
     "id": 27,
@@ -598,14 +416,7 @@
     "supplies": 1,
     "piety": -1,
     "effects": "+1 Military and +1 Piety if you went first this turn",
-    "set": "A",
-    "points": 1.5,
-    "cost": {
-      "military": 2,
-      "influence": 4,
-      "supplies": 1,
-      "piety": 0
-    }
+    "set": "A"
   },
   {
     "id": 28,
@@ -619,15 +430,8 @@
     "influence": 2,
     "supplies": 1,
     "piety": 2,
-    "effects": "+1 to any resource when you have three heroes in Wu",
-    "set": "A",
-    "points": 1.5,
-    "cost": {
-      "military": 1,
-      "influence": 2,
-      "supplies": 1,
-      "piety": 2
-    }
+    "effects": "+1 to any resource when you have three cards in Wu",
+    "set": "A"
   },
   {
     "id": 29,
@@ -641,16 +445,9 @@
     "military": 1,
     "influence": 4,
     "supplies": 3,
-    "piety": -2,
-    "effects": "+1 Piety for each Han hero on your field",
-    "set": "B",
-    "points": 1.5,
-    "cost": {
-      "military": 1,
-      "influence": 4,
-      "supplies": 3,
-      "piety": 0
-    }
+    "piety": -1,
+    "effects": "+1 Piety if you have a Han hero on the field",
+    "set": "B"
   },
   {
     "id": 30,
@@ -666,14 +463,7 @@
     "supplies": 3,
     "piety": 1,
     "effects": "+1 Piety if you did not go first this turn",
-    "set": "B",
-    "points": 1.5,
-    "cost": {
-      "military": 2,
-      "influence": 0,
-      "supplies": 3,
-      "piety": 1
-    }
+    "set": "B"
   },
   {
     "id": 31,
@@ -688,14 +478,7 @@
     "supplies": 2,
     "piety": 0,
     "effects": "Nullifies all friendly negative resources in this kingdom",
-    "set": "B",
-    "points": 1.5,
-    "cost": {
-      "military": 0,
-      "influence": 4,
-      "supplies": 2,
-      "piety": 0
-    }
+    "set": "B"
   },
   {
     "id": 32,
@@ -709,15 +492,8 @@
     "influence": 2,
     "supplies": 0,
     "piety": 2,
-    "effects": "Receives bonus resources equal to the lowest positive value of the hero Below this card",
-    "set": "B",
-    "points": 1,
-    "cost": {
-      "military": 0,
-      "influence": 2,
-      "supplies": 0,
-      "piety": 2
-    }
+    "effects": "+1 to any resource when recruiting heroes",
+    "set": "B"
   },
   {
     "id": 33,
@@ -731,15 +507,8 @@
     "influence": 1,
     "supplies": 0,
     "piety": 1,
-    "effects": "+1 to any resource if you have another Han hero in this kingdom",
-    "set": "B",
-    "points": 1.25,
-    "cost": {
-      "military": 3,
-      "influence": 1,
-      "supplies": 0,
-      "piety": 1
-    }
+    "effects": "+1 to any resource if you have another Han hero on the field",
+    "set": "B"
   },
   {
     "id": 34,
@@ -755,14 +524,7 @@
     "supplies": 2,
     "piety": 0,
     "effects": "Permanent: After resolving turn order, cover and restrict any non-event hero from being bought this turn. Returns to your hand every turn",
-    "set": "B",
-    "points": 1.5,
-    "cost": {
-      "military": 2,
-      "influence": 2,
-      "supplies": 2,
-      "piety": 0
-    }
+    "set": "B"
   },
   {
     "id": 35,
@@ -778,14 +540,7 @@
     "supplies": 3,
     "piety": 0,
     "effects": "Permanent: After being played, retires to your province, providing +1 Military and doubling your current province bonus",
-    "set": "B",
-    "points": 1.5,
-    "cost": {
-      "military": 3,
-      "influence": 0,
-      "supplies": 3,
-      "piety": 0
-    }
+    "set": "B"
   },
   {
     "id": 36,
@@ -799,15 +554,8 @@
     "influence": 0,
     "supplies": 0,
     "piety": 1,
-    "effects": "Receives bonus resources equal to the lowest positive value of a Wei hero Below this card",
-    "set": "B",
-    "points": 1.25,
-    "cost": {
-      "military": 4,
-      "influence": 0,
-      "supplies": 0,
-      "piety": 1
-    }
+    "effects": "Reduce the cost of a Title by any 2 resources when this card is Retired with it",
+    "set": "B"
   },
   {
     "id": 37,
@@ -822,14 +570,7 @@
     "supplies": -1,
     "piety": 1,
     "effects": "+1 to any resource if you have two other Generals on your field",
-    "set": "A",
-    "points": 1.25,
-    "cost": {
-      "military": 3,
-      "influence": 2,
-      "supplies": 0,
-      "piety": 1
-    }
+    "set": "A"
   },
   {
     "id": 38,
@@ -843,15 +584,8 @@
     "influence": 0,
     "supplies": 2,
     "piety": 1,
-    "effects": "Reduce the cost of a Title by 2 Military or 2 Supplies when this card is Retired with it",
-    "set": "A",
-    "points": 1.5,
-    "cost": {
-      "military": 3,
-      "influence": 0,
-      "supplies": 2,
-      "piety": 1
-    }
+    "effects": "Reduce the cost of a Title by any 2 Resources when this card is Retired with it",
+    "set": "A"
   },
   {
     "id": 39,
@@ -867,14 +601,7 @@
     "supplies": 1,
     "piety": 3,
     "effects": "Nullifies all friendly negative resources in this kingdom",
-    "set": "A",
-    "points": 1.5,
-    "cost": {
-      "military": 0,
-      "influence": 2,
-      "supplies": 1,
-      "piety": 3
-    }
+    "set": "A"
   },
   {
     "id": 40,
@@ -889,14 +616,7 @@
     "supplies": 2,
     "piety": 3,
     "effects": "Permanent: Does not count as any resources for buying. Instead, discount any 3 resources from your next purchase and immediately retire (without title)",
-    "set": "A",
-    "points": 2,
-    "cost": {
-      "military": 1,
-      "influence": 2,
-      "supplies": 2,
-      "piety": 3
-    }
+    "set": "A"
   },
   {
     "id": 41,
@@ -908,17 +628,10 @@
     ],
     "military": 0,
     "influence": 2,
-    "supplies": 2,
+    "supplies": 3,
     "piety": 0,
-    "effects": "Nullifies all friendly negative resources in this kingdom",
-    "set": "B",
-    "points": 1,
-    "cost": {
-      "military": 0,
-      "influence": 2,
-      "supplies": 2,
-      "piety": 0
-    }
+    "effects": "",
+    "set": "B"
   },
   {
     "id": 42,
@@ -931,16 +644,9 @@
     "military": 0,
     "influence": 2,
     "supplies": 0,
-    "piety": 2,
-    "effects": "Reduce the cost of a Title by 2 Influence or 2 Supplies when this card is Retired with it",
-    "set": "B",
-    "points": 1,
-    "cost": {
-      "military": 0,
-      "influence": 2,
-      "supplies": 0,
-      "piety": 2
-    }
+    "piety": 3,
+    "effects": "",
+    "set": "B"
   },
   {
     "id": 43,
@@ -950,19 +656,12 @@
     "roles": [
       "Advisor"
     ],
-    "military": 0,
+    "military": 1,
     "influence": 3,
     "supplies": -1,
     "piety": 2,
-    "effects": "+1 Military towards Recruiting Generals",
-    "set": "B",
-    "points": 1,
-    "cost": {
-      "military": 0,
-      "influence": 3,
-      "supplies": 0,
-      "piety": 2
-    }
+    "effects": "",
+    "set": "B"
   },
   {
     "id": 44,
@@ -974,17 +673,10 @@
     ],
     "military": 2,
     "influence": 0,
-    "supplies": 0,
+    "supplies": 1,
     "piety": 2,
-    "effects": "Reduce the cost of a Title by 2 Military or 2 Piety when this card is Retired with it",
-    "set": "B",
-    "points": 1,
-    "cost": {
-      "military": 2,
-      "influence": 0,
-      "supplies": 0,
-      "piety": 2
-    }
+    "effects": "",
+    "set": "B"
   },
   {
     "id": 45,
@@ -995,18 +687,11 @@
       "General"
     ],
     "military": 2,
-    "influence": 0,
+    "influence": 1,
     "supplies": 2,
     "piety": 0,
-    "effects": "+1 Military for each of your Coalition heroes in this kingdom",
-    "set": "B",
-    "points": 1,
-    "cost": {
-      "military": 2,
-      "influence": 0,
-      "supplies": 2,
-      "piety": 0
-    }
+    "effects": "",
+    "set": "B"
   },
   {
     "id": 46,
@@ -1021,14 +706,7 @@
     "supplies": 2,
     "piety": -1,
     "effects": "",
-    "set": "B",
-    "points": 1.25,
-    "cost": {
-      "military": 2,
-      "influence": 2,
-      "supplies": 2,
-      "piety": 0
-    }
+    "set": "B"
   },
   {
     "id": 47,
@@ -1039,18 +717,11 @@
       "General"
     ],
     "military": 2,
-    "influence": 0,
+    "influence": 1,
     "supplies": 0,
     "piety": 2,
-    "effects": "Reduce the cost of a Title by 2 Supplies or 2 Piety when this card is Retired with it",
-    "set": "B",
-    "points": 1,
-    "cost": {
-      "military": 2,
-      "influence": 0,
-      "supplies": 0,
-      "piety": 2
-    }
+    "effects": "",
+    "set": "B"
   },
   {
     "id": 48,
@@ -1065,14 +736,7 @@
     "supplies": 3,
     "piety": 0,
     "effects": "",
-    "set": "B",
-    "points": 1.25,
-    "cost": {
-      "military": 0,
-      "influence": 2,
-      "supplies": 3,
-      "piety": 0
-    }
+    "set": "B"
   },
   {
     "id": 49,
@@ -1087,14 +751,7 @@
     "supplies": 0,
     "piety": 3,
     "effects": "",
-    "set": "B",
-    "points": 1.25,
-    "cost": {
-      "military": 0,
-      "influence": 2,
-      "supplies": 0,
-      "piety": 3
-    }
+    "set": "B"
   },
   {
     "id": 50,
@@ -1105,18 +762,11 @@
       "Advisor"
     ],
     "military": 0,
-    "influence": 2,
+    "influence": 3,
     "supplies": 0,
     "piety": 2,
-    "effects": "Receives 1 bonus resource based on the lowest positive resource of the hero Below this card",
-    "set": "B",
-    "points": 1,
-    "cost": {
-      "military": 0,
-      "influence": 2,
-      "supplies": 0,
-      "piety": 2
-    }
+    "effects": "",
+    "set": "B"
   },
   {
     "id": 51,
@@ -1128,17 +778,10 @@
     ],
     "military": 1,
     "influence": 3,
-    "supplies": 0,
+    "supplies": 1,
     "piety": 0,
-    "effects": "+1 Military for each of your Coalition heroes in this kingdom",
-    "set": "B",
-    "points": 1,
-    "cost": {
-      "military": 1,
-      "influence": 3,
-      "supplies": 0,
-      "piety": 0
-    }
+    "effects": "",
+    "set": "B"
   },
   {
     "id": 52,
@@ -1152,15 +795,8 @@
     "influence": 0,
     "supplies": 2,
     "piety": 0,
-    "effects": "Reduce the cost of a Title by 2 Military or 2 Supplies when this card is Retired with it",
-    "set": "B",
-    "points": 1,
-    "cost": {
-      "military": 2,
-      "influence": 0,
-      "supplies": 2,
-      "piety": 0
-    }
+    "effects": "",
+    "set": "B"
   },
   {
     "id": 53,
@@ -1174,15 +810,8 @@
     "influence": 1,
     "supplies": 3,
     "piety": -1,
-    "effects": "Permanent: Cannot share a kingdom with any of your other Dong Zhuo heroes",
-    "set": "B",
-    "points": 1.25,
-    "cost": {
-      "military": 2,
-      "influence": 1,
-      "supplies": 3,
-      "piety": 0
-    }
+    "effects": "",
+    "set": "B"
   },
   {
     "id": 54,
@@ -1194,17 +823,10 @@
     ],
     "military": 2,
     "influence": 0,
-    "supplies": 2,
+    "supplies": 3,
     "piety": 0,
-    "effects": "May Draw a new hero that anyone can buy. You receive a 1 resource bonus if you Recruit them this turn",
-    "set": "B",
-    "points": 1,
-    "cost": {
-      "military": 2,
-      "influence": 0,
-      "supplies": 2,
-      "piety": 0
-    }
+    "effects": "",
+    "set": "B"
   },
   {
     "id": 55,
@@ -1215,18 +837,11 @@
       "General"
     ],
     "military": 2,
-    "influence": 2,
+    "influence": 3,
     "supplies": 0,
     "piety": 0,
-    "effects": "+1 Influence for every other Dong Zhuo hero on your field",
-    "set": "B",
-    "points": 1,
-    "cost": {
-      "military": 2,
-      "influence": 2,
-      "supplies": 0,
-      "piety": 0
-    }
+    "effects": "",
+    "set": "B"
   },
   {
     "id": 56,
@@ -1236,19 +851,12 @@
     "roles": [
       "Advisor"
     ],
-    "military": 0,
+    "military": 1,
     "influence": 2,
     "supplies": 2,
     "piety": 0,
-    "effects": "+1 Influence when you have a Tactician in this kingdom",
-    "set": "B",
-    "points": 1,
-    "cost": {
-      "military": 0,
-      "influence": 2,
-      "supplies": 2,
-      "piety": 0
-    }
+    "effects": "",
+    "set": "B"
   },
   {
     "id": 57,
@@ -1260,17 +868,10 @@
     ],
     "military": 2,
     "influence": 2,
-    "supplies": 0,
+    "supplies": 1,
     "piety": 0,
-    "effects": "+1 Piety for each of your heroes from another Allegiance in this kingdom",
-    "set": "B",
-    "points": 1,
-    "cost": {
-      "military": 2,
-      "influence": 2,
-      "supplies": 0,
-      "piety": 0
-    }
+    "effects": "",
+    "set": "B"
   },
   {
     "id": 58,
@@ -1281,18 +882,11 @@
       "General"
     ],
     "military": 2,
-    "influence": 2,
+    "influence": 3,
     "supplies": 0,
     "piety": 0,
-    "effects": "Receives 1 bonus resource based on the lowest positive resource of the hero Below this card",
-    "set": "B",
-    "points": 1,
-    "cost": {
-      "military": 2,
-      "influence": 2,
-      "supplies": 0,
-      "piety": 0
-    }
+    "effects": "",
+    "set": "B"
   },
   {
     "id": 59,
@@ -1304,17 +898,10 @@
     ],
     "military": 1,
     "influence": 2,
-    "supplies": 1,
+    "supplies": 2,
     "piety": 0,
     "effects": "",
-    "set": "B",
-    "points": 1,
-    "cost": {
-      "military": 1,
-      "influence": 2,
-      "supplies": 1,
-      "piety": 0
-    }
+    "set": "B"
   },
   {
     "id": 60,
@@ -1329,14 +916,7 @@
     "supplies": 0,
     "piety": 2,
     "effects": "",
-    "set": "B",
-    "points": 1.25,
-    "cost": {
-      "military": 1,
-      "influence": 2,
-      "supplies": 0,
-      "piety": 2
-    }
+    "set": "B"
   },
   {
     "id": 61,
@@ -1347,19 +927,12 @@
       "Advisor",
       "Tactician"
     ],
-    "military": 0,
+    "military": 1,
     "influence": 2,
     "supplies": 1,
     "piety": 1,
     "effects": "",
-    "set": "B",
-    "points": 1,
-    "cost": {
-      "military": 0,
-      "influence": 2,
-      "supplies": 1,
-      "piety": 1
-    }
+    "set": "B"
   },
   {
     "id": 62,
@@ -1370,18 +943,11 @@
       "Advisor"
     ],
     "military": 0,
-    "influence": 3,
+    "influence": 2,
     "supplies": 2,
-    "piety": -1,
-    "effects": "When played, may look at the next unrevealed Title from the deck",
-    "set": "B",
-    "points": 1,
-    "cost": {
-      "military": 0,
-      "influence": 3,
-      "supplies": 2,
-      "piety": 0
-    }
+    "piety": 0,
+    "effects": "+1 to any resource when purchasing",
+    "set": "B"
   },
   {
     "id": 63,
@@ -1392,18 +958,11 @@
       "Advisor"
     ],
     "military": 0,
-    "influence": 3,
+    "influence": 2,
     "supplies": 0,
     "piety": 2,
-    "effects": "When played, may look at the next two unrevealed heroes from the deck",
-    "set": "B",
-    "points": 1.25,
-    "cost": {
-      "military": 0,
-      "influence": 3,
-      "supplies": 0,
-      "piety": 2
-    }
+    "effects": "+1 to any resource when purchasing",
+    "set": "B"
   },
   {
     "id": 64,
@@ -1416,16 +975,9 @@
     "military": 2,
     "influence": 2,
     "supplies": 0,
-    "piety": 0,
-    "effects": "+1 Influence for every other of your Han heroes in this kingdom",
-    "set": "B",
-    "points": 1,
-    "cost": {
-      "military": 2,
-      "influence": 2,
-      "supplies": 0,
-      "piety": 0
-    }
+    "piety": 1,
+    "effects": "",
+    "set": "B"
   },
   {
     "id": 65,
@@ -1437,18 +989,11 @@
       "Administrator"
     ],
     "military": 3,
-    "influence": -1,
+    "influence": 0,
     "supplies": 0,
     "piety": 2,
-    "effects": "+1 Influence if you have an advisor in this kingdom",
-    "set": "B",
-    "points": 1,
-    "cost": {
-      "military": 3,
-      "influence": 0,
-      "supplies": 0,
-      "piety": 2
-    }
+    "effects": "",
+    "set": "B"
   },
   {
     "id": 66,
@@ -1461,16 +1006,9 @@
     "military": 0,
     "influence": 2,
     "supplies": 0,
-    "piety": 2,
-    "effects": "Reduce the cost of a Title by 2 Piety or 2 Influence when this card is Retired with it",
-    "set": "B",
-    "points": 1,
-    "cost": {
-      "military": 0,
-      "influence": 2,
-      "supplies": 0,
-      "piety": 2
-    }
+    "piety": 3,
+    "effects": "",
+    "set": "B"
   },
   {
     "id": 67,
@@ -1486,14 +1024,7 @@
     "supplies": 0,
     "piety": 3,
     "effects": "",
-    "set": "B",
-    "points": 1.5,
-    "cost": {
-      "military": 0,
-      "influence": 3,
-      "supplies": 0,
-      "piety": 3
-    }
+    "set": "B"
   },
   {
     "id": 68,
@@ -1504,18 +1035,11 @@
       "Advisor"
     ],
     "military": 1,
-    "influence": 2,
+    "influence": 3,
     "supplies": 1,
     "piety": 0,
     "effects": "",
-    "set": "B",
-    "points": 1,
-    "cost": {
-      "military": 1,
-      "influence": 2,
-      "supplies": 1,
-      "piety": 0
-    }
+    "set": "B"
   },
   {
     "id": 69,
@@ -1530,15 +1054,8 @@
     "influence": 0,
     "supplies": 2,
     "piety": 2,
-    "effects": "Permanent: Can only be used to buy Titles. Bonus +1 to all resources for buying Titles but must be the retiring hero",
-    "set": "B",
-    "points": 1.25,
-    "cost": {
-      "military": 1,
-      "influence": 0,
-      "supplies": 2,
-      "piety": 2
-    }
+    "effects": "",
+    "set": "B"
   },
   {
     "id": 70,
@@ -1548,19 +1065,12 @@
     "roles": [
       "Advisor"
     ],
-    "military": -2,
+    "military": -1,
     "influence": 3,
     "supplies": 3,
     "piety": 0,
-    "effects": "May Draw a new Title that anyone can buy. You receive a 2 resource bonus if you buy it this turn",
-    "set": "B",
-    "points": 1,
-    "cost": {
-      "military": 0,
-      "influence": 3,
-      "supplies": 3,
-      "piety": 0
-    }
+    "effects": "",
+    "set": "B"
   },
   {
     "id": 71,
@@ -1575,15 +1085,8 @@
     "influence": 3,
     "supplies": 3,
     "piety": 0,
-    "effects": "+1 Military if you have a General of different Allegiance in this kingdom",
-    "set": "B",
-    "points": 1.25,
-    "cost": {
-      "military": 0,
-      "influence": 3,
-      "supplies": 3,
-      "piety": 0
-    }
+    "effects": "",
+    "set": "B"
   },
   {
     "id": 72,
@@ -1597,15 +1100,8 @@
     "influence": 2,
     "supplies": 0,
     "piety": 0,
-    "effects": "+1 Military if you have a Wei hero in another kingdom",
-    "set": "B",
-    "points": 1.25,
-    "cost": {
-      "military": 3,
-      "influence": 2,
-      "supplies": 0,
-      "piety": 0
-    }
+    "effects": "",
+    "set": "B"
   },
   {
     "id": 73,
@@ -1617,18 +1113,11 @@
       "Tactician"
     ],
     "military": 2,
-    "influence": 0,
+    "influence": 1,
     "supplies": 3,
     "piety": -1,
-    "effects": "Receives 1 bonus resource based on the lowest positive resource from each non-hero Below this card",
-    "set": "B",
-    "points": 1,
-    "cost": {
-      "military": 2,
-      "influence": 0,
-      "supplies": 3,
-      "piety": 0
-    }
+    "effects": "",
+    "set": "B"
   },
   {
     "id": 74,
@@ -1642,15 +1131,8 @@
     "influence": 0,
     "supplies": 2,
     "piety": 0,
-    "effects": "Reduce the cost of a Title by 2 Military or 2 Supplies when this card is Retired with it",
-    "set": "B",
-    "points": 1,
-    "cost": {
-      "military": 2,
-      "influence": 0,
-      "supplies": 2,
-      "piety": 0
-    }
+    "effects": "+1 to any resource when purchasing",
+    "set": "B"
   },
   {
     "id": 75,
@@ -1661,19 +1143,12 @@
       "General",
       "Tactician"
     ],
-    "military": 3,
-    "influence": -1,
-    "supplies": 2,
+    "military": 4,
+    "influence": 0,
+    "supplies": 1,
     "piety": 0,
-    "effects": "+1 Military or +1 Supplies if you have a Shu hero in this kingdom",
-    "set": "B",
-    "points": 1,
-    "cost": {
-      "military": 3,
-      "influence": 0,
-      "supplies": 2,
-      "piety": 0
-    }
+    "effects": "",
+    "set": "B"
   },
   {
     "id": 76,
@@ -1685,17 +1160,10 @@
     ],
     "military": 4,
     "influence": 1,
-    "supplies": -1,
+    "supplies": 0,
     "piety": 0,
-    "effects": "+1 Military or +1 Influence if you have a Tactician in this kingdom",
-    "set": "B",
-    "points": 1,
-    "cost": {
-      "military": 4,
-      "influence": 1,
-      "supplies": 0,
-      "piety": 0
-    }
+    "effects": "",
+    "set": "B"
   },
   {
     "id": 77,
@@ -1706,18 +1174,11 @@
       "General"
     ],
     "military": 2,
-    "influence": 0,
+    "influence": 1,
     "supplies": 2,
     "piety": 0,
-    "effects": "+1 to any resource if you have 2 other Generals in this kingdom",
-    "set": "B",
-    "points": 1,
-    "cost": {
-      "military": 2,
-      "influence": 0,
-      "supplies": 2,
-      "piety": 0
-    }
+    "effects": "",
+    "set": "B"
   },
   {
     "id": 78,
@@ -1732,14 +1193,7 @@
     "supplies": 3,
     "piety": 0,
     "effects": "Nullifies all friendly negative resources in this kingdom",
-    "set": "A",
-    "points": 1.25,
-    "cost": {
-      "military": 0,
-      "influence": 2,
-      "supplies": 3,
-      "piety": 0
-    }
+    "set": "A"
   },
   {
     "id": 79,
@@ -1754,14 +1208,7 @@
     "supplies": 0,
     "piety": 2,
     "effects": "",
-    "set": "A",
-    "points": 1.25,
-    "cost": {
-      "military": 3,
-      "influence": 0,
-      "supplies": 0,
-      "piety": 2
-    }
+    "set": "A"
   },
   {
     "id": 80,
@@ -1775,15 +1222,8 @@
     "influence": 3,
     "supplies": 0,
     "piety": 1,
-    "effects": "Draw the next 2 heroes and choose one to make available for Recruitment",
-    "set": "A",
-    "points": 1.25,
-    "cost": {
-      "military": 1,
-      "influence": 3,
-      "supplies": 0,
-      "piety": 1
-    }
+    "effects": "",
+    "set": "A"
   },
   {
     "id": 81,
@@ -1793,19 +1233,12 @@
     "roles": [
       "Advisor"
     ],
-    "military": 0,
+    "military": 1,
     "influence": 2,
     "supplies": 2,
     "piety": 0,
-    "effects": "Reduce the cost of a Title by 2 Piety or 2 Influence when this card is Retired with it",
-    "set": "A",
-    "points": 1,
-    "cost": {
-      "military": 0,
-      "influence": 2,
-      "supplies": 2,
-      "piety": 0
-    }
+    "effects": "",
+    "set": "A"
   },
   {
     "id": 82,
@@ -1819,15 +1252,8 @@
     "influence": 2,
     "supplies": 0,
     "piety": 0,
-    "effects": "+1 Military for each of your Rebels heroes in this kingdom",
-    "set": "A",
-    "points": 1,
-    "cost": {
-      "military": 2,
-      "influence": 2,
-      "supplies": 0,
-      "piety": 0
-    }
+    "effects": "",
+    "set": "A"
   },
   {
     "id": 83,
@@ -1838,19 +1264,12 @@
       "Advisor",
       "Tactician"
     ],
-    "military": -1,
+    "military": 0,
     "influence": 3,
     "supplies": 0,
     "piety": 2,
-    "effects": "Doubles the value of the lowest positive resource of the card Below this one",
-    "set": "A",
-    "points": 1,
-    "cost": {
-      "military": 0,
-      "influence": 3,
-      "supplies": 0,
-      "piety": 2
-    }
+    "effects": "",
+    "set": "A"
   },
   {
     "id": 84,
@@ -1863,16 +1282,9 @@
     "military": 0,
     "influence": 3,
     "supplies": 2,
-    "piety": -1,
-    "effects": "Reduce the cost of a Title by 2 Military or 2 Influence when this card is Retired with it",
-    "set": "A",
-    "points": 1,
-    "cost": {
-      "military": 0,
-      "influence": 3,
-      "supplies": 2,
-      "piety": 0
-    }
+    "piety": 0,
+    "effects": "",
+    "set": "A"
   },
   {
     "id": 85,
@@ -1883,19 +1295,12 @@
       "Administrator",
       "Advisor"
     ],
-    "military": 0,
-    "influence": 2,
+    "military": 1,
+    "influence": 1,
     "supplies": 0,
     "piety": 2,
-    "effects": "When redeeming the kingdom resource bonus from this kingdom, receive 1 resource per card instead of 1 per pair",
-    "set": "A",
-    "points": 1,
-    "cost": {
-      "military": 0,
-      "influence": 2,
-      "supplies": 0,
-      "piety": 2
-    }
+    "effects": "",
+    "set": "A"
   },
   {
     "id": 86,
@@ -1908,16 +1313,9 @@
     "military": 0,
     "influence": 2,
     "supplies": 0,
-    "piety": 2,
-    "effects": "Receives 1 bonus resource based on the lowest positive resource of the hero Below this card",
-    "set": "A",
-    "points": 1,
-    "cost": {
-      "military": 0,
-      "influence": 2,
-      "supplies": 0,
-      "piety": 2
-    }
+    "piety": 3,
+    "effects": "",
+    "set": "A"
   },
   {
     "id": 87,
@@ -1930,16 +1328,9 @@
     "military": 2,
     "influence": 0,
     "supplies": 2,
-    "piety": 0,
-    "effects": "+1 to any resource if you have 2 other Generals in this kingdom",
-    "set": "A",
-    "points": 1,
-    "cost": {
-      "military": 2,
-      "influence": 0,
-      "supplies": 2,
-      "piety": 0
-    }
+    "piety": 1,
+    "effects": "",
+    "set": "A"
   },
   {
     "id": 88,
@@ -1952,17 +1343,10 @@
     ],
     "military": -1,
     "influence": 2,
-    "supplies": 1,
-    "piety": 2,
-    "effects": "+1 Military towards Recruiting Generals",
-    "set": "A",
-    "points": 1,
-    "cost": {
-      "military": 0,
-      "influence": 2,
-      "supplies": 1,
-      "piety": 2
-    }
+    "supplies": 0,
+    "piety": 3,
+    "effects": "+1 to any resource when purchasing",
+    "set": "A"
   },
   {
     "id": 89,
@@ -1976,15 +1360,8 @@
     "influence": -1,
     "supplies": 0,
     "piety": 1,
-    "effects": "Reduce the cost of a Title by 1 Influence or 1 Piety when this card is Retired with it",
-    "set": "A",
-    "points": 1,
-    "cost": {
-      "military": 4,
-      "influence": 0,
-      "supplies": 0,
-      "piety": 1
-    }
+    "effects": "",
+    "set": "A"
   },
   {
     "id": 90,
@@ -1999,14 +1376,7 @@
     "supplies": 2,
     "piety": 0,
     "effects": "Nullifies all friendly negative resources in this kingdom",
-    "set": "A",
-    "points": 1.25,
-    "cost": {
-      "military": 0,
-      "influence": 3,
-      "supplies": 2,
-      "piety": 0
-    }
+    "set": "A"
   },
   {
     "id": 91,
@@ -2021,15 +1391,8 @@
     "influence": 1,
     "supplies": 1,
     "piety": 0,
-    "effects": "+1 Military and Supplies towards buying Titles only",
-    "set": "A",
-    "points": 1,
-    "cost": {
-      "military": 2,
-      "influence": 1,
-      "supplies": 1,
-      "piety": 0
-    }
+    "effects": "+1 Military or Supplies when purchasing",
+    "set": "A"
   },
   {
     "id": 92,
@@ -2043,15 +1406,8 @@
     "influence": 2,
     "supplies": 0,
     "piety": 2,
-    "effects": "+1 Supplies when friendly General in this kingdom",
-    "set": "A",
-    "points": 1,
-    "cost": {
-      "military": 0,
-      "influence": 2,
-      "supplies": 0,
-      "piety": 2
-    }
+    "effects": "+1 to any resource when purchasing",
+    "set": "A"
   },
   {
     "id": 93,
@@ -2065,15 +1421,8 @@
     "influence": 0,
     "supplies": 2,
     "piety": 0,
-    "effects": "Reduce the cost of a Title by 2 Military or 2 Influence when this card is Retired with it",
-    "set": "A",
-    "points": 1,
-    "cost": {
-      "military": 2,
-      "influence": 0,
-      "supplies": 2,
-      "piety": 0
-    }
+    "effects": "",
+    "set": "A"
   },
   {
     "id": 94,
@@ -2087,15 +1436,8 @@
     "influence": 2,
     "supplies": 0,
     "piety": 0,
-    "effects": "+2 Supplies towards Recruiting Tacticians",
-    "set": "A",
-    "points": 1,
-    "cost": {
-      "military": 2,
-      "influence": 2,
-      "supplies": 0,
-      "piety": 0
-    }
+    "effects": "",
+    "set": "A"
   },
   {
     "id": 95,
@@ -2109,16 +1451,9 @@
     "military": 0,
     "influence": 3,
     "supplies": 0,
-    "piety": 1,
-    "effects": "Receives bonus resources equal to the lowest positive value of a Wu hero Below this card",
-    "set": "A",
-    "points": 1,
-    "cost": {
-      "military": 0,
-      "influence": 3,
-      "supplies": 0,
-      "piety": 1
-    }
+    "piety": 2,
+    "effects": "",
+    "set": "A"
   },
   {
     "id": 96,
@@ -2134,14 +1469,7 @@
     "supplies": 2,
     "piety": 1,
     "effects": "When used to buy any card, may look at the next two unrevealed events",
-    "set": "A",
-    "points": 1.25,
-    "cost": {
-      "military": 0,
-      "influence": 2,
-      "supplies": 2,
-      "piety": 1
-    }
+    "set": "A"
   },
   {
     "id": 97,
@@ -2156,14 +1484,7 @@
     "supplies": 0,
     "piety": 2,
     "effects": "",
-    "set": "A",
-    "points": 1.25,
-    "cost": {
-      "military": 0,
-      "influence": 3,
-      "supplies": 0,
-      "piety": 2
-    }
+    "set": "A"
   },
   {
     "id": 98,
@@ -2179,14 +1500,7 @@
     "supplies": 1,
     "piety": 1,
     "effects": "Nullifies all friendly negative resources in this kingdom",
-    "set": "A",
-    "points": 1.5,
-    "cost": {
-      "military": 3,
-      "influence": 1,
-      "supplies": 1,
-      "piety": 1
-    }
+    "set": "A"
   },
   {
     "id": 99,
@@ -2200,15 +1514,8 @@
     "influence": 1,
     "supplies": 2,
     "piety": 1,
-    "effects": "+1 Influence when friendly General in this kingdom",
-    "set": "A",
-    "points": 1,
-    "cost": {
-      "military": 0,
-      "influence": 1,
-      "supplies": 2,
-      "piety": 1
-    }
+    "effects": "+1 to any resource when purchasing",
+    "set": "A"
   },
   {
     "id": 100,
@@ -2223,14 +1530,6 @@
     "supplies": 2,
     "piety": 0,
     "effects": "",
-    "set": "A",
-    "points": 1.25,
-    "cost": {
-      "military": 3,
-      "influence": 0,
-      "supplies": 2,
-      "piety": 0
-    }
+    "set": "A"
   }
-
 ]
