@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Three Kingdoms: Monte Carlo Simulator</title>
+    <title>Three Kingdoms: Monte Carlo Simulator (Fixed)</title>
     <style>
         * {
             margin: 0;
@@ -310,7 +310,7 @@
     <div class="container">
         <header>
             <h1>⚔️ Three Kingdoms: Mandate of Heaven</h1>
-            <div class="subtitle">Monte Carlo Balance Simulator</div>
+            <div class="subtitle">Monte Carlo Balance Simulator (Fixed)</div>
             <div id="systemStatus" class="status loading">System Loading...</div>
         </header>
 
@@ -411,7 +411,8 @@
             totalScores: [],
             winsByPosition: {},
             emergencyUsage: [],
-            titleAcquisitions: {}
+            titleAcquisitions: {},
+            passCount: 0
         };
         let isRunning = false;
 
@@ -494,7 +495,8 @@
                 totalScores: [],
                 winsByPosition: {},
                 emergencyUsage: [],
-                titleAcquisitions: {}
+                titleAcquisitions: {},
+                passCount: 0
             };
 
             for (let i = 1; i <= playerCount; i++) {
@@ -523,6 +525,7 @@
             }
 
             log(`✅ Simulation complete! ${gameCount} games finished.`, 'success');
+            log(`📊 Pass rate: ${((simulationStats.passCount / (gameCount * playerCount * 8)) * 100).toFixed(1)}%`, 'info');
             isRunning = false;
             btnRunSim.disabled = false;
             btnRunSim.innerHTML = '▶️ Run Simulation';
@@ -531,7 +534,7 @@
 
         // Run a single game
         async function runSingleGame(playerCount) {
-            // Create players
+            // Create players - ONLY peasants and provincial units
             const players = [];
             for (let i = 1; i <= playerCount; i++) {
                 players.push(createPlayer(i));
@@ -541,15 +544,19 @@
             const shuffledEvents = [...gameData.events].sort(() => Math.random() - 0.5);
             const gameEvents = shuffledEvents.slice(0, 8);
 
-            // Create markets
-            let heroMarket = [...gameData.heroes].sort(() => Math.random() - 0.5).slice(0, 6);
+            // Create hero pool (exclude heroes already dealt)
+            let heroPool = [...gameData.heroes];
+            
+            // FIXED: Initial hero market with proper size
+            // Turn 1: 4 base + 2 bonus = 6 heroes
+            let heroMarket = heroPool.splice(0, playerCount === 2 ? 6 : (playerCount === 3 ? 8 : 8));
             let titleMarket = [...gameData.titles].sort(() => Math.random() - 0.5).slice(0, playerCount + 2);
 
             // Run 8 turns
             for (let turn = 1; turn <= 8; turn++) {
-                // Deploy phase (simplified - random deployment)
+                // Deploy phase - each player deploys up to 3 cards
                 for (const player of players) {
-                    deployRandomly(player);
+                    deployCards(player);
                 }
 
                 // Purchase phase
@@ -561,27 +568,43 @@
                         { turn, phase: 'purchase' }
                     );
 
+                    if (result.action === 'pass') {
+                        simulationStats.passCount++;
+                    }
+
+                    // Remove purchased items from market
                     if (result.success && result.action === 'hero') {
-                        // Remove purchased hero from market
-                        heroMarket = heroMarket.filter(h => h.id !== result.target.id);
+                        const heroName = result.details.hero;
+                        heroMarket = heroMarket.filter(h => h.name !== heroName);
                     } else if (result.success && result.action === 'title') {
-                        // Remove purchased title from market
-                        titleMarket = titleMarket.filter(t => t.id !== result.target.id);
+                        const titleName = result.details.title;
+                        titleMarket = titleMarket.filter(t => t.name !== titleName);
                     }
                 }
 
-                // Cleanup phase - refill markets
-                const remainingHeroes = gameData.heroes.filter(h => 
-                    !heroMarket.some(mh => mh.id === h.id) &&
-                    !players.some(p => [...p.hand, ...p.battlefield.wei, ...p.battlefield.wu, ...p.battlefield.shu].some(ph => ph.id === h.id))
-                );
-                heroMarket = [...heroMarket, ...remainingHeroes.sort(() => Math.random() - 0.5).slice(0, 4 - heroMarket.length)];
+                // FIXED: Cleanup phase - properly refill markets
+                // Discard bottom 2 heroes
+                heroMarket = heroMarket.slice(0, -2);
+                
+                // Refill hero market to proper size
+                const targetHeroCount = playerCount === 2 ? 4 : 6;
+                const neededHeroes = targetHeroCount - heroMarket.length;
+                if (neededHeroes > 0 && heroPool.length > 0) {
+                    const newHeroes = heroPool.splice(0, Math.min(neededHeroes, heroPool.length));
+                    heroMarket.push(...newHeroes);
+                }
 
-                const remainingTitles = gameData.titles.filter(t => 
-                    !titleMarket.some(mt => mt.id === t.id) &&
-                    !players.some(p => p.titles.some(pt => pt.id === t.id))
-                );
-                titleMarket = [...titleMarket, ...remainingTitles.sort(() => Math.random() - 0.5).slice(0, (playerCount + 2) - titleMarket.length)];
+                // Refill title market
+                const targetTitleCount = playerCount + 2;
+                const neededTitles = targetTitleCount - titleMarket.length;
+                if (neededTitles > 0) {
+                    const availableTitles = gameData.titles.filter(t => 
+                        !titleMarket.some(mt => mt.id === t.id) &&
+                        !players.some(p => p.titles.some(pt => pt.id === t.id))
+                    );
+                    const newTitles = availableTitles.sort(() => Math.random() - 0.5).slice(0, neededTitles);
+                    titleMarket.push(...newTitles);
+                }
             }
 
             // Calculate final scores
@@ -590,19 +613,22 @@
             return { players, finalScores, gameEvents };
         }
 
-        // Create a player
+        // FIXED: Create a player with ONLY peasants and provincial unit
         function createPlayer(id) {
-            // Give starting peasants
+            // 4 Peasants only
             const peasants = [
-                { id: 9001, name: 'Peasant (Military)', military: 2, influence: 0, supplies: 0, piety: 0, roles: [], allegiance: 'None', effects: '', set: 'Peasant' },
-                { id: 9002, name: 'Peasant (Influence)', military: 0, influence: 2, supplies: 0, piety: 0, roles: [], allegiance: 'None', effects: '', set: 'Peasant' },
-                { id: 9003, name: 'Peasant (Supplies)', military: 0, influence: 0, supplies: 2, piety: 0, roles: [], allegiance: 'None', effects: '', set: 'Peasant' },
-                { id: 9004, name: 'Peasant (Piety)', military: 0, influence: 0, supplies: 0, piety: 2, roles: [], allegiance: 'None', effects: '', set: 'Peasant' }
+                { id: 9001, name: 'Peasant (Military)', military: 2, influence: 0, supplies: 0, piety: 0, roles: [], allegiance: 'None', effects: '', set: 'Peasant', lore: '' },
+                { id: 9002, name: 'Peasant (Influence)', military: 0, influence: 2, supplies: 0, piety: 0, roles: [], allegiance: 'None', effects: '', set: 'Peasant', lore: '' },
+                { id: 9003, name: 'Peasant (Supplies)', military: 0, influence: 0, supplies: 2, piety: 0, roles: [], allegiance: 'None', effects: '', set: 'Peasant', lore: '' },
+                { id: 9004, name: 'Peasant (Piety)', military: 0, influence: 0, supplies: 0, piety: 2, roles: [], allegiance: 'None', effects: '', set: 'Peasant', lore: '' }
             ];
+
+            // 1 random provincial unit
+            const provincial = gameData.provincialUnits[Math.floor(Math.random() * gameData.provincialUnits.length)];
 
             return {
                 id,
-                hand: [...peasants],
+                hand: [...peasants, { ...provincial, id: 9000 + provincial.id }],
                 battlefield: { wei: [], wu: [], shu: [] },
                 retired: [],
                 titles: [],
@@ -611,22 +637,22 @@
             };
         }
 
-        // Deploy heroes randomly
-        function deployRandomly(player) {
+        // Deploy cards to battlefield
+        function deployCards(player) {
             const kingdoms = ['wei', 'wu', 'shu'];
-            const availableHeroes = player.hand.filter(h => h.id < 9000); // Not peasants
+            const deployableCards = player.hand;
             
-            // Deploy up to 3 heroes
-            const deployCount = Math.min(3, availableHeroes.length);
+            // Deploy up to 3 cards
+            const deployCount = Math.min(3, deployableCards.length);
             for (let i = 0; i < deployCount; i++) {
-                const hero = availableHeroes[i];
-                const kingdom = kingdoms[Math.floor(Math.random() * kingdoms.length)];
+                const card = deployableCards[i];
+                const kingdom = kingdoms[i % 3];
                 
                 // Remove from hand
-                player.hand = player.hand.filter(h => h.id !== hero.id);
+                player.hand = player.hand.filter(c => c.id !== card.id || c.name !== card.name);
                 
                 // Add to battlefield
-                player.battlefield[kingdom].push({ ...hero, kingdom });
+                player.battlefield[kingdom].push({ ...card, kingdom });
             }
         }
 
@@ -712,7 +738,8 @@
                 totalScores: [],
                 winsByPosition: {},
                 emergencyUsage: [],
-                titleAcquisitions: {}
+                titleAcquisitions: {},
+                passCount: 0
             };
             
             document.getElementById('gamesCompleted').textContent = '0';
