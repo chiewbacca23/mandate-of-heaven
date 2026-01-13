@@ -153,18 +153,24 @@ export class GameEngine {
     }
 
     endGame() {
+        console.log('=== ENDGAME CALLED ===');
+        
         // Calculate title scores
         this.gameState.players.forEach(player => {
+            console.log(`Scoring ${player.name}: ${player.titles.length} titles, ${player.emergencyUsed} emergency`);
             player.score = -player.emergencyUsed;
             
             player.titles.forEach(titleEntry => {
                 const { points } = player.calculateCollectionScore(titleEntry.title);
+                console.log(`  Title "${titleEntry.title.name}" scored ${points} points`);
                 player.score += points;
                 
                 const titleName = titleEntry.title.name;
                 this.gameState.stats.titleAcquisitions[titleName] = 
                     (this.gameState.stats.titleAcquisitions[titleName] || 0) + 1;
             });
+            
+            console.log(`  ${player.name} final score before bonuses: ${player.score}`);
         });
         
         // Resource majority bonuses
