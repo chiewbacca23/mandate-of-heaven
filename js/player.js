@@ -505,22 +505,93 @@ export class Player {
     calculateCollectionScore(title) {
         const allHeroes = this.getAllHeroes();
         let collectionSize = 0;
-        const setType = (title.setType || '').toLowerCase();
         
-        if (setType.includes('general')) {
-            collectionSize = allHeroes.filter(h => h.roles && h.roles.includes('General')).length;
+        // Parse the setScoring field (e.g., "Generals: 0/1/2/3" or "Shu heroes: 0/1/2/4/5")
+        const setScoring = title.setScoring || title.Set_Scoring || '';
+        const setType = setScoring.split(':')[0]?.trim().toLowerCase() || '';
+        
+        // Determine collection type
+        if (setType.includes('general') && !setType.includes('pair')) {
+            // Check if it's faction-specific
+            if (setType.includes('shu')) {
+                collectionSize = allHeroes.filter(h => h.allegiance === 'Shu' && h.roles && h.roles.includes('General')).length;
+            } else if (setType.includes('wei')) {
+                collectionSize = allHeroes.filter(h => h.allegiance === 'Wei' && h.roles && h.roles.includes('General')).length;
+            } else if (setType.includes('wu')) {
+                collectionSize = allHeroes.filter(h => h.allegiance === 'Wu' && h.roles && h.roles.includes('General')).length;
+            } else if (setType.includes('4+ military')) {
+                collectionSize = allHeroes.filter(h => h.roles && h.roles.includes('General') && (h.military || 0) >= 4).length;
+            } else {
+                collectionSize = allHeroes.filter(h => h.roles && h.roles.includes('General')).length;
+            }
+        } else if (setType.includes('advisor')) {
+            if (setType.includes('4+ influence')) {
+                collectionSize = allHeroes.filter(h => h.roles && h.roles.includes('Advisor') && (h.influence || 0) >= 4).length;
+            } else {
+                collectionSize = allHeroes.filter(h => h.roles && h.roles.includes('Advisor')).length;
+            }
+        } else if (setType.includes('tactician')) {
+            collectionSize = allHeroes.filter(h => h.roles && h.roles.includes('Tactician')).length;
+        } else if (setType.includes('administrator')) {
+            if (setType.includes('wei') || setType.includes('wu') || setType.includes('shu')) {
+                collectionSize = allHeroes.filter(h => 
+                    h.roles && h.roles.includes('Administrator') && 
+                    (h.allegiance === 'Wei' || h.allegiance === 'Wu' || h.allegiance === 'Shu')
+                ).length;
+            } else {
+                collectionSize = allHeroes.filter(h => h.roles && h.roles.includes('Administrator')).length;
+            }
         } else if (setType.includes('shu')) {
             collectionSize = allHeroes.filter(h => h.allegiance === 'Shu').length;
         } else if (setType.includes('wei')) {
             collectionSize = allHeroes.filter(h => h.allegiance === 'Wei').length;
         } else if (setType.includes('wu')) {
             collectionSize = allHeroes.filter(h => h.allegiance === 'Wu').length;
+        } else if (setType.includes('han')) {
+            collectionSize = allHeroes.filter(h => h.allegiance === 'Han').length;
+        } else if (setType.includes('coalition')) {
+            collectionSize = allHeroes.filter(h => h.allegiance === 'Coalition').length;
+        } else if (setType.includes('rebels')) {
+            collectionSize = allHeroes.filter(h => h.allegiance === 'Rebels').length;
+        } else if (setType.includes('dong zhuo')) {
+            collectionSize = allHeroes.filter(h => h.allegiance === 'Dong Zhuo').length;
+        } else if (setType.includes('pair')) {
+            // Handle pair-based scoring (e.g., "Pairs of Generals and Advisors")
+            const generals = allHeroes.filter(h => h.roles && h.roles.includes('General')).length;
+            const advisors = allHeroes.filter(h => h.roles && h.roles.includes('Advisor')).length;
+            const tacticians = allHeroes.filter(h => h.roles && h.roles.includes('Tactician')).length;
+            const administrators = allHeroes.filter(h => h.roles && h.roles.includes('Administrator')).length;
+            
+            if (setType.includes('general') && setType.includes('advisor')) {
+                collectionSize = Math.min(generals, advisors);
+            } else if (setType.includes('tactician') && setType.includes('administrator')) {
+                collectionSize = Math.min(tacticians, administrators);
+            } else if (setType.includes('tactician') && setType.includes('general')) {
+                collectionSize = Math.min(tacticians, generals);
+            }
+        } else if (setType.includes('unique role')) {
+            // Count unique roles
+            const rolesSet = new Set();
+            allHeroes.forEach(h => {
+                if (h.roles) h.roles.forEach(r => rolesSet.add(r));
+            });
+            collectionSize = rolesSet.size;
+        } else if (setType.includes('unique allegiance')) {
+            // Count unique allegiances
+            collectionSize = new Set(allHeroes.map(h => h.allegiance)).size;
         } else {
-            collectionSize = Math.min(allHeroes.length, (title.points || [0]).length - 1);
+            // Default: count all heroes
+            collectionSize = allHeroes.length;
         }
         
-        const points = title.points || [0];
+        // Parse points array from setScoring (e.g., "Generals: 0/1/2/3" → [0,1,2,3])
+        const pointsPart = setScoring.split(':')[1]?.trim() || '';
+        const pointsArray = pointsPart.split('/').map(p => parseInt(p.trim())).filter(p => !isNaN(p));
+        
+        // Fallback to title.points if parsing failed
+        const points = pointsArray.length > 0 ? pointsArray : (title.points || [0]);
+        
         const pointIndex = Math.min(collectionSize, points.length - 1);
-        return { collectionSize, points: Array.isArray(points) ? points[pointIndex] : points };
+        return { collectionSize, points: points[pointIndex] || 0 };
     }
 }
