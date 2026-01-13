@@ -89,6 +89,16 @@
             color: white;
         }
         
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
         select {
             padding: 10px;
             font-size: 1em;
@@ -200,6 +210,8 @@
                 <button id="loadDataBtn" class="btn-success">📁 Load Game Data</button>
                 <button id="runSimBtn" class="btn-primary" disabled>▶️ Run Simulation</button>
                 <button id="clearBtn" class="btn-danger">🗑️ Clear Results</button>
+                <button id="exportReportBtn" class="btn-info" disabled>📊 Export Report</button>
+                <button id="exportRawBtn" class="btn-secondary" disabled>📋 Export Raw Data</button>
                 
                 <select id="playerCount">
                     <option value="2">2 Players</option>
@@ -260,8 +272,10 @@
     <script type="module">
         import { dataLoader } from './js/config.js';
         import { GameEngine } from './js/game-engine.js';
+        import { StatsManager } from './js/stats-manager.js';
 
         let gameData = null;
+        let statsManager = new StatsManager();
         let stats = {
             games: 0,
             scores: [],
@@ -310,6 +324,11 @@
                 
                 const avgTitles = (stats.titles / stats.games).toFixed(1);
                 document.getElementById('avgTitles').textContent = avgTitles;
+                
+                const avgHeroes = (stats.games > 0) ? (gameEngineInstance.gameState.stats.totalHeroes / stats.games).toFixed(1) : '-';
+                if (document.getElementById('avgHeroes')) {
+                    document.getElementById('avgHeroes').textContent = avgHeroes;
+                }
             }
         }
 
@@ -322,9 +341,37 @@
                 titles: 0,
                 p1Wins: 0
             };
+            statsManager.reset();
             updateStats();
             updateProgress(0, 1);
+            document.getElementById('exportReportBtn').disabled = true;
+            document.getElementById('exportRawBtn').disabled = true;
             log('Results cleared', 'info');
+        }
+
+        function exportReport() {
+            const report = statsManager.generateReport();
+            downloadJSON(report, 'three-kingdoms-report.json');
+            log('📊 Report exported successfully', 'success');
+        }
+
+        function exportRawData() {
+            const rawData = JSON.parse(statsManager.exportRawData());
+            downloadJSON(rawData, 'three-kingdoms-raw-data.json');
+            log('📋 Raw data exported successfully', 'success');
+        }
+
+        function downloadJSON(data, filename) {
+            const jsonStr = JSON.stringify(data, null, 2);
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
         }
 
         async function loadGameData() {
@@ -360,7 +407,7 @@
                 try {
                     const game = new GameEngine(gameData, (msg) => {
                         // Silent logging during bulk simulation
-                    });
+                    }, statsManager);
                     
                     await game.runFullGame();
                     
@@ -393,14 +440,21 @@
             updateProgress(simSize, simSize);
             updateStats();
             
+            // Enable export buttons
+            document.getElementById('exportReportBtn').disabled = false;
+            document.getElementById('exportRawBtn').disabled = false;
+            
             log(`✅ Simulation complete! ${simSize} games in ${duration}s (${gamesPerSec} games/sec)`, 'success');
             log(`📊 Pass rate: ${((stats.passes / (stats.games * 8)) * 100).toFixed(1)}%`, 'info');
+            log(`📊 Export buttons enabled - click to download statistics`, 'info');
         }
 
         // Event listeners
         document.getElementById('loadDataBtn').addEventListener('click', loadGameData);
         document.getElementById('runSimBtn').addEventListener('click', runSimulation);
         document.getElementById('clearBtn').addEventListener('click', clearResults);
+        document.getElementById('exportReportBtn').addEventListener('click', exportReport);
+        document.getElementById('exportRawBtn').addEventListener('click', exportRawData);
 
         // Initialize
         log('🎮 Three Kingdoms Simulator loaded', 'important');
