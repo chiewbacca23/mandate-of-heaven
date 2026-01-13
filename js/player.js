@@ -65,6 +65,103 @@ export class Player {
         return GAME_CONFIG.RESOURCES.every(res => resources[res] >= (cost[res] || 0));
     }
 
+    // NEW: Find a valid set of cards that can be used for a purchase
+    // Returns array of cards that balance negatives and meet cost requirements
+    findUsableCardsForPurchase(cost, tempBonus = {}) {
+        const allBattlefieldCards = [
+            ...this.battlefield.wei,
+            ...this.battlefield.wu,
+            ...this.battlefield.shu
+        ];
+        
+        if (allBattlefieldCards.length === 0) return null;
+        
+        // Try to find a combination that:
+        // 1. Balances all negatives (each resource >= 0)
+        // 2. Meets the cost requirements
+        
+        // Strategy: Greedily select cards to balance negatives first, then meet cost
+        const selected = [];
+        const totals = { military: 0, influence: 0, supplies: 0, piety: 0 };
+        
+        // Add temp bonus
+        GAME_CONFIG.RESOURCES.forEach(res => {
+            totals[res] += tempBonus[res] || 0;
+        });
+        
+        // Sort cards: positive contributors first, then by total value
+        const sortedCards = [...allBattlefieldCards].sort((a, b) => {
+            const aNegs = GAME_CONFIG.RESOURCES.filter(res => (a[res] || 0) < 0).length;
+            const bNegs = GAME_CONFIG.RESOURCES.filter(res => (b[res] || 0) < 0).length;
+            if (aNegs !== bNegs) return aNegs - bNegs; // Fewer negatives first
+            
+            const aTotal = GAME_CONFIG.RESOURCES.reduce((sum, res) => sum + Math.max(0, a[res] || 0), 0);
+            const bTotal = GAME_CONFIG.RESOURCES.reduce((sum, res) => sum + Math.max(0, b[res] || 0), 0);
+            return bTotal - aTotal; // Higher positive total first
+        });
+        
+        // Greedily add cards until we meet requirements
+        for (const card of sortedCards) {
+            // Calculate what this card would contribute
+            const newTotals = { ...totals };
+            GAME_CONFIG.RESOURCES.forEach(res => {
+                newTotals[res] += card[res] || 0;
+            });
+            
+            // Check if adding this card keeps us non-negative
+            const staysPositive = GAME_CONFIG.RESOURCES.every(res => newTotals[res] >= 0);
+            
+            if (staysPositive) {
+                selected.push(card);
+                GAME_CONFIG.RESOURCES.forEach(res => {
+                    totals[res] = newTotals[res];
+                });
+                
+                // Check if we now meet cost requirements
+                const meetsCost = GAME_CONFIG.RESOURCES.every(res => totals[res] >= (cost[res] || 0));
+                if (meetsCost) {
+                    return selected; // Success!
+                }
+            }
+        }
+        
+        // Couldn't find a valid combination
+        return null;
+    }
+
+    // Calculate resources from a specific set of cards
+    calculateResourcesFromCards(cards, tempBonus = {}) {
+        const resources = { military: 0, influence: 0, supplies: 0, piety: 0 };
+        
+        cards.forEach(card => {
+            GAME_CONFIG.RESOURCES.forEach(res => {
+                resources[res] += card[res] || 0;
+            });
+        });
+        
+        // Add column bonuses based on which kingdoms these cards are from
+        const kingdoms = { wei: 0, wu: 0, shu: 0 };
+        cards.forEach(card => {
+            GAME_CONFIG.KINGDOMS.forEach(k => {
+                if (this.battlefield[k].includes(card)) {
+                    kingdoms[k]++;
+                }
+            });
+        });
+        
+        GAME_CONFIG.KINGDOMS.forEach(k => {
+            if (kingdoms[k] >= 2) {
+                resources[KINGDOM_BONUSES[k]] += 1;
+            }
+        });
+        
+        GAME_CONFIG.RESOURCES.forEach(res => {
+            resources[res] += tempBonus[res] || 0;
+        });
+        
+        return resources;
+    }
+
     findEligibleHero(title) {
         const allAvailable = [
             ...this.hand,
@@ -198,12 +295,24 @@ export class Player {
         
         const preferTitles = turnNumber > 3 || this.titles.length < 2;
         
+        // DEBUG: Check if negatives are causing problems
+        const rawResources = this.calculateBattlefieldResources();
+        const hasNegatives = GAME_CONFIG.RESOURCES.some(res => rawResources[res] < 0);
+        if (hasNegatives) {
+            this.gameEngine.log(`${this.name} has negative battlefield resources - needs to balance`);
+        }
+        
         while (!purchased && emergencyUsed < GAME_CONFIG.MAX_EMERGENCY_USES) {
-            const affordableHeroes = this.gameEngine.gameState.heroMarket.filter(h => 
-                this.canAfford(h.cost || {}, tempBonus)
-            );
+            // Find what we can actually afford using smart card selection
+            const affordableHeroes = this.gameEngine.gameState.heroMarket.filter(h => {
+                const usableCards = this.findUsableCardsForPurchase(h.cost || {}, tempBonus);
+                return usableCards !== null;
+            });
+            
             const affordableTitles = this.gameEngine.gameState.titleMarket.filter(t => {
-                return this.canAfford(t.cost || {}, tempBonus) && this.findEligibleHero(t) !== null;
+                if (!this.findEligibleHero(t)) return false;
+                const usableCards = this.findUsableCardsForPurchase(t.cost || {}, tempBonus);
+                return usableCards !== null;
             });
             
             let chosenPurchase = null;
@@ -233,40 +342,70 @@ export class Player {
                 const success = this.executePurchase(chosenPurchase, emergencyUsed);
                 if (success) purchased = true;
             } else {
+                // Nothing affordable - consider emergency resources
                 if (emergencyUsed >= 2) {
-                    this.gameEngine.log(`${this.name} passes`);
+                    this.gameEngine.log(`${this.name} passes (no options)`);
                     this.gameEngine.gameState.stats.totalPasses++;
                     break;
                 }
                 
-                const allItems = [...this.gameEngine.gameState.heroMarket, ...this.gameEngine.gameState.titleMarket];
                 const currentResources = this.calculateBattlefieldResources(tempBonus);
+                
+                // Find high-value titles we're close to affording
+                const worthyTitles = this.gameEngine.gameState.titleMarket.filter(title => {
+                    if (!this.findEligibleHero(title)) return false;
+                    const { points } = this.calculateCollectionScore(title);
+                    return points >= 3; // Only consider titles worth 3+ points
+                });
                 
                 let bestTarget = null;
                 let minDeficit = Infinity;
+                let deficitResources = {};
                 
-                allItems.forEach(item => {
-                    if (item.points && !this.findEligibleHero(item)) return;
+                worthyTitles.forEach(title => {
                     let totalDeficit = 0;
+                    let neededResources = {};
+                    
                     GAME_CONFIG.RESOURCES.forEach(res => {
-                        const deficit = Math.max(0, (item.cost?.[res] || 0) - currentResources[res]);
-                        totalDeficit += deficit;
+                        const deficit = Math.max(0, (title.cost?.[res] || 0) - currentResources[res]);
+                        if (deficit > 0) {
+                            neededResources[res] = deficit;
+                            totalDeficit += deficit;
+                        }
                     });
-                    if (totalDeficit > 0 && totalDeficit <= 4 && totalDeficit < minDeficit) {
+                    
+                    // Only consider if we're 1-2 resources short
+                    if (totalDeficit > 0 && totalDeficit <= 2 && totalDeficit < minDeficit) {
                         minDeficit = totalDeficit;
-                        bestTarget = item;
+                        bestTarget = title;
+                        deficitResources = neededResources;
                     }
                 });
                 
+                // Use emergency ONLY for high-value titles we're close to affording
                 if (bestTarget && minDeficit <= 2) {
-                    tempBonus.military += 1;
-                    tempBonus.influence += 1;
+                    // Add emergency resources intelligently based on what we need
+                    const neededRes = Object.keys(deficitResources);
+                    if (neededRes.length > 0) {
+                        // Add to the two most needed resources
+                        const sorted = neededRes.sort((a, b) => deficitResources[b] - deficitResources[a]);
+                        tempBonus[sorted[0]] = (tempBonus[sorted[0]] || 0) + 1;
+                        if (sorted[1]) {
+                            tempBonus[sorted[1]] = (tempBonus[sorted[1]] || 0) + 1;
+                        } else {
+                            tempBonus[sorted[0]] = (tempBonus[sorted[0]] || 0) + 1;
+                        }
+                    }
+                    
                     emergencyUsed++;
                     this.emergencyUsed++;
                     this.score -= 1;
                     this.gameEngine.gameState.stats.totalEmergency++;
+                    
+                    // Loop continues to try purchase with emergency bonus
                 } else {
-                    this.gameEngine.log(`${this.name} passes`);
+                    // No worthy targets for emergency - just pass
+                    this.gameEngine.log(`${this.name} passes (nothing worth emergency)`);
                     this.gameEngine.gameState.stats.totalPasses++;
                     break;
                 }
