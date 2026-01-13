@@ -22,326 +22,282 @@ export class CollectionScorer {
         // Count how many heroes match the set requirement
         const collectionSize = this.countMatchingHeroes(allHeroes, title);
         
-        // Get base points from the points array
-        const basePoints = this.getBasePoints(title, collectionSize);
+        // Get the points array (with defensive check)
+        const pointsArray = title.pointsArray || title.setScoring;
         
-        // Calculate legend bonus if applicable
-        const legendBonus = this.calculateLegendBonus(allHeroes, title);
+        // DEFENSIVE CHECK: If no points array exists, return 0 points
+        if (!pointsArray || !Array.isArray(pointsArray)) {
+            console.warn(`Title "${title.name}" has no valid points array, defaulting to 0 points`);
+            return {
+                basePoints: 0,
+                legendBonus: 0,
+                totalPoints: 0,
+                collectionSize: 0
+            };
+        }
         
-        const totalPoints = basePoints + legendBonus;
+        // Get base points from the array
+        const index = Math.min(collectionSize, pointsArray.length - 1);
+        const basePoints = pointsArray[index] || 0;
+        
+        // Calculate legendary bonus if applicable
+        let legendBonus = 0;
+        if (title.legendaryHeroes && Array.isArray(title.legendaryHeroes) && title.legendaryHeroes.length > 0) {
+            legendBonus = this.countLegendaryHeroes(allHeroes, title.legendaryHeroes);
+        }
         
         return {
             basePoints,
             legendBonus,
-            totalPoints,
-            collectionSize,
-            matchingHeroes: this.getMatchingHeroes(allHeroes, title)
+            totalPoints: basePoints + legendBonus,
+            collectionSize
         };
     }
 
     /**
-     * Get all heroes owned by player
-     */
-    getAllPlayerHeroes(player) {
-        return [
-            ...player.hand,
-            ...player.battlefield.wei,
-            ...player.battlefield.wu,
-            ...player.battlefield.shu,
-            ...player.retired
-        ];
-    }
-
-    /**
-     * Count heroes that match the title's set requirement
-     * @param {Array} heroes - All heroes owned by player
+     * Count how many of player's heroes match the title's set requirement
+     * @param {Array} allHeroes - All heroes owned by player
      * @param {Object} title - Title with set requirements
      * @returns {number} Count of matching heroes
      */
-    countMatchingHeroes(heroes, title) {
-        const setType = title.set_type;
-        const setDesc = title.set_description;
+    countMatchingHeroes(allHeroes, title) {
+        // Parse the set requirement
+        const setReq = this.parseSetRequirement(title.setRequirement);
         
-        return this.getMatchingHeroes(heroes, title).length;
-    }
-
-    /**
-     * Get list of heroes that match the title's set requirement
-     */
-    getMatchingHeroes(heroes, title) {
-        const setType = title.set_type;
-        const setDesc = title.set_description;
-        
-        switch(setType) {
-            case 'allegiance':
-                return this.matchByAllegiance(heroes, setDesc);
-            case 'role':
-                return this.matchByRole(heroes, setDesc);
-            case 'role_allegiance':
-                return this.matchByRoleAndAllegiance(heroes, setDesc);
-            case 'role_resource':
-                return this.matchByRoleAndResource(heroes, setDesc);
-            case 'multi_allegiance':
-                return this.matchByMultiAllegiance(heroes, setDesc);
-            case 'multi_role':
-                return this.matchByMultiRole(heroes, setDesc);
-            case 'resource':
-                return this.matchByResource(heroes, setDesc);
-            case 'dual_role':
-                return this.matchByDualRole(heroes, setDesc);
-            case 'unique_roles':
-                return this.matchByUniqueRoles(heroes, setDesc);
-            case 'unique_allegiances':
-                return this.matchByUniqueAllegiances(heroes, setDesc);
-            case 'role_pairs':
-            case 'pair':
-                return this.matchByRolePairs(heroes, setDesc);
-            case 'specific_allegiance_spread':
-                return this.matchByAllegianceSpread(heroes, setDesc);
-            default:
-                console.warn(`Unknown set type: ${setType}`);
-                return [];
+        if (!setReq) {
+            console.warn(`Could not parse set requirement for title: ${title.name}`);
+            return 0;
         }
+        
+        // Count heroes that match
+        return allHeroes.filter(hero => this.heroMatchesSetRequirement(hero, setReq)).length;
     }
 
     /**
-     * Match heroes by allegiance
+     * Parse a set requirement string into structured data
+     * @param {string} requirement - e.g., "Generals from Wei"
+     * @returns {Object|null} Structured requirement
      */
-    matchByAllegiance(heroes, setDesc) {
-        const allegiances = ['Shu', 'Wei', 'Wu', 'Rebels', 'Coalition', 'Han', 'Dong Zhuo'];
-        const descLower = setDesc.toLowerCase();
+    parseSetRequirement(requirement) {
+        if (!requirement) return null;
         
-        for (const allegiance of allegiances) {
-            if (descLower.includes(allegiance.toLowerCase())) {
-                return heroes.filter(h => h.allegiance === allegiance);
-            }
+        const req = requirement.toLowerCase();
+        
+        // Check for role requirements
+        const roles = [];
+        if (req.includes('general')) roles.push('general');
+        if (req.includes('advisor')) roles.push('advisor');
+        if (req.includes('tactician')) roles.push('tactician');
+        if (req.includes('administrator')) roles.push('administrator');
+        
+        // Check for allegiance requirements
+        const allegiances = [];
+        if (req.includes('wei')) allegiances.push('wei');
+        if (req.includes('wu')) allegiances.push('wu');
+        if (req.includes('shu')) allegiances.push('shu');
+        if (req.includes('han')) allegiances.push('han');
+        if (req.includes('rebels')) allegiances.push('rebels');
+        if (req.includes('coalition')) allegiances.push('coalition');
+        if (req.includes('dong zhuo')) allegiances.push('dong zhuo');
+        
+        // Check for resource requirements
+        let resourceThreshold = null;
+        const resourceMatch = req.match(/(\d+)\+?\s*(military|influence|supplies|piety)/);
+        if (resourceMatch) {
+            resourceThreshold = {
+                value: parseInt(resourceMatch[1]),
+                type: resourceMatch[2]
+            };
         }
-        return [];
+        
+        // Check for dual-role requirement
+        const dualRole = req.includes('dual-role');
+        
+        // Check for female requirement
+        const female = req.includes('female');
+        
+        return {
+            roles,
+            allegiances,
+            resourceThreshold,
+            dualRole,
+            female
+        };
     }
 
     /**
-     * Match heroes by role
+     * Check if a hero matches a set requirement
+     * @param {Object} hero - Hero object
+     * @param {Object} setReq - Parsed set requirement
+     * @returns {boolean} True if hero matches
      */
-    matchByRole(heroes, setDesc) {
-        const roles = ['General', 'Advisor', 'Tactician', 'Administrator'];
-        const descLower = setDesc.toLowerCase();
-        
-        for (const role of roles) {
-            if (descLower.includes(role.toLowerCase())) {
-                return heroes.filter(h => h.roles && Array.isArray(h.roles) && h.roles.includes(role));
-            }
+    heroMatchesSetRequirement(hero, setReq) {
+        // Check role requirement
+        if (setReq.roles.length > 0) {
+            const heroRoles = [];
+            if (hero.role) heroRoles.push(hero.role.toLowerCase());
+            if (hero.role2) heroRoles.push(hero.role2.toLowerCase());
+            
+            const matchesRole = setReq.roles.some(reqRole => heroRoles.includes(reqRole));
+            if (!matchesRole) return false;
         }
-        return [];
+        
+        // Check allegiance requirement
+        if (setReq.allegiances.length > 0) {
+            const heroAllegiance = (hero.allegiance || '').toLowerCase();
+            const matchesAllegiance = setReq.allegiances.includes(heroAllegiance);
+            if (!matchesAllegiance) return false;
+        }
+        
+        // Check resource threshold
+        if (setReq.resourceThreshold) {
+            const { value, type } = setReq.resourceThreshold;
+            const heroValue = hero[type] || 0;
+            if (heroValue < value) return false;
+        }
+        
+        // Check dual-role requirement
+        if (setReq.dualRole && !hero.role2) {
+            return false;
+        }
+        
+        // Check female requirement
+        if (setReq.female && !hero.female) {
+            return false;
+        }
+        
+        return true;
     }
 
     /**
-     * Match heroes by role AND allegiance
+     * Count how many legendary heroes the player owns
+     * @param {Array} allHeroes - All heroes owned by player
+     * @param {Array} legendNames - Array of legendary hero names
+     * @returns {number} Count of owned legendaries
      */
-    matchByRoleAndAllegiance(heroes, setDesc) {
-        const roleMatch = setDesc.match(/(General|Advisor|Tactician|Administrator)s?/i);
-        const allegianceMatch = setDesc.match(/(Shu|Wei|Wu|Rebels|Coalition|Han|Dong Zhuo)/i);
+    countLegendaryHeroes(allHeroes, legendNames) {
+        if (!legendNames || !Array.isArray(legendNames)) return 0;
         
-        if (!roleMatch || !allegianceMatch) return [];
-        
-        const role = roleMatch[1];
-        const allegiance = allegianceMatch[1];
-        
-        return heroes.filter(h => 
-            h.roles && Array.isArray(h.roles) && h.roles.includes(role) && 
-            h.allegiance && h.allegiance === allegiance
-        );
-    }
-
-    /**
-     * Match heroes by role AND resource threshold
-     */
-    matchByRoleAndResource(heroes, setDesc) {
-        const roleMatch = setDesc.match(/(General|Advisor|Tactician|Administrator)s?/i);
-        const resourceMatch = setDesc.match(/(\d+)\s*\+?\s*(military|influence|supplies|piety)/i);
-        
-        if (!roleMatch || !resourceMatch) return [];
-        
-        const role = roleMatch[1];
-        const threshold = parseInt(resourceMatch[1]);
-        const resourceType = resourceMatch[2].toLowerCase();
-        
-        return heroes.filter(h => 
-            h.roles && Array.isArray(h.roles) && h.roles.includes(role) && 
-            h[resourceType] !== undefined && h[resourceType] >= threshold
-        );
-    }
-
-    /**
-     * Match heroes by multiple allegiances (OR)
-     */
-    matchByMultiAllegiance(heroes, setDesc) {
-        const allegiances = ['Shu', 'Wei', 'Wu', 'Rebels', 'Coalition', 'Han', 'Dong Zhuo'];
-        const descLower = setDesc.toLowerCase();
-        const matchingAllegiances = allegiances.filter(a => descLower.includes(a.toLowerCase()));
-        
-        return heroes.filter(h => matchingAllegiances.includes(h.allegiance));
-    }
-
-    /**
-     * Match heroes by multiple roles (OR)
-     */
-    matchByMultiRole(heroes, setDesc) {
-        const roles = ['General', 'Advisor', 'Tactician', 'Administrator'];
-        const descLower = setDesc.toLowerCase();
-        const matchingRoles = roles.filter(r => descLower.includes(r.toLowerCase()));
-        
-        return heroes.filter(h => 
-            h.roles && Array.isArray(h.roles) && h.roles.some(role => matchingRoles.includes(role))
-        );
-    }
-
-    /**
-     * Match heroes by resource threshold
-     */
-    matchByResource(heroes, setDesc) {
-        const resourceMatch = setDesc.match(/(\d+)\s*\+?\s*(military|influence|supplies|piety)?/i);
-        if (!resourceMatch) return [];
-        
-        const threshold = parseInt(resourceMatch[1]);
-        const specificResource = resourceMatch[2]?.toLowerCase();
-        
-        if (specificResource) {
-            return heroes.filter(h => h[specificResource] >= threshold);
-        } else {
-            // Any resource at threshold
-            return heroes.filter(h => 
-                h.military >= threshold || 
-                h.influence >= threshold || 
-                h.supplies >= threshold || 
-                h.piety >= threshold
+        return legendNames.filter(legendName => {
+            const normalizedName = legendName.toLowerCase();
+            return allHeroes.some(hero => 
+                hero.name.toLowerCase() === normalizedName
             );
-        }
+        }).length;
     }
 
     /**
-     * Match dual-role heroes (has 2+ roles)
+     * Get all heroes owned by player (hand + battlefield + retired)
+     * @param {Object} player - Player object
+     * @returns {Array} All hero objects
      */
-    matchByDualRole(heroes, setDesc) {
-        return heroes.filter(h => h.roles && Array.isArray(h.roles) && h.roles.length >= 2);
-    }
-
-    /**
-     * Match by unique roles (count distinct roles)
-     */
-    matchByUniqueRoles(heroes, setDesc) {
-        // This counts the NUMBER of unique roles, not heroes
-        const uniqueRoles = new Set();
-        heroes.forEach(h => h.roles.forEach(r => uniqueRoles.add(r)));
+    getAllPlayerHeroes(player) {
+        const heroes = [];
         
-        // Return heroes for counting purposes
-        // The points array indices should correspond to number of unique roles
-        return heroes; // Return all heroes, collection size handled separately
-    }
-
-    /**
-     * Match by unique allegiances
-     */
-    matchByUniqueAllegiances(heroes, setDesc) {
-        // Return heroes for counting purposes
-        // The points array indices correspond to number of unique allegiances
+        // Add heroes from hand
+        if (player.hand && Array.isArray(player.hand)) {
+            heroes.push(...player.hand);
+        }
+        
+        // Add heroes from battlefield
+        if (player.battlefield) {
+            if (player.battlefield.wei && Array.isArray(player.battlefield.wei)) {
+                heroes.push(...player.battlefield.wei);
+            }
+            if (player.battlefield.wu && Array.isArray(player.battlefield.wu)) {
+                heroes.push(...player.battlefield.wu);
+            }
+            if (player.battlefield.shu && Array.isArray(player.battlefield.shu)) {
+                heroes.push(...player.battlefield.shu);
+            }
+        }
+        
+        // Add retired heroes
+        if (player.retired && Array.isArray(player.retired)) {
+            heroes.push(...player.retired);
+        }
+        
         return heroes;
     }
 
     /**
-     * Match role pairs (e.g., Generals AND Advisors)
+     * Calculate final game score including title points and bonuses
+     * @param {Object} player - Player object
+     * @param {Array} events - All events from the game
+     * @returns {Object} Score breakdown
      */
-    matchByRolePairs(heroes, setDesc) {
-        const roles = ['General', 'Advisor', 'Tactician', 'Administrator'];
-        const descLower = setDesc.toLowerCase();
-        const matchingRoles = roles.filter(r => descLower.includes(r.toLowerCase()));
+    calculateFinalScore(player, events) {
+        // Sum up all title points
+        const titlePoints = player.titles.reduce((sum, titleData) => {
+            return sum + (titleData.points || 0);
+        }, 0);
         
-        // Count pairs - need at least one of each role mentioned
-        const roleCounts = {};
-        matchingRoles.forEach(role => {
-            roleCounts[role] = heroes.filter(h => h.roles && Array.isArray(h.roles) && h.roles.includes(role)).length;
+        // Calculate resource majority bonuses
+        const majorityBonus = this.calculateMajorityBonus(player, events);
+        
+        // Apply emergency resource penalty
+        const emergencyPenalty = player.emergencyUsed || 0;
+        
+        // Calculate final score
+        const finalScore = titlePoints + majorityBonus - emergencyPenalty;
+        
+        return {
+            titlePoints,
+            majorityBonus,
+            emergencyPenalty,
+            finalScore
+        };
+    }
+
+    /**
+     * Calculate bonus points from resource majorities
+     * @param {Object} player - Player object
+     * @param {Array} events - All events from the game
+     * @returns {number} Bonus points
+     */
+    calculateMajorityBonus(player, events) {
+        if (!events || events.length === 0) return 0;
+        
+        // Count frequency of each resource type in events
+        const resourceFrequency = {
+            military: 0,
+            influence: 0,
+            supplies: 0,
+            piety: 0
+        };
+        
+        events.forEach(event => {
+            const leadingResource = (event.leadingResource || '').toLowerCase();
+            if (resourceFrequency.hasOwnProperty(leadingResource)) {
+                resourceFrequency[leadingResource]++;
+            }
         });
         
-        // Return all matching heroes for now
-        return heroes.filter(h => 
-            h.roles && Array.isArray(h.roles) && h.roles.some(role => matchingRoles.includes(role))
-        );
-    }
-
-    /**
-     * Match by specific allegiance spread (e.g., one from Wei, Wu, and Shu)
-     */
-    matchByAllegianceSpread(heroes, setDesc) {
-        // For titles like "General of the Front" that require one from each of Wei, Wu, Shu
-        const hasWei = heroes.some(h => h.allegiance === 'Wei');
-        const hasWu = heroes.some(h => h.allegiance === 'Wu');
-        const hasShu = heroes.some(h => h.allegiance === 'Shu');
+        // Get player's total resources across all heroes
+        const allHeroes = this.getAllPlayerHeroes(player);
+        const playerTotals = {
+            military: 0,
+            influence: 0,
+            supplies: 0,
+            piety: 0
+        };
         
-        // Return count based on how many allegiances are satisfied
-        const count = [hasWei, hasWu, hasShu].filter(Boolean).length;
+        allHeroes.forEach(hero => {
+            playerTotals.military += hero.military || 0;
+            playerTotals.influence += hero.influence || 0;
+            playerTotals.supplies += hero.supplies || 0;
+            playerTotals.piety += hero.piety || 0;
+        });
         
-        // Return heroes from specified allegiances
-        return heroes.filter(h => ['Wei', 'Wu', 'Shu'].includes(h.allegiance));
-    }
-
-    /**
-     * Get base points from points array based on collection size
-     */
-    getBasePoints(title, collectionSize) {
-        const pointsArray = title.points_array;
+        // For now, award bonus equal to event frequency
+        // (In multi-player, this would compare against other players)
+        let bonus = 0;
+        Object.keys(resourceFrequency).forEach(resource => {
+            if (playerTotals[resource] > 0) {
+                bonus += resourceFrequency[resource];
+            }
+        });
         
-        // Points array is indexed by collection size
-        // e.g., [0,1,3,5,7] means 0 heroes = 0 pts, 1 hero = 1 pt, 2 heroes = 3 pts, etc.
-        
-        if (collectionSize >= pointsArray.length) {
-            // If collection exceeds array, use the last value
-            return pointsArray[pointsArray.length - 1];
-        }
-        
-        return pointsArray[collectionSize] || 0;
-    }
-
-    /**
-     * Calculate legend bonus for legendary titles
-     * @param {Array} heroes - All heroes owned by player
-     * @param {Object} title - Title object
-     * @returns {number} Legend bonus points
-     */
-    calculateLegendBonus(heroes, title) {
-        if (!title.is_legendary || !title.named_legends || title.named_legends.length === 0) {
-            return 0;
-        }
-
-        // Count how many named legends the player owns
-        const legendCount = heroes.filter(h => 
-            title.named_legends.some(legendName => 
-                h.name.toLowerCase() === legendName.toLowerCase()
-            )
-        ).length;
-
-        return legendCount * title.legend_bonus;
-    }
-
-    /**
-     * Calculate special collection counts (for unique roles/allegiances)
-     */
-    countUniqueRoles(heroes) {
-        const uniqueRoles = new Set();
-        heroes.forEach(h => h.roles.forEach(r => uniqueRoles.add(r)));
-        return uniqueRoles.size;
-    }
-
-    countUniqueAllegiances(heroes) {
-        const uniqueAllegiances = new Set(heroes.map(h => h.allegiance));
-        return uniqueAllegiances.size;
-    }
-
-    /**
-     * Count role pairs (minimum of each paired role)
-     */
-    countRolePairs(heroes, roles) {
-        const counts = roles.map(role => 
-            heroes.filter(h => h.roles.includes(role)).length
-        );
-        return Math.min(...counts);
+        return bonus;
     }
 }
