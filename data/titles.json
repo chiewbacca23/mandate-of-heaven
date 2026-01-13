@@ -12,11 +12,11 @@
     },
     "total_cost": 10,
     "points_array": [
+      0,
       1,
-      2,
       3,
       5,
-      6
+      7
     ],
     "set_type": "allegiance",
     "set_description": "Han heroes",
@@ -37,10 +37,10 @@
     },
     "total_cost": 8,
     "points_array": [
+      0,
       1,
       2,
-      3,
-      4
+      3
     ],
     "set_type": "role",
     "set_description": "Generals",
@@ -61,11 +61,11 @@
     },
     "total_cost": 8,
     "points_array": [
+      0,
       1,
       2,
-      3,
-      5,
-      6
+      4,
+      5
     ],
     "set_type": "role_allegiance",
     "set_description": "Generals from Wei, Wu or Shu",
@@ -86,11 +86,11 @@
     },
     "total_cost": 8,
     "points_array": [
+      0,
       1,
       2,
-      3,
-      5,
-      6
+      4,
+      5
     ],
     "set_type": "role",
     "set_description": "Administrators",
@@ -111,10 +111,10 @@
     },
     "total_cost": 9,
     "points_array": [
+      0,
       1,
       2,
-      3,
-      5
+      4
     ],
     "set_type": "allegiance_multi",
     "set_description": "Han or Dong Zhuo heroes",
@@ -135,9 +135,9 @@
     },
     "total_cost": 9,
     "points_array": [
-      1,
+      0,
       2,
-      5,
+      4,
       6,
       8
     ],
@@ -160,11 +160,11 @@
     },
     "total_cost": 8,
     "points_array": [
+      0,
       1,
       2,
-      3,
-      5,
-      7
+      4,
+      6
     ],
     "set_type": "role",
     "set_description": "Tacticians",
@@ -185,11 +185,11 @@
     },
     "total_cost": 10,
     "points_array": [
+      0,
       1,
-      2,
-      4,
-      6,
-      7
+      3,
+      5,
+      6
     ],
     "set_type": "allegiance",
     "set_description": "Rebels heroes",
@@ -210,10 +210,10 @@
     },
     "total_cost": 9,
     "points_array": [
+      0,
       1,
-      2,
       4,
-      6,
+      5,
       7
     ],
     "set_type": "allegiance",
@@ -235,10 +235,10 @@
     },
     "total_cost": 9,
     "points_array": [
+      0,
       1,
       2,
-      3,
-      5
+      4
     ],
     "set_type": "role",
     "set_description": "Advisors",
@@ -259,11 +259,11 @@
     },
     "total_cost": 10,
     "points_array": [
+      0,
       1,
       2,
       4,
-      6,
-      8
+      6
     ],
     "set_type": "role_resource",
     "set_description": "Generals with 4+ Military",
@@ -290,11 +290,11 @@
     },
     "total_cost": 10,
     "points_array": [
+      0,
       1,
-      2,
-      4,
-      6,
-      8
+      3,
+      5,
+      7
     ],
     "set_type": "role_allegiance",
     "set_description": "Administrators from Wei/Wu/Shu",
@@ -322,11 +322,11 @@
     },
     "total_cost": 10,
     "points_array": [
+      0,
       1,
       2,
-      3,
-      6,
-      7
+      5,
+      6
     ],
     "set_type": "allegiance_multi",
     "set_description": "Coalition or Rebels heroes",
@@ -347,10 +347,10 @@
     },
     "total_cost": 10,
     "points_array": [
-      1,
-      1,
-      3,
-      5
+      0,
+      0,
+      2,
+      4
     ],
     "set_type": "unique_roles",
     "set_description": "Unique roles",
@@ -371,9 +371,9 @@
     },
     "total_cost": 10,
     "points_array": [
-      2,
-      4,
-      6
+      1,
+      3,
+      5
     ],
     "set_type": "pair",
     "set_description": "Pairs of Generals and Advisors",
@@ -394,9 +394,9 @@
     },
     "total_cost": 10,
     "points_array": [
-      3,
-      5,
-      7
+      2,
+      4,
+      6
     ],
     "set_type": "pair",
     "set_description": "Pairs of Tacticians and Administrators",
@@ -417,11 +417,11 @@
     },
     "total_cost": 10,
     "points_array": [
+      0,
       1,
       2,
-      3,
-      5,
-      6
+      4,
+      5
     ],
     "set_type": "allegiance",
     "set_description": "Shu heroes",
@@ -442,11 +442,11 @@
     },
     "total_cost": 10,
     "points_array": [
+      0,
       1,
       2,
-      3,
-      5,
-      6
+      4,
+      5
     ],
     "set_type": "allegiance",
     "set_description": "Wu heroes",
@@ -467,8 +467,8 @@
     },
     "total_cost": 10,
     "points_array": [
+      0,
       1,
-      2,
       3,
       5,
       6
@@ -492,9 +492,9 @@
     },
     "total_cost": 9,
     "points_array": [
-      1,
-      3,
-      5
+      0,
+      2,
+      4
     ],
     "set_type": "multi_allegiance_specific",
     "set_description": "One General from each of Wei, Wu and Shu",
@@ -515,9 +515,9 @@
     },
     "total_cost": 11,
     "points_array": [
-      3,
-      5,
-      7
+      2,
+      4,
+      6
     ],
     "set_type": "pair",
     "set_description": "Pairs of Tacticians and Generals",
@@ -538,10 +538,10 @@
     },
     "total_cost": 10,
     "points_array": [
-      1,
-      1,
-      3,
-      5
+      0,
+      0,
+      2,
+      4
     ],
     "set_type": "unique_allegiances",
     "set_description": "Unique allegiances",
@@ -562,12 +562,12 @@
     },
     "total_cost": 10,
     "points_array": [
+      0,
       1,
       2,
       3,
       4,
-      5,
-      6
+      5
     ],
     "set_type": "allegiance_exclude",
     "set_description": "Heroes not from Wei, Wu or Shu",
@@ -588,12 +588,12 @@
     },
     "total_cost": 8,
     "points_array": [
+      0,
       1,
       2,
-      3,
-      6,
-      7,
-      8
+      4,
+      5,
+      6
     ],
     "set_type": "role_allegiance_multi",
     "set_description": "Rebels or Dong Zhuo generals",
@@ -614,11 +614,11 @@
     },
     "total_cost": 10,
     "points_array": [
+      0,
       1,
-      2,
-      4,
-      6,
-      8
+      3,
+      5,
+      7
     ],
     "set_type": "role_allegiance",
     "set_description": "Generals from Shu",
@@ -645,11 +645,11 @@
     },
     "total_cost": 9,
     "points_array": [
+      0,
       1,
       2,
-      3,
-      6,
-      7
+      5,
+      6
     ],
     "set_type": "allegiance_multi",
     "set_description": "Han or Coalition heroes",
@@ -670,7 +670,7 @@
     },
     "total_cost": 10,
     "points_array": [
-      1,
+      0,
       2,
       4,
       6,
@@ -701,11 +701,11 @@
     },
     "total_cost": 10,
     "points_array": [
+      0,
       1,
       2,
       4,
-      6,
-      8
+      6
     ],
     "set_type": "resource_threshold",
     "set_description": "Heroes with 4+ Influence",
@@ -731,9 +731,9 @@
     },
     "total_cost": 10,
     "points_array": [
-      3,
-      5,
-      7
+      2,
+      4,
+      6
     ],
     "set_type": "pair",
     "set_description": "Pairs of Generals and Administrators",
@@ -754,10 +754,10 @@
     },
     "total_cost": 10,
     "points_array": [
-      1,
-      3,
-      5,
-      7
+      0,
+      2,
+      4,
+      6
     ],
     "set_type": "any_resource_threshold",
     "set_description": "Heroes with a resource stat of at least 4",
@@ -778,9 +778,9 @@
     },
     "total_cost": 10,
     "points_array": [
-      3,
-      5,
-      7
+      2,
+      4,
+      6
     ],
     "set_type": "pair",
     "set_description": "Pairs of Administrators and Advisors",
@@ -801,9 +801,9 @@
     },
     "total_cost": 10,
     "points_array": [
-      3,
-      5,
-      7
+      2,
+      4,
+      6
     ],
     "set_type": "pair",
     "set_description": "Pairs of Tacticians and Advisors",
@@ -824,11 +824,11 @@
     },
     "total_cost": 10,
     "points_array": [
+      0,
       1,
-      2,
-      4,
-      6,
-      8
+      3,
+      5,
+      7
     ],
     "set_type": "role_allegiance",
     "set_description": "Generals from Wu",
@@ -876,10 +876,10 @@
     },
     "total_cost": 8,
     "points_array": [
+      0,
       1,
-      2,
-      4,
-      6
+      3,
+      5
     ],
     "set_type": "mismatch",
     "set_description": "Heroes without any matching roles or allegiance",
@@ -900,11 +900,11 @@
     },
     "total_cost": 10,
     "points_array": [
+      0,
       1,
-      2,
-      4,
-      6,
-      8
+      3,
+      5,
+      7
     ],
     "set_type": "role_allegiance",
     "set_description": "Generals from Wei",
@@ -931,11 +931,11 @@
     },
     "total_cost": 10,
     "points_array": [
-      1,
-      3,
-      5,
-      7,
-      9
+      0,
+      2,
+      4,
+      6,
+      8
     ],
     "set_type": "roles_allegiance",
     "set_description": "Rebels Advisors, Tacticians, or Administrators",
@@ -962,7 +962,7 @@
     },
     "total_cost": 10,
     "points_array": [
-      1,
+      0,
       2,
       4,
       6,
@@ -993,10 +993,10 @@
     },
     "total_cost": 10,
     "points_array": [
+      0,
       1,
       2,
-      3,
-      4
+      3
     ],
     "set_type": "dual_role",
     "set_description": "Dual-role heroes",
@@ -1017,11 +1017,11 @@
     },
     "total_cost": 10,
     "points_array": [
+      0,
       1,
       2,
       4,
-      6,
-      8
+      6
     ],
     "set_type": "named_heroes",
     "set_description": "Female heroes",
