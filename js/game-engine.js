@@ -48,9 +48,27 @@ export class GameEngine {
         this.gameState.heroMarket = dataLoader.shuffle([...this.gameData.heroes]).slice(0, heroMarketSize + turn1Bonus);
         this.gameState.titleMarket = dataLoader.shuffle([...this.gameData.titles]).slice(0, playerCount + GAME_CONFIG.TITLE_MARKET_BONUS);
         
-        // Create players
+        // Shuffle provinces for random assignment
+        const shuffledProvinces = dataLoader.shuffle([...GAME_CONFIG.PROVINCES]);
+        
+        // Shuffle provincial units
+        const shuffledProvincialUnits = dataLoader.shuffle([...GAME_CONFIG.PROVINCIAL_UNITS]);
+        
+        // Create players with provinces and provincial units
         for (let i = 0; i < playerCount; i++) {
-            const player = new Player(i, `Player ${i + 1}`, this);
+            const province = shuffledProvinces[i];
+            const player = new Player(i, `Player ${i + 1}`, this, province);
+            
+            // Deal 2 provincial units, AI picks best
+            const option1 = shuffledProvincialUnits[i * 2];
+            const option2 = shuffledProvincialUnits[i * 2 + 1];
+            
+            if (option1 && option2) {
+                const totalStats1 = (option1.military || 0) + (option1.influence || 0) + (option1.supplies || 0) + (option1.piety || 0);
+                const totalStats2 = (option2.military || 0) + (option2.influence || 0) + (option2.supplies || 0) + (option2.piety || 0);
+                player.provincialUnit = totalStats1 >= totalStats2 ? {...option1} : {...option2};
+                player.hand.push(player.provincialUnit);
+            }
             
             // Give starting peasants
             for (let j = 0; j < 4; j++) {
@@ -61,6 +79,9 @@ export class GameEngine {
         }
         
         this.log(`🎮 Game started: ${playerCount} players, Event: ${this.gameState.currentEvent.name}`);
+        this.gameState.players.forEach(p => {
+            this.log(`  ${p.name}: ${p.province.name} (Priority ${p.province.priority}, +1 ${p.province.bonusResource}), Unit: ${p.provincialUnit?.name || 'None'}`);
+        });
     }
 
     async runFullGame() {
@@ -108,11 +129,18 @@ export class GameEngine {
         
         // Sort by turn order rules
         playerData.sort((a, b) => {
+            // 1. Most leading resource
             if (a.leadingValue !== b.leadingValue) return b.leadingValue - a.leadingValue;
+            
+            // 2. Most cards in kingdoms (Shu > Wu > Wei)
             if (a.shuCards !== b.shuCards) return b.shuCards - a.shuCards;
             if (a.wuCards !== b.wuCards) return b.wuCards - a.wuCards;
             if (a.weiCards !== b.weiCards) return b.weiCards - a.weiCards;
-            return a.index - b.index;
+            
+            // 3. Province priority (lower number = higher priority)
+            const aPriority = a.player.province?.priority || 999;
+            const bPriority = b.player.province?.priority || 999;
+            return aPriority - bPriority;
         });
         
         this.gameState.turnOrder = playerData.map(pd => pd.player);
@@ -187,6 +215,8 @@ export class GameEngine {
         
         console.log('Resource counts from events:', resourceCounts);
         
+        console.log('\n=== RESOURCE MAJORITY BONUSES ===');
+        
         GAME_CONFIG.RESOURCES.forEach(res => {
             const bonus = resourceCounts[res];
             if (bonus > 0) {
@@ -205,10 +235,15 @@ export class GameEngine {
                 });
                 
                 if (winners.length === 1) {
-                    console.log(`  ${winners[0].name} wins ${res} majority: +${bonus} points`);
+                    console.log(`  ✓ ${winners[0].name} wins ${res} majority: +${bonus} points`);
                     winners[0].score += bonus;
+                    
+                    // Track in stats
+                    if (this.statsManager) {
+                        this.statsManager.recordResourceMajority(res, bonus);
+                    }
                 } else {
-                    console.log(`  ${res} majority tied, no bonus awarded`);
+                    console.log(`  ✗ ${res} majority tied between ${winners.map(p => p.name).join(', ')}, no bonus awarded`);
                 }
             }
         });
