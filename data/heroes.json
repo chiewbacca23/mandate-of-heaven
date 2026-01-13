@@ -148,8 +148,8 @@
     ],
     "military": -1,
     "influence": 4,
-    "supplies": 0,
-    "piety": 3,
+    "supplies": 1,
+    "piety": 2,
     "effects": "+1 Military if you have a Shu General on the field",
     "set": "A"
   },
@@ -163,8 +163,8 @@
     ],
     "military": 4,
     "influence": -1,
-    "supplies": 0,
-    "piety": 3,
+    "supplies": 1,
+    "piety": 2,
     "effects": "+1 to any resource if not played in the kingdom of Wu",
     "set": "A"
   },
@@ -613,8 +613,8 @@
     ],
     "military": 1,
     "influence": 2,
-    "supplies": 2,
-    "piety": 3,
+    "supplies": 1,
+    "piety": 2,
     "effects": "Permanent: Does not count as any resources for buying. Instead, discount any 3 resources from your next purchase and immediately retire (without title)",
     "set": "A"
   },
@@ -1533,3 +1533,4 @@
     "set": "A"
   }
 ]
+
