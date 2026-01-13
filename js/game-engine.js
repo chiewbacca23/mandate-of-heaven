@@ -2,11 +2,13 @@
 
 import { Player } from './player.js';
 import { GAME_CONFIG, RESOURCE_ICONS, dataLoader } from './config.js';
+import { StatsManager } from './stats-manager.js';
 
 export class GameEngine {
-    constructor(gameData, logFunction) {
+    constructor(gameData, logFunction, statsManager = null) {
         this.gameData = gameData;
         this.log = logFunction || console.log;
+        this.statsManager = statsManager || new StatsManager();
         
         this.gameState = {
             players: [],
@@ -214,6 +216,9 @@ export class GameEngine {
         // Determine winner
         const sorted = [...this.gameState.players].sort((a, b) => b.score - a.score);
         const winner = sorted[0];
+        
+        // Record game in stats manager
+        this.statsManager.recordGame(this.gameState);
         
         // Update statistics
         this.gameState.stats.gamesPlayed++;
