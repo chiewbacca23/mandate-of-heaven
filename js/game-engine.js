@@ -117,21 +117,29 @@ export class GameEngine {
     }
 
     cleanupPhase() {
-        // Market cleanup - discard bottom 2 heroes
-        if (this.gameState.heroMarket.length >= GAME_CONFIG.HEROES_DISCARDED_PER_TURN) {
-            this.gameState.heroMarket.splice(-GAME_CONFIG.HEROES_DISCARDED_PER_TURN, GAME_CONFIG.HEROES_DISCARDED_PER_TURN);
+        const playerCount = this.gameState.players.length;
+        const baseHeroSize = playerCount === 2 ? GAME_CONFIG.HERO_MARKET_2P : GAME_CONFIG.HERO_MARKET_3P_PLUS;
+        
+        // Remove turn 1 bonus heroes after turn 1
+        const targetSize = this.gameState.turn === 1 ? baseHeroSize + GAME_CONFIG.TURN_1_BONUS_HEROES : baseHeroSize;
+        
+        // Discard bottom 2 heroes (or more if we're over target after purchases)
+        const toDiscard = Math.max(
+            GAME_CONFIG.HEROES_DISCARDED_PER_TURN,
+            this.gameState.heroMarket.length - baseHeroSize
+        );
+        
+        if (this.gameState.heroMarket.length >= toDiscard) {
+            this.gameState.heroMarket.splice(-toDiscard, toDiscard);
         }
         
-        // Refill markets
-        const playerCount = this.gameState.players.length;
-        const targetHeroSize = playerCount === 2 ? GAME_CONFIG.HERO_MARKET_2P : GAME_CONFIG.HERO_MARKET_3P_PLUS;
-        
+        // Refill to base size
         const availableHeroes = this.gameData.heroes.filter(h => 
             !this.gameState.heroMarket.some(mh => mh.id === h.id) && 
             !this.gameState.purchasedHeroes.some(ph => ph.id === h.id)
         );
         
-        while (this.gameState.heroMarket.length < targetHeroSize && availableHeroes.length > 0) {
+        while (this.gameState.heroMarket.length < baseHeroSize && availableHeroes.length > 0) {
             const randomIndex = Math.floor(Math.random() * availableHeroes.length);
             const newHero = availableHeroes.splice(randomIndex, 1)[0];
             this.gameState.heroMarket.push(newHero);
