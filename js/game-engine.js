@@ -176,7 +176,11 @@ export class GameEngine {
         // Resource majority bonuses
         const resourceCounts = { military: 0, influence: 0, supplies: 0, piety: 0 };
         this.gameState.events.forEach(event => {
-            resourceCounts[event.leadingResource]++;
+            // Normalize to lowercase to match GAME_CONFIG.RESOURCES
+            const resource = (event.leadingResource || '').toLowerCase();
+            if (resourceCounts[resource] !== undefined) {
+                resourceCounts[resource]++;
+            }
         });
         
         console.log('Resource counts from events:', resourceCounts);
