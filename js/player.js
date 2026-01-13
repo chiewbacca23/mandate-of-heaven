@@ -506,8 +506,22 @@ export class Player {
         const allHeroes = this.getAllHeroes();
         let collectionSize = 0;
         
+        // DEBUG: Log what we're working with
+        if (!title) {
+            console.error('calculateCollectionScore: title is null/undefined');
+            return { collectionSize: 0, points: 0 };
+        }
+        
         // Parse the setScoring field (e.g., "Generals: 0/1/2/3" or "Shu heroes: 0/1/2/4/5")
-        const setScoring = title.setScoring || title.Set_Scoring || '';
+        // Try multiple possible field names
+        const setScoring = title.setScoring || title.Set_Scoring || title['Set Scoring'] || title.setType || '';
+        
+        // DEBUG: Log first time we see what the actual structure is
+        if (this.id === 0 && this.titles.length === 1) {
+            console.log('TITLE STRUCTURE:', JSON.stringify(title, null, 2));
+            console.log('setScoring value:', setScoring);
+        }
+        
         const setType = setScoring.split(':')[0]?.trim().toLowerCase() || '';
         
         // Determine collection type
@@ -592,6 +606,13 @@ export class Player {
         const points = pointsArray.length > 0 ? pointsArray : (title.points || [0]);
         
         const pointIndex = Math.min(collectionSize, points.length - 1);
-        return { collectionSize, points: points[pointIndex] || 0 };
+        const finalPoints = points[pointIndex] || 0;
+        
+        // DEBUG: Log scoring calculation
+        if (this.id === 0 && this.titles.length <= 2) {
+            console.log(`Scoring "${title.name}": collection=${collectionSize}, points array=${JSON.stringify(points)}, awarded=${finalPoints}`);
+        }
+        
+        return { collectionSize, points: finalPoints };
     }
 }
