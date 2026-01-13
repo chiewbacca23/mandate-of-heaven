@@ -179,6 +179,8 @@ export class GameEngine {
             resourceCounts[event.leadingResource]++;
         });
         
+        console.log('Resource counts from events:', resourceCounts);
+        
         GAME_CONFIG.RESOURCES.forEach(res => {
             const bonus = resourceCounts[res];
             if (bonus > 0) {
@@ -187,6 +189,7 @@ export class GameEngine {
                 
                 this.gameState.players.forEach(player => {
                     const total = player.getTotalResources()[res];
+                    console.log(`  ${player.name} has ${total} ${res}`);
                     if (total > maxValue) {
                         maxValue = total;
                         winners = [player];
@@ -196,7 +199,10 @@ export class GameEngine {
                 });
                 
                 if (winners.length === 1) {
+                    console.log(`  ${winners[0].name} wins ${res} majority: +${bonus} points`);
                     winners[0].score += bonus;
+                } else {
+                    console.log(`  ${res} majority tied, no bonus awarded`);
                 }
             }
         });
