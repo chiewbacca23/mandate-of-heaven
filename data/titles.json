@@ -12,15 +12,15 @@
     },
     "total_cost": 10,
     "points_array": [
-      0,
       1,
+      2,
       3,
       5,
-      7
+      6
     ],
     "set_type": "allegiance",
     "set_description": "Han heroes",
-    "is_legendary": false,
+    "is_legendary": true,
     "named_legends": [],
     "legend_bonus": 0
   },
@@ -37,14 +37,14 @@
     },
     "total_cost": 8,
     "points_array": [
-      0,
       1,
       2,
-      3
+      3,
+      4
     ],
     "set_type": "role",
     "set_description": "Generals",
-    "is_legendary": false,
+    "is_legendary": true,
     "named_legends": [],
     "legend_bonus": 0
   },
@@ -61,15 +61,15 @@
     },
     "total_cost": 8,
     "points_array": [
-      0,
       1,
       2,
-      4,
-      5
+      3,
+      5,
+      6
     ],
     "set_type": "role_allegiance",
     "set_description": "Generals from Wei, Wu or Shu",
-    "is_legendary": false,
+    "is_legendary": true,
     "named_legends": [],
     "legend_bonus": 0
   },
@@ -86,15 +86,15 @@
     },
     "total_cost": 8,
     "points_array": [
-      0,
       1,
       2,
-      4,
-      5
+      3,
+      5,
+      6
     ],
     "set_type": "role",
     "set_description": "Administrators",
-    "is_legendary": false,
+    "is_legendary": true,
     "named_legends": [],
     "legend_bonus": 0
   },
@@ -111,14 +111,14 @@
     },
     "total_cost": 9,
     "points_array": [
-      0,
       1,
       2,
-      4
+      3,
+      5
     ],
     "set_type": "allegiance_multi",
     "set_description": "Han or Dong Zhuo heroes",
-    "is_legendary": false,
+    "is_legendary": true,
     "named_legends": [],
     "legend_bonus": 0
   },
@@ -135,15 +135,15 @@
     },
     "total_cost": 9,
     "points_array": [
-      0,
+      1,
       2,
-      4,
+      5,
       6,
       8
     ],
     "set_type": "allegiance",
     "set_description": "Dong Zhuo heroes",
-    "is_legendary": false,
+    "is_legendary": true,
     "named_legends": [],
     "legend_bonus": 0
   },
@@ -160,15 +160,15 @@
     },
     "total_cost": 8,
     "points_array": [
-      0,
       1,
       2,
-      4,
-      6
+      3,
+      5,
+      7
     ],
     "set_type": "role",
     "set_description": "Tacticians",
-    "is_legendary": false,
+    "is_legendary": true,
     "named_legends": [],
     "legend_bonus": 0
   },
@@ -185,15 +185,15 @@
     },
     "total_cost": 10,
     "points_array": [
-      0,
       1,
-      3,
-      5,
-      6
+      2,
+      4,
+      6,
+      7
     ],
     "set_type": "allegiance",
     "set_description": "Rebels heroes",
-    "is_legendary": false,
+    "is_legendary": true,
     "named_legends": [],
     "legend_bonus": 0
   },
@@ -210,15 +210,15 @@
     },
     "total_cost": 9,
     "points_array": [
-      0,
       1,
+      2,
       4,
-      5,
+      6,
       7
     ],
     "set_type": "allegiance",
     "set_description": "Coalition heroes",
-    "is_legendary": false,
+    "is_legendary": true,
     "named_legends": [],
     "legend_bonus": 0
   },
@@ -235,14 +235,14 @@
     },
     "total_cost": 9,
     "points_array": [
-      0,
       1,
       2,
-      4
+      3,
+      5
     ],
     "set_type": "role",
     "set_description": "Advisors",
-    "is_legendary": false,
+    "is_legendary": true,
     "named_legends": [],
     "legend_bonus": 0
   },
@@ -259,11 +259,11 @@
     },
     "total_cost": 10,
     "points_array": [
-      0,
       1,
       2,
       4,
-      6
+      6,
+      8
     ],
     "set_type": "role_resource",
     "set_description": "Generals with 4+ Military",
@@ -290,11 +290,11 @@
     },
     "total_cost": 10,
     "points_array": [
-      0,
       1,
-      3,
-      5,
-      7
+      2,
+      4,
+      6,
+      8
     ],
     "set_type": "role_allegiance",
     "set_description": "Administrators from Wei/Wu/Shu",
@@ -322,15 +322,15 @@
     },
     "total_cost": 10,
     "points_array": [
-      0,
       1,
       2,
-      5,
-      6
+      3,
+      6,
+      7
     ],
     "set_type": "allegiance_multi",
     "set_description": "Coalition or Rebels heroes",
-    "is_legendary": false,
+    "is_legendary": true,
     "named_legends": [],
     "legend_bonus": 0
   },
@@ -347,14 +347,14 @@
     },
     "total_cost": 10,
     "points_array": [
-      0,
-      0,
-      2,
-      4
+      1,
+      1,
+      3,
+      5
     ],
     "set_type": "unique_roles",
     "set_description": "Unique roles",
-    "is_legendary": false,
+    "is_legendary": true,
     "named_legends": [],
     "legend_bonus": 0
   },
@@ -371,13 +371,13 @@
     },
     "total_cost": 10,
     "points_array": [
-      1,
-      3,
-      5
+      2,
+      4,
+      6
     ],
     "set_type": "pair",
     "set_description": "Pairs of Generals and Advisors",
-    "is_legendary": false,
+    "is_legendary": true,
     "named_legends": [],
     "legend_bonus": 0
   },
@@ -394,13 +394,13 @@
     },
     "total_cost": 10,
     "points_array": [
-      2,
-      4,
-      6
+      3,
+      5,
+      7
     ],
     "set_type": "pair",
     "set_description": "Pairs of Tacticians and Administrators",
-    "is_legendary": false,
+    "is_legendary": true,
     "named_legends": [],
     "legend_bonus": 0
   },
@@ -417,15 +417,15 @@
     },
     "total_cost": 10,
     "points_array": [
-      0,
       1,
       2,
-      4,
-      5
+      3,
+      5,
+      6
     ],
     "set_type": "allegiance",
     "set_description": "Shu heroes",
-    "is_legendary": false,
+    "is_legendary": true,
     "named_legends": [],
     "legend_bonus": 0
   },
@@ -442,15 +442,15 @@
     },
     "total_cost": 10,
     "points_array": [
-      0,
       1,
       2,
-      4,
-      5
+      3,
+      5,
+      6
     ],
     "set_type": "allegiance",
     "set_description": "Wu heroes",
-    "is_legendary": false,
+    "is_legendary": true,
     "named_legends": [],
     "legend_bonus": 0
   },
@@ -467,15 +467,15 @@
     },
     "total_cost": 10,
     "points_array": [
-      0,
       1,
+      2,
       3,
       5,
       6
     ],
     "set_type": "allegiance",
     "set_description": "Wei heroes",
-    "is_legendary": false,
+    "is_legendary": true,
     "named_legends": [],
     "legend_bonus": 0
   },
@@ -492,13 +492,13 @@
     },
     "total_cost": 9,
     "points_array": [
-      0,
-      2,
-      4
+      1,
+      3,
+      5
     ],
     "set_type": "multi_allegiance_specific",
     "set_description": "One General from each of Wei, Wu and Shu",
-    "is_legendary": false,
+    "is_legendary": true,
     "named_legends": [],
     "legend_bonus": 0
   },
@@ -515,13 +515,13 @@
     },
     "total_cost": 11,
     "points_array": [
-      2,
-      4,
-      6
+      3,
+      5,
+      7
     ],
     "set_type": "pair",
     "set_description": "Pairs of Tacticians and Generals",
-    "is_legendary": false,
+    "is_legendary": true,
     "named_legends": [],
     "legend_bonus": 0
   },
@@ -538,14 +538,14 @@
     },
     "total_cost": 10,
     "points_array": [
-      0,
-      0,
-      2,
-      4
+      1,
+      1,
+      3,
+      5
     ],
     "set_type": "unique_allegiances",
     "set_description": "Unique allegiances",
-    "is_legendary": false,
+    "is_legendary": true,
     "named_legends": [],
     "legend_bonus": 0
   },
@@ -562,16 +562,16 @@
     },
     "total_cost": 10,
     "points_array": [
-      0,
       1,
       2,
       3,
       4,
-      5
+      5,
+      6
     ],
     "set_type": "allegiance_exclude",
     "set_description": "Heroes not from Wei, Wu or Shu",
-    "is_legendary": false,
+    "is_legendary": true,
     "named_legends": [],
     "legend_bonus": 0
   },
@@ -588,16 +588,16 @@
     },
     "total_cost": 8,
     "points_array": [
-      0,
       1,
       2,
-      4,
-      5,
-      6
+      3,
+      6,
+      7,
+      8
     ],
     "set_type": "role_allegiance_multi",
     "set_description": "Rebels or Dong Zhuo generals",
-    "is_legendary": false,
+    "is_legendary": true,
     "named_legends": [],
     "legend_bonus": 0
   },
@@ -614,11 +614,11 @@
     },
     "total_cost": 10,
     "points_array": [
-      0,
       1,
-      3,
-      5,
-      7
+      2,
+      4,
+      6,
+      8
     ],
     "set_type": "role_allegiance",
     "set_description": "Generals from Shu",
@@ -645,15 +645,15 @@
     },
     "total_cost": 9,
     "points_array": [
-      0,
       1,
       2,
-      5,
-      6
+      3,
+      6,
+      7
     ],
     "set_type": "allegiance_multi",
     "set_description": "Han or Coalition heroes",
-    "is_legendary": false,
+    "is_legendary": true,
     "named_legends": [],
     "legend_bonus": 0
   },
@@ -670,7 +670,7 @@
     },
     "total_cost": 10,
     "points_array": [
-      0,
+      1,
       2,
       4,
       6,
@@ -701,11 +701,11 @@
     },
     "total_cost": 10,
     "points_array": [
-      0,
       1,
       2,
       4,
-      6
+      6,
+      8
     ],
     "set_type": "resource_threshold",
     "set_description": "Heroes with 4+ Influence",
@@ -731,13 +731,13 @@
     },
     "total_cost": 10,
     "points_array": [
-      2,
-      4,
-      6
+      3,
+      5,
+      7
     ],
     "set_type": "pair",
     "set_description": "Pairs of Generals and Administrators",
-    "is_legendary": false,
+    "is_legendary": true,
     "named_legends": [],
     "legend_bonus": 0
   },
@@ -754,14 +754,14 @@
     },
     "total_cost": 10,
     "points_array": [
-      0,
-      2,
-      4,
-      6
+      1,
+      3,
+      5,
+      7
     ],
     "set_type": "any_resource_threshold",
     "set_description": "Heroes with a resource stat of at least 4",
-    "is_legendary": false,
+    "is_legendary": true,
     "named_legends": [],
     "legend_bonus": 0
   },
@@ -778,13 +778,13 @@
     },
     "total_cost": 10,
     "points_array": [
-      2,
-      4,
-      6
+      3,
+      5,
+      7
     ],
     "set_type": "pair",
     "set_description": "Pairs of Administrators and Advisors",
-    "is_legendary": false,
+    "is_legendary": true,
     "named_legends": [],
     "legend_bonus": 0
   },
@@ -801,13 +801,13 @@
     },
     "total_cost": 10,
     "points_array": [
-      2,
-      4,
-      6
+      3,
+      5,
+      7
     ],
     "set_type": "pair",
     "set_description": "Pairs of Tacticians and Advisors",
-    "is_legendary": false,
+    "is_legendary": true,
     "named_legends": [],
     "legend_bonus": 0
   },
@@ -824,11 +824,11 @@
     },
     "total_cost": 10,
     "points_array": [
-      0,
       1,
-      3,
-      5,
-      7
+      2,
+      4,
+      6,
+      8
     ],
     "set_type": "role_allegiance",
     "set_description": "Generals from Wu",
@@ -859,7 +859,7 @@
     ],
     "set_type": "copy_opponent",
     "set_description": "Copies set bonus of another player's title",
-    "is_legendary": false,
+    "is_legendary": true,
     "named_legends": [],
     "legend_bonus": 0
   },
@@ -876,14 +876,14 @@
     },
     "total_cost": 8,
     "points_array": [
-      0,
       1,
-      3,
-      5
+      2,
+      4,
+      6
     ],
     "set_type": "mismatch",
     "set_description": "Heroes without any matching roles or allegiance",
-    "is_legendary": false,
+    "is_legendary": true,
     "named_legends": [],
     "legend_bonus": 0
   },
@@ -900,11 +900,11 @@
     },
     "total_cost": 10,
     "points_array": [
-      0,
       1,
-      3,
-      5,
-      7
+      2,
+      4,
+      6,
+      8
     ],
     "set_type": "role_allegiance",
     "set_description": "Generals from Wei",
@@ -931,11 +931,11 @@
     },
     "total_cost": 10,
     "points_array": [
-      0,
-      2,
-      4,
-      6,
-      8
+      1,
+      3,
+      5,
+      7,
+      9
     ],
     "set_type": "roles_allegiance",
     "set_description": "Rebels Advisors, Tacticians, or Administrators",
@@ -962,7 +962,7 @@
     },
     "total_cost": 10,
     "points_array": [
-      0,
+      1,
       2,
       4,
       6,
@@ -993,14 +993,14 @@
     },
     "total_cost": 10,
     "points_array": [
-      0,
       1,
       2,
-      3
+      3,
+      4
     ],
     "set_type": "dual_role",
     "set_description": "Dual-role heroes",
-    "is_legendary": false,
+    "is_legendary": true,
     "named_legends": [],
     "legend_bonus": 0
   },
@@ -1017,11 +1017,11 @@
     },
     "total_cost": 10,
     "points_array": [
-      0,
       1,
       2,
       4,
-      6
+      6,
+      8
     ],
     "set_type": "named_heroes",
     "set_description": "Female heroes",
