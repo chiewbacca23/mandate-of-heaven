@@ -339,7 +339,7 @@ export class Player {
             }
             
             if (chosenPurchase) {
-                const success = this.executePurchase(chosenPurchase, emergencyUsed);
+                const success = this.executePurchase(chosenPurchase, emergencyUsed, tempBonus);
                 if (success) purchased = true;
             } else {
                 // Nothing affordable - consider emergency resources
@@ -415,17 +415,34 @@ export class Player {
         if (!purchased) this.returnCardsToHand();
     }
 
-    executePurchase(purchase, emergencyUsed) {
+    executePurchase(purchase, emergencyUsed, tempBonus = {}) {
         if (purchase.type === 'title') {
             const title = purchase.item;
             const heroToRetire = this.findEligibleHero(title);
             
             if (heroToRetire && this.removeHeroFromPlay(heroToRetire)) {
+                // Find which cards were used for this purchase
+                const usedCards = this.findUsableCardsForPurchase(title.cost || {}, tempBonus);
+                
+                // Remove used cards from battlefield and return to hand (except retired hero)
+                if (usedCards) {
+                    usedCards.forEach(card => {
+                        if (card !== heroToRetire) {
+                            GAME_CONFIG.KINGDOMS.forEach(k => {
+                                const idx = this.battlefield[k].indexOf(card);
+                                if (idx > -1) {
+                                    this.battlefield[k].splice(idx, 1);
+                                    this.hand.push(card);
+                                }
+                            });
+                        }
+                    });
+                }
+                
                 this.retiredHeroes.push(heroToRetire);
                 this.titles.push({ title, retiredWith: heroToRetire });
                 this.gameEngine.gameState.titleMarket = this.gameEngine.gameState.titleMarket.filter(t => t !== title);
                 this.gameEngine.gameState.stats.totalTitles++;
-                this.returnCardsToHand();
                 
                 const emerg = emergencyUsed > 0 ? ` (+${emergencyUsed} emergency)` : '';
                 this.gameEngine.log(`${this.name} → "${title.name}"${emerg}`);
@@ -433,11 +450,27 @@ export class Player {
             }
         } else {
             const hero = purchase.item;
+            
+            // Find which cards were used for this purchase
+            const usedCards = this.findUsableCardsForPurchase(hero.cost || {}, tempBonus);
+            
+            // Remove used cards from battlefield and return to hand
+            if (usedCards) {
+                usedCards.forEach(card => {
+                    GAME_CONFIG.KINGDOMS.forEach(k => {
+                        const idx = this.battlefield[k].indexOf(card);
+                        if (idx > -1) {
+                            this.battlefield[k].splice(idx, 1);
+                            this.hand.push(card);
+                        }
+                    });
+                });
+            }
+            
             this.hand.push({...hero});
             this.gameEngine.gameState.heroMarket = this.gameEngine.gameState.heroMarket.filter(h => h !== hero);
             this.gameEngine.gameState.purchasedHeroes.push(hero);
             this.gameEngine.gameState.stats.totalHeroes++;
-            this.returnCardsToHand();
             
             const emerg = emergencyUsed > 0 ? ` (+${emergencyUsed} emergency)` : '';
             this.gameEngine.log(`${this.name} → ${hero.name}${emerg}`);
