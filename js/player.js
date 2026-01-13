@@ -1,4 +1,4 @@
-// js/player.js - Enhanced Player Class for Real Game Data
+// js/player.js - Enhanced Player Class with PurchaseManager Integration
 import { GAME_CONFIG, RESOURCE_ICONS, KINGDOM_BONUSES } from './config.js';
 
 export class Player {
@@ -12,6 +12,14 @@ export class Player {
         this.titles = [];
         this.retiredHeroes = [];
         this.emergencyUsed = 0;
+        
+        // Reference to PurchaseManager if available
+        this.purchaseManager = null;
+    }
+
+    // Set purchase manager (called after initialization)
+    setPurchaseManager(purchaseManager) {
+        this.purchaseManager = purchaseManager;
     }
 
     // Get all heroes owned by player (hand + battlefield + retired)
@@ -160,12 +168,6 @@ export class Player {
             return;
         }
 
-        // Analyze available purchases to inform deployment
-        const marketTargets = [
-            ...this.gameEngine.gameState.heroMarket,
-            ...this.gameEngine.gameState.titleMarket
-        ];
-        
         const deployed = [];
         const availableCards = [...this.hand];
         
@@ -254,8 +256,58 @@ export class Player {
         return availableKingdoms[Math.floor(Math.random() * availableKingdoms.length)];
     }
 
-    // Enhanced purchase logic using real game data
+    // Enhanced purchase logic with PurchaseManager integration
     makePurchase(turnNumber) {
+        // DEFENSIVE CHECK: If PurchaseManager is available, use it
+        if (this.purchaseManager) {
+            try {
+                const decision = this.purchaseManager.makeAIPurchase(
+                    this,
+                    this.gameEngine.gameState.heroMarket,
+                    this.gameEngine.gameState.titleMarket,
+                    this.gameEngine.gameState
+                );
+                
+                // DEFENSIVE CHECK: Ensure decision is valid
+                if (!decision || !decision.action) {
+                    this.gameEngine.log(`${this.name} passes turn - no valid purchase decision`);
+                    this.returnCardsToHand();
+                    this.gameEngine.gameState.stats.totalPasses++;
+                    return;
+                }
+                
+                // Execute the decision
+                if (decision.action === 'pass') {
+                    this.gameEngine.log(`${this.name} passes turn - ${decision.reason || 'no affordable options'}`);
+                    this.returnCardsToHand();
+                    this.gameEngine.gameState.stats.totalPasses++;
+                    return;
+                }
+                
+                // Execute purchase using PurchaseManager
+                this.purchaseManager.executePurchase(
+                    this,
+                    decision,
+                    this.gameEngine.gameState.heroMarket,
+                    this.gameEngine.gameState.titleMarket
+                );
+                
+                return;
+                
+            } catch (error) {
+                this.gameEngine.log(`${this.name} purchase error: ${error.message}`, 'error');
+                this.returnCardsToHand();
+                this.gameEngine.gameState.stats.totalPasses++;
+                return;
+            }
+        }
+        
+        // FALLBACK: Use legacy purchase system if PurchaseManager not available
+        this.makePurchaseLegacy(turnNumber);
+    }
+
+    // Legacy purchase system (fallback)
+    makePurchaseLegacy(turnNumber) {
         let purchased = false;
         let emergencyUsed = 0;
         let tempBonus = { military: 0, influence: 0, supplies: 0, piety: 0 };
