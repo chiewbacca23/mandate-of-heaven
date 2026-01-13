@@ -324,11 +324,6 @@
                 
                 const avgTitles = (stats.titles / stats.games).toFixed(1);
                 document.getElementById('avgTitles').textContent = avgTitles;
-                
-                const avgHeroes = (stats.games > 0) ? (gameEngineInstance.gameState.stats.totalHeroes / stats.games).toFixed(1) : '-';
-                if (document.getElementById('avgHeroes')) {
-                    document.getElementById('avgHeroes').textContent = avgHeroes;
-                }
             }
         }
 
