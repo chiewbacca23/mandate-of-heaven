@@ -3,7 +3,7 @@
 import { GAME_CONFIG, RESOURCE_ICONS, KINGDOM_BONUSES } from './config.js';
 
 export class Player {
-    constructor(id, name, gameEngine) {
+    constructor(id, name, gameEngine, province = null) {
         this.id = id;
         this.name = name;
         this.gameEngine = gameEngine;
@@ -13,6 +13,8 @@ export class Player {
         this.titles = [];
         this.retiredHeroes = [];
         this.emergencyUsed = 0;
+        this.province = province;  // { id, name, priority, bonusResource, bonusValue }
+        this.provincialUnit = null;  // Will be assigned during setup
     }
 
     getAllHeroes() {
@@ -46,6 +48,9 @@ export class Player {
             });
         });
         
+        // NOTE: Province passive bonus is NOT included here
+        // Province bonus only applies to purchases, NOT turn order calculation
+        
         GAME_CONFIG.KINGDOMS.forEach(kingdom => {
             if (this.battlefield[kingdom].length >= 2) {
                 const bonus = KINGDOM_BONUSES[kingdom];
@@ -56,6 +61,18 @@ export class Player {
         GAME_CONFIG.RESOURCES.forEach(res => {
             resources[res] += tempBonus[res] || 0;
         });
+        
+        return resources;
+    }
+
+    // Calculate resources FOR PURCHASES (includes province passive bonus)
+    calculatePurchaseResources(tempBonus = {}) {
+        let resources = this.calculateBattlefieldResources(tempBonus);
+        
+        // Add province passive bonus for purchases
+        if (this.province) {
+            resources[this.province.bonusResource] += this.province.bonusValue;
+        }
         
         return resources;
     }
@@ -158,6 +175,11 @@ export class Player {
         GAME_CONFIG.RESOURCES.forEach(res => {
             resources[res] += tempBonus[res] || 0;
         });
+        
+        // Add province passive bonus for purchases
+        if (this.province) {
+            resources[this.province.bonusResource] += this.province.bonusValue;
+        }
         
         return resources;
     }
