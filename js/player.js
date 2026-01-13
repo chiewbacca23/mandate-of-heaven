@@ -1,4 +1,4 @@
-// js/player.js - Enhanced Player Class with PurchaseManager Integration
+// js/player.js - Player Class (Legacy System Only - NO PurchaseManager)
 import { GAME_CONFIG, RESOURCE_ICONS, KINGDOM_BONUSES } from './config.js';
 
 export class Player {
@@ -12,14 +12,6 @@ export class Player {
         this.titles = [];
         this.retiredHeroes = [];
         this.emergencyUsed = 0;
-        
-        // Reference to PurchaseManager if available
-        this.purchaseManager = null;
-    }
-
-    // Set purchase manager (called after initialization)
-    setPurchaseManager(purchaseManager) {
-        this.purchaseManager = purchaseManager;
     }
 
     // Get all heroes owned by player (hand + battlefield + retired)
@@ -79,7 +71,7 @@ export class Player {
         return GAME_CONFIG.RESOURCES.every(res => resources[res] >= (cost[res] || 0));
     }
 
-    // Find a hero that meets title requirements (enhanced for real data)
+    // Find a hero that meets title requirements
     findEligibleHero(title) {
         const allAvailable = [
             ...this.hand,
@@ -92,7 +84,6 @@ export class Player {
         
         if (heroesOnly.length === 0) return null;
         
-        // Enhanced requirement checking based on actual title requirements
         const requirement = title.requirement || title.Required_Hero || '';
         
         // Check for specific named heroes first
@@ -139,7 +130,7 @@ export class Player {
             }
         }
         
-        // Check for resource-based requirements (e.g., "at least 3 military")
+        // Check for resource-based requirements
         if (requirement.includes('at least')) {
             const resourceMatches = GAME_CONFIG.RESOURCES.filter(res => {
                 if (requirement.includes(res)) {
@@ -159,7 +150,7 @@ export class Player {
         return heroesOnly[0];
     }
 
-    // Deploy cards to battlefield with enhanced AI
+    // Deploy cards to battlefield
     deployCards(strategy = 'strategic') {
         const availableToPlay = Math.min(GAME_CONFIG.MAX_DEPLOYMENT_PER_TURN, this.hand.length);
         
@@ -173,11 +164,9 @@ export class Player {
         
         // Sort cards by strategic value
         availableCards.sort((a, b) => {
-            // Prefer non-peasants
             const aPeasant = a.name.includes('Peasant') ? 0 : 10;
             const bPeasant = b.name.includes('Peasant') ? 0 : 10;
             
-            // Calculate total positive resources
             const aTotal = Math.max(0, a.military || 0) + Math.max(0, a.influence || 0) + 
                           Math.max(0, a.supplies || 0) + Math.max(0, a.piety || 0);
             const bTotal = Math.max(0, b.military || 0) + Math.max(0, b.influence || 0) + 
@@ -192,15 +181,12 @@ export class Player {
             
             if (handIndex > -1) {
                 this.hand.splice(handIndex, 1);
-                
-                // Choose kingdom strategically
                 const kingdom = this.chooseBestKingdom(card, strategy);
                 
                 if (this.battlefield[kingdom].length < GAME_CONFIG.MAX_CARDS_PER_KINGDOM) {
                     this.battlefield[kingdom].push(card);
                     deployed.push(`${card.name} to ${kingdom.toUpperCase()}`);
                 } else {
-                    // Kingdom full, try another
                     const availableKingdoms = GAME_CONFIG.KINGDOMS.filter(k => 
                         this.battlefield[k].length < GAME_CONFIG.MAX_CARDS_PER_KINGDOM
                     );
@@ -209,7 +195,6 @@ export class Player {
                         this.battlefield[fallbackKingdom].push(card);
                         deployed.push(`${card.name} to ${fallbackKingdom.toUpperCase()}`);
                     } else {
-                        // All kingdoms full, return to hand
                         this.hand.push(card);
                     }
                 }
@@ -229,13 +214,11 @@ export class Player {
             this.battlefield[k].length < GAME_CONFIG.MAX_CARDS_PER_KINGDOM
         );
         
-        if (availableKingdoms.length === 0) return 'wei'; // Fallback
+        if (availableKingdoms.length === 0) return 'wei';
         
         if (strategy === 'strategic') {
-            // Try to get column bonuses
             const almostBonus = availableKingdoms.filter(k => this.battlefield[k].length === 1);
             if (almostBonus.length > 0) {
-                // Choose based on what bonus would be most useful
                 const currentEvent = this.gameEngine.gameState.currentEvent;
                 if (currentEvent) {
                     const neededResource = currentEvent.leadingResource;
@@ -245,76 +228,23 @@ export class Player {
                 return almostBonus[0];
             }
             
-            // Place in empty kingdoms first for flexibility
             const emptyKingdoms = availableKingdoms.filter(k => this.battlefield[k].length === 0);
             if (emptyKingdoms.length > 0) {
                 return emptyKingdoms[0];
             }
         }
         
-        // Random fallback
         return availableKingdoms[Math.floor(Math.random() * availableKingdoms.length)];
     }
 
-    // Enhanced purchase logic with PurchaseManager integration
+    // Main purchase logic - SIMPLIFIED, NO PurchaseManager
     makePurchase(turnNumber) {
-        // DEFENSIVE CHECK: If PurchaseManager is available, use it
-        if (this.purchaseManager) {
-            try {
-                const decision = this.purchaseManager.makeAIPurchase(
-                    this,
-                    this.gameEngine.gameState.heroMarket,
-                    this.gameEngine.gameState.titleMarket,
-                    this.gameEngine.gameState
-                );
-                
-                // DEFENSIVE CHECK: Ensure decision is valid
-                if (!decision || !decision.action) {
-                    this.gameEngine.log(`${this.name} passes turn - no valid purchase decision`);
-                    this.returnCardsToHand();
-                    this.gameEngine.gameState.stats.totalPasses++;
-                    return;
-                }
-                
-                // Execute the decision
-                if (decision.action === 'pass') {
-                    this.gameEngine.log(`${this.name} passes turn - ${decision.reason || 'no affordable options'}`);
-                    this.returnCardsToHand();
-                    this.gameEngine.gameState.stats.totalPasses++;
-                    return;
-                }
-                
-                // Execute purchase using PurchaseManager
-                this.purchaseManager.executePurchase(
-                    this,
-                    decision,
-                    this.gameEngine.gameState.heroMarket,
-                    this.gameEngine.gameState.titleMarket
-                );
-                
-                return;
-                
-            } catch (error) {
-                this.gameEngine.log(`${this.name} purchase error: ${error.message}`, 'error');
-                this.returnCardsToHand();
-                this.gameEngine.gameState.stats.totalPasses++;
-                return;
-            }
-        }
-        
-        // FALLBACK: Use legacy purchase system if PurchaseManager not available
-        this.makePurchaseLegacy(turnNumber);
-    }
-
-    // Legacy purchase system (fallback)
-    makePurchaseLegacy(turnNumber) {
         let purchased = false;
         let emergencyUsed = 0;
         let tempBonus = { military: 0, influence: 0, supplies: 0, piety: 0 };
         
         const preferTitles = turnNumber > 3 || this.titles.length < 2;
         
-        // Try to buy without emergency resources first
         while (!purchased && emergencyUsed < GAME_CONFIG.MAX_EMERGENCY_USES) {
             const affordableHeroes = this.gameEngine.gameState.heroMarket.filter(h => 
                 this.canAfford(h.cost || {}, tempBonus)
@@ -325,9 +255,7 @@ export class Player {
             
             let chosenPurchase = null;
             
-            // Smart selection logic
             if (preferTitles && affordableTitles.length > 0) {
-                // Choose title with best immediate scoring potential
                 const scoredTitles = affordableTitles.map(title => {
                     const { collectionSize, points } = this.calculateCollectionScore(title);
                     return { title, expectedPoints: points, collectionSize };
@@ -337,20 +265,15 @@ export class Player {
                 chosenPurchase = { type: 'title', item: scoredTitles[0].title };
                 
             } else if (affordableHeroes.length > 0) {
-                // Choose hero with best total stats and synergy
                 const scoredHeroes = affordableHeroes.map(hero => {
                     let score = 0;
-                    
-                    // Base stat value
                     GAME_CONFIG.RESOURCES.forEach(res => {
                         score += Math.max(0, hero[res] || 0) * 2;
                     });
                     
-                    // Allegiance synergy bonus
                     const sameAllegiance = this.getAllHeroes().filter(h => h.allegiance === hero.allegiance).length;
                     score += sameAllegiance * 3;
                     
-                    // Role diversity bonus
                     const hasRole = this.getAllHeroes().some(h => 
                         h.roles && hero.roles && h.roles.some(r => hero.roles.includes(r))
                     );
@@ -367,20 +290,17 @@ export class Player {
             }
             
             if (chosenPurchase) {
-                // Execute the purchase
                 const success = this.executePurchase(chosenPurchase, emergencyUsed);
                 if (success) {
                     purchased = true;
                 }
             } else {
-                // Try emergency resources for high-value targets
                 if (emergencyUsed >= 2) {
                     this.gameEngine.log(`${this.name} passes turn - too many emergency attempts`);
                     this.gameEngine.gameState.stats.totalPasses++;
                     break;
                 }
                 
-                // Find the best target we're close to affording
                 const allItems = [...this.gameEngine.gameState.heroMarket, ...this.gameEngine.gameState.titleMarket];
                 const currentResources = this.calculateBattlefieldResources(tempBonus);
                 
@@ -388,7 +308,7 @@ export class Player {
                 let minDeficit = Infinity;
                 
                 allItems.forEach(item => {
-                    if (item.points && !this.findEligibleHero(item)) return; // Skip titles with no eligible hero
+                    if (item.points && !this.findEligibleHero(item)) return;
                     
                     let totalDeficit = 0;
                     GAME_CONFIG.RESOURCES.forEach(res => {
@@ -403,7 +323,6 @@ export class Player {
                 });
                 
                 if (bestTarget && minDeficit <= 2) {
-                    // Add emergency resources strategically
                     tempBonus.military += 1;
                     tempBonus.influence += 1;
                     emergencyUsed++;
@@ -420,13 +339,12 @@ export class Player {
             }
         }
         
-        // Return cards to hand even if didn't purchase
         if (!purchased) {
             this.returnCardsToHand();
         }
     }
 
-    // Execute a purchase (hero or title)
+    // Execute a purchase
     executePurchase(purchase, emergencyUsed) {
         if (purchase.type === 'title') {
             const title = purchase.item;
@@ -436,11 +354,9 @@ export class Player {
                 this.retiredHeroes.push(heroToRetire);
                 this.titles.push({ title: title, retiredWith: heroToRetire });
                 
-                // Remove title from market
                 this.gameEngine.gameState.titleMarket = this.gameEngine.gameState.titleMarket.filter(t => t !== title);
                 this.gameEngine.gameState.stats.totalTitles++;
                 
-                // Return cards to hand
                 this.returnCardsToHand();
                 
                 const emergencyText = emergencyUsed > 0 ? ` (${emergencyUsed} emergency used)` : '';
@@ -453,12 +369,10 @@ export class Player {
             const hero = purchase.item;
             this.hand.push({...hero});
             
-            // Remove hero from market
             this.gameEngine.gameState.heroMarket = this.gameEngine.gameState.heroMarket.filter(h => h !== hero);
             this.gameEngine.gameState.purchasedHeroes.push(hero);
             this.gameEngine.gameState.stats.totalHeroes++;
             
-            // Return cards to hand
             this.returnCardsToHand();
             
             const emergencyText = emergencyUsed > 0 ? ` (${emergencyUsed} emergency used)` : '';
@@ -474,13 +388,11 @@ export class Player {
     removeHeroFromPlay(hero) {
         let removed = false;
         
-        // Try hand first
         const handIdx = this.hand.indexOf(hero);
         if (handIdx > -1) {
             this.hand.splice(handIdx, 1);
             removed = true;
         } else {
-            // Try battlefield
             GAME_CONFIG.KINGDOMS.forEach(k => {
                 const idx = this.battlefield[k].indexOf(hero);
                 if (idx > -1) {
@@ -501,12 +413,11 @@ export class Player {
         });
     }
 
-    // Enhanced collection scoring for real title data
+    // Calculate collection score for titles
     calculateCollectionScore(title) {
         const allHeroes = this.getAllHeroes();
         let collectionSize = 0;
         
-        // Use actual title setType from data if available
         const setType = title.setType || title.Set_Scoring || '';
         
         switch(setType.toLowerCase()) {
@@ -555,11 +466,9 @@ export class Player {
                 collectionSize = allHeroes.filter(h => femaleNames.includes(h.name)).length;
                 break;
             default:
-                // Fallback: Use total hero count limited by title points array length
                 collectionSize = Math.min(allHeroes.length, (title.points || [0]).length - 1);
         }
         
-        // Handle set scoring array (points based on collection size)
         const points = title.points || title.Set_Scoring || [0];
         const pointIndex = Math.min(collectionSize, points.length - 1);
         
@@ -569,7 +478,7 @@ export class Player {
         };
     }
 
-    // Get player summary for display
+    // Get player summary
     getSummary() {
         const resources = this.calculateBattlefieldResources();
         const totalHeroes = this.getAllHeroes().length;
