@@ -630,7 +630,14 @@ export class Player {
         
         // Use points_array from JSON (NOT points)
         const pointsArray = title.points_array || title.points || [0];
-        const pointIndex = Math.min(collectionSize, pointsArray.length - 1);
+        
+        // Handle zero collection
+        if (collectionSize === 0) {
+            return { collectionSize: 0, points: 0 };
+        }
+        
+        // FIXED: Use collectionSize - 1 as index (1 hero = index 0, 2 heroes = index 1, etc.)
+        const pointIndex = Math.min(collectionSize - 1, pointsArray.length - 1);
         const finalPoints = pointsArray[pointIndex] || 0;
         
         // Add legend bonus if applicable
