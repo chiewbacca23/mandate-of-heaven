@@ -24,7 +24,7 @@
     "lore": "We dare not hope to be together always but hereby vow to die on the same day",
     "eventCards": "Zhang Fei and Guan Yu enter play",
     "effects": "Players can only use up to 3 cards for their purchases",
-    "leadingResource": "Piety"
+    "leadingResource": "Influence"
   },
   {
     "id": 3,
@@ -132,7 +132,7 @@
     "lore": "Written inside: By Heaven's mandate: long life and everlasting prosperity",
     "eventCards": "Liu Biao and Sun Jian enter play",
     "effects": "Players must play at least 1 card in Wu this turn",
-    "leadingResource": "Piety"
+    "leadingResource": "Military"
   },
   {
     "id": 15,
@@ -186,7 +186,7 @@
     "lore": "The prince of Chenliu is installed, while Emperor Shao is deposed",
     "eventCards": "",
     "effects": "Titles are unavailable for purchase this turn",
-    "leadingResource": "Piety"
+    "leadingResource": "Supplies"
   },
   {
     "id": 21,
