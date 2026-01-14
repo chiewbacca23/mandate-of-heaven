@@ -776,7 +776,7 @@
     "roles": [
       "General"
     ],
-    "military": 1,
+    "military": 2,
     "influence": 3,
     "supplies": 1,
     "piety": 0,
@@ -804,6 +804,7 @@
     "lore": "General of Dong Zhuo",
     "allegiance": "Dong Zhuo",
     "roles": [
+      "General",
       "Tactician"
     ],
     "military": 2,
@@ -821,7 +822,7 @@
     "roles": [
       "General"
     ],
-    "military": 2,
+    "military": 3,
     "influence": 0,
     "supplies": 3,
     "piety": 0,
@@ -836,8 +837,8 @@
     "roles": [
       "General"
     ],
-    "military": 2,
-    "influence": 3,
+    "military": 3,
+    "influence": 2,
     "supplies": 0,
     "piety": 0,
     "effects": "",
@@ -852,7 +853,7 @@
       "Advisor"
     ],
     "military": 1,
-    "influence": 2,
+    "influence": 3,
     "supplies": 2,
     "piety": 0,
     "effects": "",
@@ -864,10 +865,11 @@
     "lore": "Advisor to Dong Zhuo",
     "allegiance": "Dong Zhuo",
     "roles": [
-      "General"
+      "General",
+      "Advisor"
     ],
     "military": 2,
-    "influence": 2,
+    "influence": 3,
     "supplies": 1,
     "piety": 0,
     "effects": "",
@@ -881,8 +883,8 @@
     "roles": [
       "General"
     ],
-    "military": 2,
-    "influence": 3,
+    "military": 3,
+    "influence": 2,
     "supplies": 0,
     "piety": 0,
     "effects": "",
@@ -894,11 +896,12 @@
     "lore": "Zhang Ji's nephew",
     "allegiance": "Dong Zhuo",
     "roles": [
-      "General"
+      "General",
+      "Tactician"
     ],
     "military": 1,
     "influence": 2,
-    "supplies": 2,
+    "supplies": 3,
     "piety": 0,
     "effects": "",
     "set": "B"
@@ -1533,4 +1536,5 @@
     "set": "A"
   }
 ]
+
 
