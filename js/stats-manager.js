@@ -89,10 +89,38 @@ export class StatsManager {
             
             // Resource majority bonuses
             resourceMajorityStats: {
-                military: { wins: 0, totalBonus: 0 },
-                influence: { wins: 0, totalBonus: 0 },
-                supplies: { wins: 0, totalBonus: 0 },
-                piety: { wins: 0, totalBonus: 0 }
+                military: { wins: 0, totalBonus: 0, totalValue: 0, games: 0 },
+                influence: { wins: 0, totalBonus: 0, totalValue: 0, games: 0 },
+                supplies: { wins: 0, totalBonus: 0, totalValue: 0, games: 0 },
+                piety: { wins: 0, totalBonus: 0, totalValue: 0, games: 0 }
+            },
+            
+            // Provincial unit analysis
+            provincialUnitStats: {
+                // unitName: {
+                //     timesUsed: count,
+                //     wins: count,
+                //     totalScore: sum,
+                //     gamesWithUnit: count
+                // }
+            },
+            
+            // Home province analysis
+            homeProvinceStats: {
+                // provinceName: {
+                //     timesAssigned: count,
+                //     wins: count,
+                //     totalScore: sum
+                // }
+            },
+            
+            // Resource totals tracking
+            resourceTotals: {
+                military: 0,
+                influence: 0,
+                supplies: 0,
+                piety: 0,
+                gamesTracked: 0
             }
         };
     }
@@ -105,9 +133,38 @@ export class StatsManager {
         const sortedPlayers = [...gameState.players].sort((a, b) => b.score - a.score);
         const winner = sortedPlayers[0];
         
+        // Track events used this game
+        const eventNames = gameState.events.map(e => e.name).join(', ');
+        
+        // Log detailed game summary
+        console.log(`\n=== GAME ${this.stats.gamesPlayed} SUMMARY ===`);
+        console.log(`Events: ${eventNames}`);
+        console.log(`Winner: ${winner.name} (${winner.score} points)`);
+        
+        // Log province assignments
+        console.log('\nProvince Assignments:');
+        gameState.players.forEach(p => {
+            console.log(`  ${p.name}: ${p.province.name} (Priority ${p.province.priority}), Unit: ${p.provincialUnit?.name || 'None'}`);
+        });
+        
+        console.log('\nPlayer Scores:');
+        
         gameState.players.forEach((player, index) => {
             const playerPosition = index + 1;
             const isWinner = player === winner;
+            
+            // Calculate title points
+            let titlePoints = 0;
+            player.titles.forEach(titleEntry => {
+                const { points } = player.calculateCollectionScore(titleEntry.title);
+                titlePoints += points;
+            });
+            
+            // Resource bonuses would be: score - titlePoints - emergencyPenalty
+            const resourcePoints = player.score - titlePoints + player.emergencyUsed;
+            
+            console.log(`${player.name}: ${player.score} pts = ${titlePoints} (titles) + ${resourcePoints} (resources) - ${player.emergencyUsed} (emergency)`);
+            console.log(`  Titles: ${player.titles.map(t => t.title.name).join(', ')}`);
             
             // Player position stats
             const posStats = this.stats.playerPositionStats[playerPosition];
@@ -139,6 +196,22 @@ export class StatsManager {
             // Faction analysis
             this.recordFactionStats(allHeroes, player.titles, isWinner);
             
+            // Provincial unit stats
+            if (player.provincialUnit) {
+                this.recordProvincialUnit(player.provincialUnit, isWinner, player.score);
+            }
+            
+            // Home province stats
+            if (player.province) {
+                this.recordHomeProvince(player.province, isWinner, player.score);
+            }
+            
+            // Resource totals (for end-game majority analysis)
+            const finalResources = player.getTotalResources();
+            ['military', 'influence', 'supplies', 'piety'].forEach(res => {
+                this.stats.resourceTotals[res] += finalResources[res];
+            });
+            
             // Emergency resource stats
             if (player.emergencyUsed > 0) {
                 this.stats.emergencyStats.totalUsed += player.emergencyUsed;
@@ -148,6 +221,9 @@ export class StatsManager {
                 }
             }
         });
+        
+        // Increment resource totals game counter
+        this.stats.resourceTotals.gamesTracked++;
         
         // Calculate emergency average
         this.stats.emergencyStats.avgPerGame = 
@@ -240,6 +316,44 @@ export class StatsManager {
         });
     }
 
+    recordProvincialUnit(unit, isWinner, score) {
+        const unitName = unit.name;
+        
+        if (!this.stats.provincialUnitStats[unitName]) {
+            this.stats.provincialUnitStats[unitName] = {
+                timesUsed: 0,
+                wins: 0,
+                totalScore: 0,
+                gamesWithUnit: 0
+            };
+        }
+        
+        this.stats.provincialUnitStats[unitName].timesUsed++;
+        this.stats.provincialUnitStats[unitName].gamesWithUnit++;
+        this.stats.provincialUnitStats[unitName].totalScore += score;
+        if (isWinner) {
+            this.stats.provincialUnitStats[unitName].wins++;
+        }
+    }
+
+    recordHomeProvince(province, isWinner, score) {
+        const provinceName = province.name;
+        
+        if (!this.stats.homeProvinceStats[provinceName]) {
+            this.stats.homeProvinceStats[provinceName] = {
+                timesAssigned: 0,
+                wins: 0,
+                totalScore: 0
+            };
+        }
+        
+        this.stats.homeProvinceStats[provinceName].timesAssigned++;
+        this.stats.homeProvinceStats[provinceName].totalScore += score;
+        if (isWinner) {
+            this.stats.homeProvinceStats[provinceName].wins++;
+        }
+    }
+
     recordPass(turn) {
         if (this.stats.passByTurn[turn]) {
             this.stats.passByTurn[turn].passes++;
@@ -268,6 +382,9 @@ export class StatsManager {
             heroAnalysis: this.analyzeHeroes(),
             factionAnalysis: this.analyzeFactions(),
             playerPositionAnalysis: this.analyzePlayerPositions(),
+            provincialUnitAnalysis: this.analyzeProvincialUnits(),
+            homeProvinceAnalysis: this.analyzeHomeProvinces(),
+            resourceAnalysis: this.analyzeResources(),
             scoreDistribution: this.stats.scoreDistribution,
             emergencyAnalysis: this.analyzeEmergency(),
             passAnalysis: this.analyzePassRates()
@@ -278,16 +395,21 @@ export class StatsManager {
 
     generateSummary() {
         const avgScore = this.stats.totalScores.reduce((a, b) => a + b, 0) / this.stats.totalScores.length;
+        const totalPlayers = this.stats.totalScores.length; // Total player-games
+        const totalTitles = Object.values(this.stats.titleStats).reduce((sum, t) => sum + t.acquired, 0);
+        const totalHeroes = Object.values(this.stats.heroStats).reduce((sum, h) => sum + h.purchased, 0);
         
         return {
             gamesPlayed: this.stats.gamesPlayed,
             averageScore: avgScore.toFixed(2),
             minScore: Math.min(...this.stats.totalScores),
             maxScore: Math.max(...this.stats.totalScores),
-            totalTitlesAcquired: Object.values(this.stats.titleStats).reduce((sum, t) => sum + t.acquired, 0),
-            totalHeroesPurchased: Object.values(this.stats.heroStats).reduce((sum, h) => sum + h.purchased, 0),
-            avgTitlesPerGame: (Object.values(this.stats.titleStats).reduce((sum, t) => sum + t.acquired, 0) / this.stats.gamesPlayed).toFixed(2),
-            avgHeroesPerGame: (Object.values(this.stats.heroStats).reduce((sum, h) => sum + h.purchased, 0) / this.stats.gamesPlayed).toFixed(2)
+            totalTitlesAcquired: totalTitles,
+            totalHeroesPurchased: totalHeroes,
+            avgTitlesPerPlayer: (totalTitles / totalPlayers).toFixed(2),
+            avgHeroesPerPlayer: (totalHeroes / totalPlayers).toFixed(2),
+            avgTitlesPerGame: (totalTitles / this.stats.gamesPlayed).toFixed(2),
+            avgHeroesPerGame: (totalHeroes / this.stats.gamesPlayed).toFixed(2)
         };
     }
 
@@ -325,10 +447,16 @@ export class StatsManager {
             }))
             .sort((a, b) => b.timesPurchased - a.timesPurchased);
         
+        // Sort by win rate for analysis (minimum 10 purchases to be meaningful)
+        const meaningfulHeroes = heroes.filter(h => h.timesPurchased >= 10);
+        const byWinRate = [...meaningfulHeroes].sort((a, b) => parseFloat(b.winRate) - parseFloat(a.winRate));
+        
         return {
-            topHeroes: heroes.slice(0, 20),
-            neverPurchased: heroes.filter(h => h.timesPurchased === 0).map(h => h.name),
-            highWinRate: heroes.filter(h => parseFloat(h.winRate) > 60 && h.timesPurchased > 5)
+            topHeroes: heroes.slice(0, 20), // Most purchased
+            allHeroes: heroes, // Complete list for detailed analysis
+            highWinRate: byWinRate.slice(0, 20), // Top 20 by win rate
+            lowWinRate: byWinRate.slice(-20).reverse(), // Bottom 20 by win rate
+            neverPurchased: heroes.filter(h => h.timesPurchased === 0).map(h => h.name)
         };
     }
 
@@ -374,6 +502,86 @@ export class StatsManager {
                 passes: stats.passes,
                 opportunities: stats.opportunities
             }));
+    }
+
+    analyzeProvincialUnits() {
+        const units = Object.entries(this.stats.provincialUnitStats)
+            .map(([name, stats]) => ({
+                name,
+                timesUsed: stats.timesUsed,
+                winRate: stats.gamesWithUnit > 0 ? ((stats.wins / stats.gamesWithUnit) * 100).toFixed(1) : 0,
+                avgScore: stats.gamesWithUnit > 0 ? (stats.totalScore / stats.gamesWithUnit).toFixed(2) : 0,
+                gamesWithUnit: stats.gamesWithUnit
+            }))
+            .sort((a, b) => b.timesUsed - a.timesUsed);
+        
+        return {
+            allUnits: units,
+            highWinRate: units.filter(u => parseFloat(u.winRate) > 55 && u.gamesWithUnit >= 10),
+            lowWinRate: units.filter(u => parseFloat(u.winRate) < 45 && u.gamesWithUnit >= 10)
+        };
+    }
+
+    analyzeHomeProvinces() {
+        const provinces = Object.entries(this.stats.homeProvinceStats)
+            .map(([name, stats]) => ({
+                name,
+                timesAssigned: stats.timesAssigned,
+                winRate: stats.timesAssigned > 0 ? ((stats.wins / stats.timesAssigned) * 100).toFixed(1) : 0,
+                avgScore: stats.timesAssigned > 0 ? (stats.totalScore / stats.timesAssigned).toFixed(2) : 0
+            }))
+            .sort((a, b) => b.timesAssigned - a.timesAssigned);
+        
+        return {
+            allProvinces: provinces,
+            highWinRate: provinces.filter(p => parseFloat(p.winRate) > 55),
+            lowWinRate: provinces.filter(p => parseFloat(p.winRate) < 45)
+        };
+    }
+
+    analyzeResources() {
+        const totalPlayers = this.stats.resourceTotals.gamesTracked;
+        if (totalPlayers === 0) {
+            return {
+                avgFinalResources: { military: 0, influence: 0, supplies: 0, piety: 0 },
+                resourceMajorityBonuses: {}
+            };
+        }
+        
+        return {
+            avgFinalResources: {
+                military: (this.stats.resourceTotals.military / totalPlayers).toFixed(2),
+                influence: (this.stats.resourceTotals.influence / totalPlayers).toFixed(2),
+                supplies: (this.stats.resourceTotals.supplies / totalPlayers).toFixed(2),
+                piety: (this.stats.resourceTotals.piety / totalPlayers).toFixed(2)
+            },
+            resourceMajorityBonuses: {
+                military: {
+                    wins: this.stats.resourceMajorityStats.military.wins,
+                    avgBonus: this.stats.resourceMajorityStats.military.wins > 0 
+                        ? (this.stats.resourceMajorityStats.military.totalBonus / this.stats.resourceMajorityStats.military.wins).toFixed(2)
+                        : 0
+                },
+                influence: {
+                    wins: this.stats.resourceMajorityStats.influence.wins,
+                    avgBonus: this.stats.resourceMajorityStats.influence.wins > 0
+                        ? (this.stats.resourceMajorityStats.influence.totalBonus / this.stats.resourceMajorityStats.influence.wins).toFixed(2)
+                        : 0
+                },
+                supplies: {
+                    wins: this.stats.resourceMajorityStats.supplies.wins,
+                    avgBonus: this.stats.resourceMajorityStats.supplies.wins > 0
+                        ? (this.stats.resourceMajorityStats.supplies.totalBonus / this.stats.resourceMajorityStats.supplies.wins).toFixed(2)
+                        : 0
+                },
+                piety: {
+                    wins: this.stats.resourceMajorityStats.piety.wins,
+                    avgBonus: this.stats.resourceMajorityStats.piety.wins > 0
+                        ? (this.stats.resourceMajorityStats.piety.totalBonus / this.stats.resourceMajorityStats.piety.wins).toFixed(2)
+                        : 0
+                }
+            }
+        };
     }
 
     // Export to JSON
