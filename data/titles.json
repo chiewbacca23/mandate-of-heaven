@@ -14,9 +14,9 @@
     "points_array": [
       1,
       2,
-      3,
-      5,
-      6
+      4,
+      6,
+      7
     ],
     "set_type": "allegiance",
     "set_description": "Han heroes",
@@ -137,9 +137,9 @@
     "points_array": [
       1,
       2,
-      5,
+      4,
       6,
-      8
+      9
     ],
     "set_type": "allegiance",
     "set_description": "Dong Zhuo heroes",
@@ -262,8 +262,8 @@
       1,
       2,
       4,
-      6,
-      8
+      5,
+      6
     ],
     "set_type": "role_resource",
     "set_description": "Generals with 4+ Military",
@@ -590,10 +590,10 @@
     "points_array": [
       1,
       2,
-      3,
+      4,
       6,
-      7,
-      8
+      8,
+      9
     ],
     "set_type": "role_allegiance_multi",
     "set_description": "Rebels or Dong Zhuo generals",
@@ -671,9 +671,9 @@
     "total_cost": 10,
     "points_array": [
       1,
-      2,
-      4,
-      6,
+      3,
+      5,
+      7,
       8
     ],
     "set_type": "roles_allegiance",
@@ -704,8 +704,8 @@
       1,
       2,
       4,
-      6,
-      8
+      5,
+      6
     ],
     "set_type": "resource_threshold",
     "set_description": "Heroes with 4+ Influence",
