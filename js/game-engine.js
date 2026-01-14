@@ -84,8 +84,8 @@ export class GameEngine {
         });
     }
 
-    async runFullGame() {
-        this.startNewGame(2);
+    async runFullGame(playerCount = 2) {
+        this.startNewGame(playerCount);
         
         while (this.gameState.turn <= GAME_CONFIG.MAX_TURNS) {
             await this.runTurn();
